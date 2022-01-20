@@ -1,0 +1,31 @@
+---
+- name: Create pre-snapshots
+  ios_config:
+    backup: yes
+    backup_options:
+      filename: "{{ hostname }}_before.cfg"
+      dir_path: "backup/cisco_config.{{ datetime }}"
+  tags:
+    - nondry
+
+- name: Check template rendering result (Edge)
+  debug:
+    msg: "{{ lookup('template', 'overwrite.cfg.j2') }}"
+  tags:
+    - develop
+    - rendering
+
+- name: Update interface configurations (Edge)
+  ios_config:
+    src: overwrite.cfg.j2
+    save_when: modified
+  when: "'EDGE-SW' in group_names"
+
+- name: Create post-snapshots
+  ios_config:
+    backup: yes
+    backup_options:
+      filename: "{{ hostname }}_after.cfg"
+      dir_path: "backup/cisco_config.{{ datetime }}"
+  tags:
+    - nondry

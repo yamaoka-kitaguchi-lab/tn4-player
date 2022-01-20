@@ -1,0 +1,49 @@
+---
+- name: Display all variables and facts known for a host
+  debug:
+    var: hostvars[inventory_hostname]
+  tags:
+    - develop
+    - verbose
+
+- name: Create backup directory
+  ansible.builtin.file:
+    path: "backup/cisco_config.{{ datetime }}"
+    state: directory
+  register: local_dir
+  delegate_to: localhost
+  tags:
+    - nondry
+
+- name: Create pre-snapshots
+  ios_config:
+    backup: yes
+    backup_options:
+      filename: "{{ hostname }}_before.cfg"
+      dir_path: "backup/cisco_config.{{ datetime }}"
+  tags:
+    - nondry
+
+- name: Check template rendering result (Edge)
+  debug:
+    msg: "{{ lookup('template', 'interface_edge.cfg.j2') }}"
+  tags:
+    - develop
+    - rendering
+
+- name: Update interface configurations (Edge)
+  ios_config:
+    src: interface_edge.cfg.j2
+    save_when: modified
+  when: "'EDGE-SW' in group_names"
+  diff: no
+  no_log: yes
+
+- name: Create post-snapshots
+  ios_config:
+    backup: yes
+    backup_options:
+      filename: "{{ hostname }}_after.cfg"
+      dir_path: "backup/cisco_config.{{ datetime }}"
+  tags:
+    - nondry

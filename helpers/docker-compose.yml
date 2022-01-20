@@ -1,0 +1,10 @@
+version: '3.7'
+services:
+  batfish:
+    image: batfish/batfish:latest
+    container_name: batfish
+    network_mode: host
+    volumes:
+      - batfish:/data
+volumes:
+  batfish:

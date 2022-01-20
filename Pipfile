@@ -1,0 +1,29 @@
+[[source]]
+url        = "https://pypi.org/simple"
+verify_ssl = true
+name       = "pypi"
+
+[packages]
+ansible      = "~=4.1"
+pybatfish    = "*"
+pyyaml       = "*"
+requests     = "*"
+gspread      = "*"
+oauth2client = "*"
+pynetbox     = "*"
+paramiko     = "*"
+ncclient     = "*"
+openpyxl     = "*"
+
+[dev-packages]
+
+[requires]
+
+[scripts]
+seed      = 'python3 ./helpers/seed.py'
+render    = 'ansible-playbook -v --tags rendering site.yml'
+develop   = 'ansible-playbook -vvvv --skip-tags overwrite site.yml'
+dryrun    = 'ansible-playbook -vvvv --check --skip-tags overwrite,nondry site.yml'
+migrate   = 'ansible-playbook -v --tags migrate --skip-tags develop site.yml'
+password  = 'ansible-playbook -v --tags password --skip-tags develop site.yml'
+overwrite = 'ansible-playbook -v --tags overwrite --skip-tags develop site.yml'
