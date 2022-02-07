@@ -18,6 +18,7 @@ openpyxl     = "*"
 [dev-packages]
 
 [requires]
+python_version = "3.10"
 
 [scripts]
 seed      = 'python3 ./helpers/seed.py'
