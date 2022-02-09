@@ -21,8 +21,8 @@ openpyxl     = "*"
 #python_version = "3.10"
 
 [scripts]
-develop   = 'ansible-playbook -vvvv --skip-tags overwrite site.yml'
-render    = 'ansible-playbook -v --tags rendering site.yml'
-dryrun    = 'ansible-playbook -v --check --skip-tags overwrite,nondry site.yml'
-migrate   = 'ansible-playbook -v --tags migrate --skip-tags develop site.yml'
-overwrite = 'ansible-playbook -v --tags overwrite --skip-tags develop site.yml'
+develop   = 'OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES ansible-playbook -vvvv --skip-tags overwrite site.yml'
+render    = 'OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES ansible-playbook -v --tags rendering site.yml'
+dryrun    = 'OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES ansible-playbook -v --check --skip-tags overwrite,nondry site.yml'
+migrate   = 'OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES ansible-playbook -v --tags migrate --skip-tags develop site.yml'
+overwrite = 'OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES ansible-playbook -v --tags overwrite --skip-tags develop site.yml'
