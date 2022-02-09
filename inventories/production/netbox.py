@@ -78,8 +78,8 @@ class NetBoxClient:
 
 class DevConfig:
   VLAN_GROUP                = "titanet"
-  DEV_ROLE_EDGE             = "edge-sw"
-  DEV_ROLE_CORE             = "core-sw"
+  DEV_ROLE_EDGE             = "edge_sw"
+  DEV_ROLE_CORE             = "core_sw"
   REGION_OOKAYAMA           = "ookayama"
   REGION_SUZUKAKE           = "suzukake"
   REGION_TAMACHI            = "tamachi"
