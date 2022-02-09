@@ -40,6 +40,8 @@ interface {{ interface }}
 {% endif %}
 {% if prop.physical and prop.poe %}
  power inline auto
+{% else %}
+ power inline never
 {% endif %}
 {% endif %}
 {% endfor %}
