@@ -35,7 +35,7 @@
   ios_config:
     src: interface_edge.cfg.j2
     save_when: modified
-  when: "'EDGE-SW' in group_names"
+  when: "'edge_sw' in group_names"
   diff: no
   no_log: yes
 

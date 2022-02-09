@@ -1,5 +1,5 @@
 ---
-- name: "Automated Tn4 Deployment (see: https://github.com/yamaoka-kitaguchi-lab/tn4-edges-deploy)"
+- name: "Automated Tn4 Deployment (see: https://github.com/yamaoka-kitaguchi-lab/tn4-player)"
   hosts: all
   gather_facts: no
 
