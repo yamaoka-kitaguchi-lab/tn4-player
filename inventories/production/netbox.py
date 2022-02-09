@@ -546,7 +546,7 @@ def dynamic_inventory():
 
   for device in devices:
     hostname = device["hostname"]
-    role = device["role"]
+    group = device["role"]
     try:
       inventory[group]["hosts"].append(hostname)
     except KeyError:
