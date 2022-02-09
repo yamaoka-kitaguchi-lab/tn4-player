@@ -97,6 +97,10 @@ class DevConfig:
   TAG_PROTECT               = "protect"
   TAG_UPLINK                = "uplink"
   TAG_POE                   = "poe"
+  TAG_BPDU_FILTER           = "bpdu-filter"
+  TAG_SPEED_10M             = "speed-10m"
+  TAG_SPEED_100M            = "speed-100m"
+  TAG_SPEED_1G              = "speed-1g"
 
 
   def __init__(self, netbox_cli):
