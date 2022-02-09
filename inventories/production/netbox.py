@@ -381,6 +381,7 @@ class DevConfig:
         "speed_100m":   is_100m_port,
         "speed_1g":     is_1g_port,
         "speed_10g":    is_10g_port,
+        "bpdu_filter":  is_bpdu_filtered_port,
         "vlan_mode":    vlan_mode,
         "vids":         vids,
         "removed_vids": removed_vids_packed,
