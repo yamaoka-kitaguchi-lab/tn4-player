@@ -325,6 +325,11 @@ class DevConfig:
       is_lag_member_port = prop["lag"] is not None
       is_upstream_port = DevConfig.TAG_UPLINK in prop["tags"]
       is_poe_port = DevConfig.TAG_POE in prop["tags"]
+      is_10m_port = DevConfig.TAG_SPEED_10M in prop["tags"]
+      is_100m_port = DevConfig.TAG_SPEED_100M in prop["tags"]
+      is_1g_port = DevConfig.TAG_SPEED_1G in prop["tags"]
+      is_10g_port = DevConfig.TAG_SPEED_1G in prop["tags"]
+      is_bpdu_filtered_port = DevConfig.TAG_BPDU_FILTER in prop["tags"]
 
       if not is_target_iftype or is_protected:
         continue
@@ -372,7 +377,10 @@ class DevConfig:
         "description":  description,
         "lag_member":   is_lag_member_port,
         "poe":          is_poe_port,
-        "auto_speed":   True,
+        "speed_10m":    is_10m_port,
+        "speed_100m":   is_100m_port,
+        "speed_1g":     is_1g_port,
+        "speed_10g":    is_10g_port,
         "vlan_mode":    vlan_mode,
         "vids":         vids,
         "removed_vids": removed_vids_packed,
