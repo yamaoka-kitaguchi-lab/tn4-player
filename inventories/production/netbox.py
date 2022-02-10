@@ -79,7 +79,7 @@ class NetBoxClient:
 
   def get_all_addresses(self, use_cache=True):
     if not use_cache or not self.all_addresses:
-      self.all_interfaces = self.query("/ipam/ip-addresses/")
+      self.all_addresses = self.query("/ipam/ip-addresses/")
       for address in self.all_addresses:
         address["tags"] = [tag["slug"] for tag in address["tags"]]
     return self.all_addresses
@@ -395,9 +395,9 @@ class DevConfig:
       addr4, addr6 = [], []
       for addr in addresses:
         if addr["family"]["label"] == "IPv4":
-          addr4.append(addr)
+          addr4.append(addr["address"])
         if addr["family"]["label"] == "IPv6":
-          addr6.append(addr)
+          addr6.append(addr["address"])
 
       interfaces[ifname] = {
         "physical":     not is_lag_port,
