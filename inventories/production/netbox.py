@@ -27,6 +27,7 @@ class NetBoxClient:
     self.all_vlans = []
     self.all_devices = []
     self.all_interfaces = []
+    self.all_addresses = []
 
 
   def query(self, request_path):
@@ -76,6 +77,14 @@ class NetBoxClient:
     return self.all_interfaces
 
 
+  def get_all_addresses(self, use_cache=True):
+    if not use_cache or not self.all_addresses:
+      self.all_interfaces = self.query("/ipam/ip-addresses/")
+      for address in self.all_addresses:
+        address["tags"] = [tag["slug"] for tag in address["tags"]]
+    return self.all_addresses
+
+
 class DevConfig:
   VLAN_GROUP                = "titanet"
   DEV_ROLE_EDGE             = "edge_sw"
@@ -108,6 +117,7 @@ class DevConfig:
     self.all_vlans = self.__filter_vlan_group(netbox_cli.get_all_vlans())
     self.all_devices = self.__filter_active_devices(netbox_cli.get_all_devices())
     self.all_interfaces = self.__group_by_device(netbox_cli.get_all_interfaces())
+    self.all_addresses = self.__resolve_by_obj_id(netbox_cli.get_all_addresses())
     self.__all_core_mclag_interfaces = None  # cache
 
 
@@ -200,6 +210,16 @@ class DevConfig:
       if vlan["vid"] == vid:
         return vlan["name"]
     return None
+
+
+  def __resolve_by_obj_id(self, addresses):
+    resolved = {}
+    for address in addresses:
+      try:
+        resolved[address["assigned_object_id"]].append(address)
+      except KeyError:
+        resolved[address["assigned_object_id"]] = [address]
+    return resolved
 
 
   def get_region(self, site):
@@ -337,6 +357,7 @@ class DevConfig:
       description = prop["description"]
       is_vlan_port = prop["mode"] is not None
       vlan_mode, native_vid, vids, is_trunk_all = None, None, [], False
+      addresses = self.all_addresses.get(prop["id"], [])
 
       if is_upstream_port:
         vlan_mode = "trunk"
@@ -388,6 +409,7 @@ class DevConfig:
         "native_vid":   native_vid,
         "trunk_all":    is_trunk_all,
         "skip_delete":  is_upstream_port,
+        "addresses":    addresses,
       }
 
     return interfaces
