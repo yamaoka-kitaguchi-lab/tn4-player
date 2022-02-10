@@ -68,4 +68,19 @@ set interfaces {{ interface }} unit 0 family ethernet-switching vlan members {{ 
 {% if prop.native_vid %}
 set interfaces {{ interface }} native-vlan-id {{ prop.native_vid }}
 {% endif %}
+
+{% if prop.addresses4 %}
+delete interfaces {{ interface }} unit 0 family inet
+{% for ip in prop.addresses4 %}
+set interfaces {{ interface }} unit 0 family inet address {{ ip }}
+{% endfor %}
+{% endif %}
+
+{% if prop.addresses6 %}
+delete interfaces {{ interface }} unit 0 family inet6
+{% for ip in prop.addresses6 %}
+set interfaces {{ interface }} unit 0 family inet6 address {{ ip }}
+{% endfor %}
+{% endif %}
+
 {% endfor %}
