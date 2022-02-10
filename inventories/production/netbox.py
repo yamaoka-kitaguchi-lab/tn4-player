@@ -357,7 +357,6 @@ class DevConfig:
       description = prop["description"]
       is_vlan_port = prop["mode"] is not None
       vlan_mode, native_vid, vids, is_trunk_all = None, None, [], False
-      addresses = self.all_addresses.get(prop["id"], [])
 
       if is_upstream_port:
         vlan_mode = "trunk"
@@ -392,6 +391,14 @@ class DevConfig:
       removed_vids = [vid for vid in range(1,4095) if vid not in vids]
       removed_vids_packed = [removed_vids[i:i+20] for i in range(0, len(removed_vids), 20)]
 
+      addresses = self.all_addresses.get(prop["id"], [])
+      addr4, addr6 = [], []
+      for addr in addresses:
+        if addr["family"]["label"] == "IPv4":
+          addr4.append(addr)
+        if addr["family"]["label"] == "IPv6":
+          addr6.append(addr)
+
       interfaces[ifname] = {
         "physical":     not is_lag_port,
         "enabled":      prop["enabled"] or is_upstream_port,
@@ -409,7 +416,8 @@ class DevConfig:
         "native_vid":   native_vid,
         "trunk_all":    is_trunk_all,
         "skip_delete":  is_upstream_port,
-        "addresses":    addresses,
+        "addresses4":   addr4,
+        "addresses6":   addr6,
       }
 
     return interfaces
