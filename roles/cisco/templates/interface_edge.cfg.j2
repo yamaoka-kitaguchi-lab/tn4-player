@@ -4,6 +4,7 @@ vlan {{ vlan.vid }}
  name {{ vlan.name }}
 {% endif %}
 {% endfor %}
+
 {% for interface, prop in interfaces.items() %}
 {% if not prop.lag_member %}
 interface {{ interface }}
