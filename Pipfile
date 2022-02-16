@@ -24,5 +24,5 @@ openpyxl     = "*"
 develop   = 'ansible-playbook -vvvv --skip-tags overwrite site.yml'
 render    = 'ansible-playbook -v --tags rendering site.yml'
 dryrun    = 'ansible-playbook -v --check --skip-tags overwrite,nondry site.yml'
-migrate   = 'ansible-playbook -v --tags migrate --skip-tags develop site.yml'
-overwrite = 'ansible-playbook -v --tags overwrite --skip-tags develop site.yml'
+migrate   = 'ansible-playbook -f 30 -v --tags migrate --skip-tags develop site.yml'
+overwrite = 'ansible-playbook -f 30 -v --tags overwrite --skip-tags develop site.yml'
