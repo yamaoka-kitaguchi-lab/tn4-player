@@ -523,9 +523,13 @@ class DevConfig:
 
   def get_device_interfaces(self, role, hostname):
     interfaces = self.get_interfaces(hostname)
+
     if role == DevConfig.DEV_ROLE_CORE:
-      mlag = self.get_core_mclag_interfaces(hostname)
-      interfaces.update(mlag)
+      mlag_interfaces = self.get_core_mclag_interfaces(hostname)
+      for ifname, prop in mlag_interfaces.items():
+          for key in prop:
+              interfaces[ifname][key] = prop[key]
+
     return interfaces
 
 

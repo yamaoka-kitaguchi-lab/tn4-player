@@ -40,6 +40,7 @@
 - name: Check template rendering result (Edge)
   debug:
     msg: "{{ lookup('template', 'interface_edge.cfg.j2') }}"
+  when: "'edge_sw' in group_names"
   tags:
     - develop
     - rendering
@@ -47,6 +48,7 @@
 - name: Check template rendering result (Core)
   debug:
     msg: "{{ lookup('template', 'interface_core.cfg.j2') }}"
+  when: "'core_sw' in group_names"
   tags:
     - develop
     - rendering
