@@ -61,10 +61,6 @@
     comment: Action performed by ansible
     confirm: 0
     update: merge
-  register: result
-  until: result is not failed
-  retries: 2
-  delay: 5
   when: "'edge_sw' in group_names"
 
 - name: Update interface configurations (Core)
@@ -75,10 +71,6 @@
     comment: Action performed by ansible
     confirm: 0
     update: merge
-  register: result
-  until: result is not failed
-  retries: 2
-  delay: 5
   when: "'core_sw' in group_names"
 
 - name: Create post-snapshots
