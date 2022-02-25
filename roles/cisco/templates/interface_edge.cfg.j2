@@ -8,11 +8,11 @@ vlan {{ vlan.vid }}
 {% for interface, prop in interfaces.items() %}
 {% if not prop.lag_member %}
 interface {{ interface }}
-{% if prop.enabled %}
- no shutdown
-{% else %}
+
+{% if not prop.enabled %}
  shutdown
-{% endif %}
+{% else %}
+ no shutdown
 
 {% if prop.description %}
  description {{ prop.description }}
@@ -20,6 +20,7 @@ interface {{ interface }}
  no description
 {% endif %}
 
+{% if prop.physical %}
 {% if prop.speed_10m %}
  speed 10
 {% elif prop.speed_100m %}
@@ -28,6 +29,13 @@ interface {{ interface }}
  speed 1000
 {% else %}
  speed auto
+{% endif %}
+
+{% if prop.poe %}
+ power inline auto
+{% else %}
+ power inline never
+{% endif %}
 {% endif %}
 
 {% if prop.trunk_all %}
@@ -43,7 +51,6 @@ interface {{ interface }}
  switchport trunk allowed vlan add {{ prop.vids | join(',') }}
 {% else %}
  no switchport
- switchport
 {% endif %}
 
 {% if prop.native_vid %}
@@ -52,11 +59,6 @@ interface {{ interface }}
  no switchport trunk native vlan
 {% endif %}
 
-{% if prop.physical and prop.poe %}
- power inline auto
-{% else %}
- power inline never
 {% endif %}
-
 {% endif %}
 {% endfor %}
