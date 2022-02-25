@@ -69,7 +69,7 @@ def main():
   args = parser.parse_args()
 
   tpl_path = args.PATH
-  device_role = args.ROLE.upper()
+  device_role = args.ROLE
   manufacturer = args.VENDOR
   output_dir = args.DIR_PATH
   inventories = load_inventories()
