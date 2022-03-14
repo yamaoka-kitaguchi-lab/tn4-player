@@ -39,11 +39,14 @@ interface {{ interface }}
 {% endif %}
 
 {% if prop.trunk_all %}
+ switchport
  switchport mode trunk
 {% elif prop.vlan_mode == "access" %}
+ switchport
  switchport mode access
  switchport access vlan {{ prop.vids[0] }}
 {% elif prop.vlan_mode == "trunk" %}
+ switchport
  switchport mode trunk
 {% for removed_vids in prop.removed_vids %}
  switchport trunk allowed vlan remove {{ removed_vids | join(',') }}
