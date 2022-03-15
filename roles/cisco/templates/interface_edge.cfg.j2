@@ -9,16 +9,23 @@ vlan {{ vlan.vid }}
 {% if not prop.lag_member %}
 interface {{ interface }}
 
-{% if not prop.enabled %}
- shutdown
-{% else %}
- no shutdown
-
 {% if prop.description %}
  description {{ prop.description }}
 {% else %}
  no description
 {% endif %}
+
+{% if not prop.enabled %}
+ shutdown
+ no switchport
+ no ip address
+{% if prop.utp %}
+ speed auto
+ power inline never
+{% endif %}
+
+{% else %}
+ no shutdown
 
 {% if prop.physical %}
 {% if prop.speed_10m %}
@@ -45,6 +52,7 @@ interface {{ interface }}
  switchport
  switchport mode access
  switchport access vlan {{ prop.vids[0] }}
+ no switchport trunk allowed vlan
 {% elif prop.vlan_mode == "trunk" %}
  switchport
  switchport mode trunk
