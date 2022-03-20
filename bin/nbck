@@ -40,7 +40,7 @@ class NBCK:
 
 
     def full_check(self) -> None:
-        with self.console.status("[bold]Finding broken consistency...") as _:
+        with self.console.status("[bold]Finding broken consistency..."):
             self.__check_master_slave_tag_consistency()
             self.__check_wifi_tag_consistency()
             sleep(1)  # dummy
@@ -51,11 +51,11 @@ class NBCK:
 
 
     def full_repair(self) -> None:
-        with self.console.status("[bold]Repairing broken master/slave tag consistency...") as _:
+        with self.console.status("[bold]Repairing broken master/slave tag consistency..."):
             sleep(1)  # repairing
             self.console.log(f"Repaired")
 
-        with self.console.status("[bold]Repairing broken Wi-Fi tag consistency...") as _:
+        with self.console.status("[bold]Repairing broken Wi-Fi tag consistency..."):
             sleep(1)  # repairing
             self.console.log(f"Repaired")
 
