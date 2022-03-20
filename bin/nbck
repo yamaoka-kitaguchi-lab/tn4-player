@@ -69,9 +69,7 @@ def main(flg_force_repair):
     nbck = NBCK()
     nbck.load_inventories()
     nbck.full_check()
-
-    if flg_force_repair:
-        nbck.full_repair()
+    nbck.full_repair(skip_confirm=flg_force_repair)
 
 
 if __name__ == "__main__":
