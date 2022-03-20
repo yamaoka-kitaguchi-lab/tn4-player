@@ -27,29 +27,6 @@ def load_encrypted_secrets():
             sys.exit(1)
 
 
-class Slug:
-    role_core_sw = "core_sw"
-    role_edge_sw = "edge_sw"
-
-    site_group_ookayama_north = "ookayama-n"
-    site_group_ookayama_south = "ookayama-s"
-    site_group_ookayama_east = "ookayama-e"
-    site_group_ookayama_west = "ookayama-w"
-    site_group_ishikawadai = "ishikawadai"
-    site_group_midorigaoka = "midorigaoka"
-    site_group_tamachi = "tamachi"
-
-    tag_mgmt_vlan_border_ookayama = "mgmt-vlan-bo"
-    tag_mgmt_vlan_border_suzukake = "mgmt-vlan-bs"
-    tag_mgmt_vlan_core_ookayama = "mgmt-vlan-co"
-    tag_mgmt_vlan_core_suzukake = "mgmt-vlan-cs"
-    tag_mgmt_vlan_edge_ookayama = "mgmt-vlan-eo"
-    tag_mgmt_vlan_edge_suzukake = "mgmt-vlan-es"
-    tag_wifi_mgmt_vlan_ookayama1 = "wlan-mgmt-vlan-o1"
-    tag_wifi_mgmt_vlan_ookayama2 = "wlan-mgmt-vlan-o2"
-    tag_wifi_mgmt_vlan_suzukake = "wlan-mgmt-vlan-s"
-
-
 class NetBoxClient:
     def __init__(self, netbox_url, netbox_api_token):
         self.netbox_url = netbox_url
@@ -153,9 +130,9 @@ class NetBoxClient:
             for interface in all_interfaces:
                 interface["tags"] = [tag["slug"] for tag in interface["tags"]]
                 dev_name = interface["device"]["name"]
-                if dev_name in self.all_devices:
-                    interface["wifi_mgmt_vid"] = self.all_devices[dev_name]["wifi_mgmt_vid"]
-                dev_name = interface["device"]["name"]
                 int_name = interface["name"]
+                if dev_name in self.all_devices:
+                    for k in ["device_role", "wifi_mgmt_vid"]:
+                        interface[k] = self.all_devices[dev_name][k]
                 self.all_interfaces.setdefault(dev_name, {})[int_name] = interface
         return self.all_interfaces
