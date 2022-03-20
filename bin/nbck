@@ -27,7 +27,8 @@ from time import sleep
 
 class NBCK:
     def __init__(self) -> None:
-        self.console = Console(log_time_format = "%Y-%m-%dT%H:%M:%S")
+        self.console = Console(log_time_format="%Y-%m-%dT%H:%M:%S")
+        self.n_total_problems = 0
         self.master_slave_tag_problems = None
         self.wifi_tag_problems = None
 
@@ -47,10 +48,14 @@ class NBCK:
     def full_check(self, verbose=False) -> None:
         with self.console.status("[bold]Finding broken consistency..."):
             self.__check_master_slave_tag_consistency()
-            self.console.log(f"Verified Master/Slave tag consistency ({len(self.master_slave_tag_problems)} problems found)")
+            n_problems = len(self.master_slave_tag_problems)
+            self.n_total_problems += n_problems
+            self.console.log(f"Verified Master/Slave tag consistency ({n_problems} problems found)")
 
             self.__check_wifi_tag_consistency()
-            self.console.log(f"Verified Wi-Fi tag consistency ({len(self.wifi_tag_problems)} problems found)")
+            n_problems = len(self.wifi_tag_problems)
+            self.n_total_problems += n_problems
+            self.console.log(f"Verified Wi-Fi tag consistency ({n_problems} problems found)")
 
         tbl_idx_from = 0
         all_problems = [self.master_slave_tag_problems, self.wifi_tag_problems]
@@ -90,21 +95,33 @@ class NBCK:
 
 
     def __flatten_num_string(self, nstr) -> list:
-        return []
+        l = []
+        for n in nstr.split():
+            if "-" in n:
+                a, b = map(int, n.split("-"))
+                l.extend([i for i in range(a,b+1)])
+            else:
+                l.append(int(n))
+        return l
 
 
     def full_repair(self, skip_confirm=False, verbose=False) -> None:
         is_confirmed = skip_confirm
+        skipped_idc = []
 
-        if not skip_confirm:
+        if skip_confirm:
+            print()
+            with self.console.status("[bold]Performing force repair in 5 seconds..."):
+                sleep(5)
+        else:
             nstr = Prompt.ask("\nSkip to repair (eg: 1 2 3-5)")
-            skipped_idx = self.__flatten_num_string(nstr)
+            skipped_idc = self.__flatten_num_string(nstr)
             is_confirmed = Confirm.ask(
-                f"You are about to force repair [red]{len(skipped_idx)}[/red] interfaces. Continue?",
+                f"You are about to force repair [red]{self.n_total_problems - len(skipped_idc)}[/red] interfaces. Continue?",
                 default=False
             )
-            print()
 
+        print()
         if not is_confirmed:
             self.console.log("Aborted")
             sys.exit(0)
