@@ -41,12 +41,12 @@ class NBCK:
 
 
     def full_check(self, verbose=False) -> None:
-        #with self.console.status("[bold]Finding broken consistency..."):
-        #    self.__check_master_slave_tag_consistency()
-        #    self.console.log(f"Checked Master/Slave tag consistency ({len(self.master_slave_tag_problems)} problems found)")
+        with self.console.status("[bold]Finding broken consistency..."):
+            self.__check_master_slave_tag_consistency()
+            self.console.log(f"Checked Master/Slave tag consistency ({len(self.master_slave_tag_problems)} problems found)")
 
-        #    self.__check_wifi_tag_consistency()
-        #    self.console.log(f"Checked Wi-Fi tag consistency ({len(self.wifi_tag_problems)} problems found)")
+            self.__check_wifi_tag_consistency()
+            self.console.log(f"Checked Wi-Fi tag consistency ({len(self.wifi_tag_problems)} problems found)")
 
         self.__print_problem_summary(self.master_slave_tag_problems, verbose=verbose)
         self.__print_problem_summary(self.wifi_tag_problems, verbose=verbose)
@@ -65,7 +65,7 @@ class NBCK:
             table.add_column("Current state", style="magenta")
             table.add_column("Desired state", style="green")
 
-        for i in range(100):
+        for i in range(10):
             d = [str(i), "s7-flets", "172.16.32.133", "GigabitEthernet0/1/20", "Master/Slave"]
             if verbose:
                 d.extend([
@@ -105,9 +105,9 @@ class NBCK:
 @click.option("--verbose", "flg_verbose", is_flag=True, default=False, help="Show defailed logging")
 def main(flg_force_repair, flg_verbose):
     nbck = NBCK()
-    #nbck.load_inventories(verbose=flg_verbose)
+    nbck.load_inventories(verbose=flg_verbose)
     nbck.full_check(verbose=flg_verbose)
-    #nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
+    nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
 
 
 if __name__ == "__main__":
