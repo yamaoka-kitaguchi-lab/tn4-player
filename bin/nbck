@@ -44,14 +44,17 @@ class NBCK:
         self.console.log("NBCK - NetBox Consistency Check")
         self.console.log(f"API endpoint: {self.nb.netbox_url}")
         with self.console.status("[bold]Fetching the latest inventories from NetBox..."):
-            sleep(0.5)  # dummy
-            self.console.log("Fetched all VLANs (1000 VLANs fetched)")
-            sleep(0.5)  # dummy
-            self.console.log("Fetched all IP Addresses (1000 addresses fetched)")
-            sleep(0.5)  # dummy
-            self.console.log("Fetched all Devices (100 devices fetched)")
-            sleep(0.5)  # dummy
-            self.console.log("Fetched all Interfaces (1200 interfaces fetched)")
+            self.nb.get_all_vlans()
+            self.console.log(f"Fetched all VLANs ({len(self.nb.all_vlans)} VLANs fetched)")
+
+            self.nb.get_all_addresses()
+            self.console.log(f"Fetched all IP Addresses ({len(self.nb.all_addresses)} addresses fetched)")
+
+            self.nb.get_all_devices()
+            self.console.log(f"Fetched all Devices ({len(self.nb.all_devices)} devices fetched)")
+
+            self.nb.get_all_interfaces()
+            self.console.log(f"Fetched all Interfaces ({len(self.nb.all_interfaces)} interfaces fetched)")
 
 
     def full_check(self, verbose=False) -> None:
