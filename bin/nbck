@@ -4,7 +4,7 @@
 
 NBCK - NetBox Consistency Check
 
-NBCK is a command-line utility to check and repair NetBox registration errors supporting rich CLI interface.
+NBCK is a command-line utility to check and repair NetBox registration errors.
 This makes sure NetBox for integrity and consistency just like the fsck command does for Linux filesystem.
 
 $ PATH=$HOME/tn4-player/bin:$PATH
