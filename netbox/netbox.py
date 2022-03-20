@@ -70,6 +70,7 @@ class NetBoxClient:
             for vlan in all_vlans:
                 vlan["tags"] = [tag["slug"] for tag in vlan["tags"]]
                 self.all_vlans[vlan["id"]] = vlan
+                ## todo: save management vlan id
         return self.all_vlans
 
 
@@ -97,9 +98,11 @@ class NetBoxClient:
             all_interfaces = self.query("/dcim/interfaces/")
             for interface in all_interfaces:
                 interface["tags"] = [tag["slug"] for tag in interface["tags"]]
-                if interface["device"]["name"] in self.all_devices:
-                    interface["site"] = self.all_devices[interface["device"]["name"]]["site"]
-                    interface["region"] = self.all_devices[interface["device"]["name"]]["region"]
+                dev_name = interface["device"]["name"]
+                if dev_name in self.all_devices:
+                    interface["site"] = self.all_devices[dev_name]["site"]
+                    interface["region"] = self.all_devices[dev_name]["region"]
+                    ## todo: add interface["upstream_vlans"]
                 dev_name = interface["device"]["name"]
                 int_name = interface["name"]
                 self.all_interfaces.setdefault(dev_name, {})[int_name] = interface

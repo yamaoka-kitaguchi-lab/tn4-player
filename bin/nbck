@@ -239,7 +239,7 @@ def debug():
     #pprint(nb.all_sites)
     #pprint(nb.all_devices["core-honkan"])
     #pprint(nb.all_interfaces["core-honkan"]["ae103"])
-    pprint(nb.all_vlans[514])
+    pprint(nb.all_vlans["514"])
 
 
 if __name__ == "__main__":
