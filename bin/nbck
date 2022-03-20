@@ -48,31 +48,31 @@ class NBCK:
         #    self.__check_wifi_tag_consistency()
         #    self.console.log(f"Checked Wi-Fi tag consistency ({len(self.wifi_tag_problems)} problems found)")
 
-        self.__print_problem_summary(self.master_slave_tag_problems)
-        self.__print_problem_summary(self.wifi_tag_problems)
+        self.__print_problem_summary(self.master_slave_tag_problems, verbose=verbose)
+        self.__print_problem_summary(self.wifi_tag_problems, verbose=verbose)
 
 
-    def __print_problem_summary(self, problems) -> None:
+    def __print_problem_summary(self, problems, verbose=False) -> None:
         table = Table(show_header=True, header_style="bold red")
         table.box = box.SIMPLE
+        #table.row_styles = ["none", "dim"]
         table.add_column("#", style="dim")
         table.add_column("Hostname", style="bold")
-        table.add_column("IP address", style="")
+        table.add_column("IP address", style="dim")
         table.add_column("Interface", style="bold")
         table.add_column("Violation", style="cyan")
-        table.add_column("Current state", style="magenta")
-        table.add_column("Desired state", style="green")
+        if verbose:
+            table.add_column("Current state", style="magenta")
+            table.add_column("Desired state", style="green")
+
         for i in range(100):
-            table.add_row(
-                str(i),
-                "s7-flets",
-                "172.16.32.133",
-                "GigabitEthernet0/1/20",
-                "Master/Slave",
-                "vlan100 vlan120 vlan130 description hoge"*1000,
-                "x"*1000,
-            )
-        table.row_styles = ["none", "dim"]
+            d = [str(i), "s7-flets", "172.16.32.133", "GigabitEthernet0/1/20", "Master/Slave"]
+            if verbose:
+                d.extend([
+                    "vlan100 vlan120 vlan130 description hoge hoge hoge hoge hoge hoge \n"*2,
+                    "vlan100 vlan120 vlan130 description hoge hoge hoge hoge hoge hoge \n"*2,
+                ])
+            table.add_row(*d)
         self.console.print(table)
 
 
