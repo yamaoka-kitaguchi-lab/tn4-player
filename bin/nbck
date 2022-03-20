@@ -160,8 +160,8 @@ class NBCK:
 
 
 @click.command(help="A command-line utility to check and repair NetBox integrity and consistency")
-@click.option("-f", "--force-repair", "flg_force_repair", is_flag=True, default=False, help="Repair all inconsistencies without confirmation")
-@click.option("-v", "--verbose", "flg_verbose", is_flag=True, default=False, help="Show defailed logging")
+@click.option("-f", "--force-repair", "flg_force_repair", is_flag=True, default=False, help="Repair all inconsistencies without confirmation.")
+@click.option("-v", "--verbose", "flg_verbose", is_flag=True, default=False, help="Show defailed logging.")
 def main(flg_force_repair, flg_verbose):
     nbck = NBCK()
     nbck.load_inventories(verbose=flg_verbose)
