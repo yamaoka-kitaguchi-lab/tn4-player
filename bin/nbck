@@ -34,13 +34,13 @@ class NBCK:
     def load_inventories(self, verbose=False) -> None:
         self.console.log("NBCK - NetBox Consistency Check")
         with self.console.status("[bold]Fetching the latest inventories from NetBox (netbox.m.noc.titech.ac.jp)..."):
-            sleep(1)  # VLAN fetch
+            sleep(0.5)  # dummy
             self.console.log("Fetched all VLANs")
-            sleep(1)  # IP Address fetch
+            sleep(0.5)  # dummy
             self.console.log("Fetched all IP Addresses")
-            sleep(1)  # Device fetch
+            sleep(0.5)  # dummy
             self.console.log("Fetched all Devices")
-            sleep(1)  # Interface fetch
+            sleep(0.5)  # dummy
             self.console.log("Fetched all Interfaces")
 
 
@@ -119,11 +119,11 @@ class NBCK:
 
 
     def __repair(self, problems) -> None:
-        sleep(1)  # dummy
+        sleep(0.5)  # dummy
 
 
     def __check_master_slave_tag_consistency(self) -> None:
-        sleep(1)  # dummy
+        sleep(0.5)  # dummy
         self.master_slave_tag_problems = [{}]
 
 
@@ -137,7 +137,7 @@ class NBCK:
 @click.option("--verbose", "flg_verbose", is_flag=True, default=False, help="Show defailed logging")
 def main(flg_force_repair, flg_verbose):
     nbck = NBCK()
-    #nbck.load_inventories(verbose=flg_verbose)
+    nbck.load_inventories(verbose=flg_verbose)
     nbck.full_check(verbose=flg_verbose)
     nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
 
