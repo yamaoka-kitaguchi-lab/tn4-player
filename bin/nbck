@@ -15,14 +15,14 @@ See: https://github.com/yamaoka-kitaguchi-lab/tn4-player
 
 """
 
-import click
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 from rich.table import Table
-import sys
 from time import sleep
+import click
+import sys
 
 
 class NBCK:
