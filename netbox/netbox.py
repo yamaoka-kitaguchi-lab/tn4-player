@@ -31,13 +31,13 @@ class Slug:
     role_core_sw = "core_sw"
     role_edge_sw = "edge_sw"
 
-    region_group_ookayama_north = "ookayama-n"
-    region_group_ookayama_south = "ookayama-s"
-    region_group_ookayama_east = "ookayama-e"
-    region_group_ookayama_west = "ookayama-w"
-    region_group_ishikawadai = "ishikawadai"
-    region_group_midorigaoka = "midorigaoka"
-    region_group_tamachi = "tamachi"
+    site_group_ookayama_north = "ookayama-n"
+    site_group_ookayama_south = "ookayama-s"
+    site_group_ookayama_east = "ookayama-e"
+    site_group_ookayama_west = "ookayama-w"
+    site_group_ishikawadai = "ishikawadai"
+    site_group_midorigaoka = "midorigaoka"
+    site_group_tamachi = "tamachi"
 
     tag_mgmt_vlan_border_ookayama = "mgmt_vlan_bo"
     tag_mgmt_vlan_border_suzukake = "mgmt_vlan_bs"
@@ -133,13 +133,12 @@ class NetBoxClient:
             for device in all_devices:
                 device["tags"] = [tag["slug"] for tag in device["tags"]]
                 dev_site = device["site"]["slug"]
+                dev_sg = self.all_sites[dev_site]["group"]["slug"]
 
                 if dev_site in self.all_sites:
-                    device["region"] = self.all_sites[dev_site]
-
-                    if dev_site in [Slug.region_group_ookayama_north, Slug.region_group_ookayama_west, Slug.region_group_midorigaoka]:
+                    if dev_sg in [Slug.site_group_ookayama_north, Slug.site_group_ookayama_west, Slug.site_group_midorigaoka]:
                         device["wifi_mgmt_vid"] = self.wifi_mgmt_vid_o1
-                    elif dev_site in [Slug.region_group_ookayama_east, Slug.region_group_ookayama_south, Slug.region_group_ishikawadai, Slug.region_group_tamachi]:
+                    elif dev_sg in [Slug.site_group_ookayama_east, Slug.site_group_ookayama_south, Slug.site_group_ishikawadai, Slug.site_group_tamachi]:
                         device["wifi_mgmt_vid"] = self.wifi_mgmt_vid_o2
                     else:
                         device["wifi_mgmt_vid"] = self.wifi_mgmt_vid_s
@@ -155,8 +154,6 @@ class NetBoxClient:
                 interface["tags"] = [tag["slug"] for tag in interface["tags"]]
                 dev_name = interface["device"]["name"]
                 if dev_name in self.all_devices:
-                    interface["site"] = self.all_devices[dev_name]["site"]
-                    interface["region"] = self.all_devices[dev_name]["region"]
                     interface["wifi_mgmt_vid"] = self.all_devices[dev_name]["wifi_mgmt_vid"]
                 dev_name = interface["device"]["name"]
                 int_name = interface["name"]
