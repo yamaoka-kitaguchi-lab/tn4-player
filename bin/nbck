@@ -43,9 +43,11 @@ class NBCK:
 
 
     def load_inventories_for_debug(self, verbose=False) -> None:
-        for cache in [".vlans.cache", ".addresses.cache", ".devices.cache", ".interfaces.cache"]:
+        for cache in [".sites.cache", ".vlans.cache", ".addresses.cache", ".devices.cache", ".interfaces.cache"]:
             if not os.path.exists(cache):
                 self.load_inventories(verbose=verbose)
+                with open(".sites.cache", "w") as fd:
+                    json.dump(self.nb.all_sites, fd)
                 with open(".vlans.cache", "w") as fd:
                     json.dump(self.nb.all_vlans, fd)
                 with open(".addresses.cache", "w") as fd:
@@ -56,6 +58,9 @@ class NBCK:
                     json.dump(self.nb.all_interfaces, fd)
                 break
 
+        with open(".sites.cache") as fd:
+            self.nb.all_sites = json.load(fd)
+            self.console.log(f"Fetched all Sites ({len(self.nb.all_vlans)} sites fetched)")
         with open(".vlans.cache") as fd:
             self.nb.all_vlans = json.load(fd)
             self.console.log(f"Fetched all VLANs ({len(self.nb.all_vlans)} VLANs fetched)")
@@ -74,6 +79,9 @@ class NBCK:
         self.console.log("NBCK - NetBox Consistency Check")
         self.console.log(f"API endpoint: {self.nb.netbox_url}")
         with self.console.status("[bold]Fetching the latest inventories from NetBox..."):
+            self.nb.get_all_sites()
+            self.console.log(f"Fetched all Sites ({len(self.nb.all_vlans)} sites fetched)")
+
             self.nb.get_all_vlans()
             self.console.log(f"Fetched all VLANs ({len(self.nb.all_vlans)} VLANs fetched)")
 
@@ -226,7 +234,9 @@ def debug():
     nbck = NBCK(nb)
     nbck.load_inventories_for_debug(verbose=True)
 
-    pprint(nb.all_interfaces)
+    pprint(nb.all_devices["core-honkan"])
+    #pprint(nb.all_devices[0])
+    pprint(nb.all_interfaces["core-honkan"]["ae103"])
 
 
 if __name__ == "__main__":

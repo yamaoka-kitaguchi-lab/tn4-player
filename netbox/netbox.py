@@ -32,9 +32,9 @@ class NetBoxClient:
         self.netbox_url = netbox_url
         self.api_endpoint = netbox_url.rstrip("/") + "/api"
         self.token = netbox_api_token
-        self.all_sites = []
+        self.all_sites = {}
         self.all_vlans = []
-        self.all_devices = []
+        self.all_devices = {}
         self.all_interfaces = {}
         self.all_addresses = []
 
@@ -58,7 +58,9 @@ class NetBoxClient:
 
     def get_all_sites(self, use_cache=True):
         if not use_cache or not self.all_sites:
-            self.all_sites = self.query("/dcim/sites/")
+            all_sites = self.query("/dcim/sites/")
+            for site in all_sites:
+                self.all_sites[site["name"]] = site
         return self.all_sites
 
 
@@ -72,9 +74,10 @@ class NetBoxClient:
 
     def get_all_devices(self, use_cache=True):
         if not use_cache or not self.all_devices:
-            self.all_devices = self.query("/dcim/devices/")
-            for device in self.all_devices:
+            all_devices = self.query("/dcim/devices/")
+            for device in all_devices:
                 device["tags"] = [tag["slug"] for tag in device["tags"]]
+                self.all_devices[device["name"]] = device
         return self.all_devices
 
 
