@@ -216,5 +216,19 @@ def main(flg_force_repair, flg_verbose):
     nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
 
 
+def debug():
+    from pprint import pprint
+
+    secrets = load_encrypted_secrets()
+    nb_url = secrets["netbox_url"]
+    nb_token = secrets["netbox_api_token"]
+    nb = NetBoxClient(nb_url, nb_token)
+    nbck = NBCK(nb)
+    nbck.load_inventories_for_debug(verbose=True)
+
+    pprint(nb.all_interfaces)
+
+
 if __name__ == "__main__":
-    main()
+    #main()
+    debug()
