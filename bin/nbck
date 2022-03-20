@@ -22,6 +22,7 @@ from rich.prompt import Prompt, Confirm
 from rich.table import Table
 from time import sleep
 import click
+import json
 import os
 import sys
 
@@ -39,6 +40,35 @@ class NBCK:
         self.core_downstream_problems = None
         self.master_slave_tag_problems = None
         self.wifi_tag_problems = None
+
+
+    def load_inventories_for_debug(self, verbose=False) -> None:
+        for cache in [".vlans.cache", ".addresses.cache", ".devices.cache", ".interfaces.cache"]:
+            if not os.path.exists(cache):
+                self.load_inventories(verbose=verbose)
+                with open(".vlans.cache", "w") as fd:
+                    json.dump(self.nb.all_vlans, fd)
+                with open(".addresses.cache", "w") as fd:
+                    json.dump(self.nb.all_addresses, fd)
+                with open(".devices.cache", "w") as fd:
+                    json.dump(self.nb.all_devices, fd)
+                with open(".interfaces.cache", "w") as fd:
+                    json.dump(self.nb.all_interfaces, fd)
+                break
+
+        with open(".vlans.cache") as fd:
+            self.nb.all_vlans = json.load(fd)
+            self.console.log(f"Fetched all VLANs ({len(self.nb.all_vlans)} VLANs fetched)")
+        with open(".addresses.cache") as fd:
+            self.nb.all_addresses = json.load(fd)
+            self.console.log(f"Fetched all IP Addresses ({len(self.nb.all_addresses)} addresses fetched)")
+        with open(".devices.cache") as fd:
+            self.nb.all_devices = json.load(fd)
+            self.console.log(f"Fetched all Devices ({len(self.nb.all_devices)} devices fetched)")
+        with open(".interfaces.cache") as fd:
+            self.nb.all_interfaces = json.load(fd)
+            self.console.log(f"Fetched all Interfaces ({len(self.nb.all_interfaces)} interfaces fetched)")
+
 
     def load_inventories(self, verbose=False) -> None:
         self.console.log("NBCK - NetBox Consistency Check")
@@ -180,7 +210,8 @@ def main(flg_force_repair, flg_verbose):
 
     nb = NetBoxClient(nb_url, nb_token)
     nbck = NBCK(nb)
-    nbck.load_inventories(verbose=flg_verbose)
+    #nbck.load_inventories(verbose=flg_verbose)
+    nbck.load_inventories_for_debug(verbose=flg_verbose)
     nbck.full_check(verbose=flg_verbose)
     nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
 
