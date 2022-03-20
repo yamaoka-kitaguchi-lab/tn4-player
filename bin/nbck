@@ -102,7 +102,7 @@ class NBCK:
             self.__check_core_downstream_consistency()
             n_problems = len(self.core_downstream_problems)
             self.n_total_problems += n_problems
-            self.console.log(f"Checked core downstream VLAN consistency ({n_problems} problems found)")
+            self.console.log(f"Checked downstream VLAN consistency ({n_problems} problems found)")
 
         tbl_idx_from = 0
         all_problems = [self.master_slave_tag_problems, self.wifi_tag_problems]
