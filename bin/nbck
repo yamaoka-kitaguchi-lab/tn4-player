@@ -26,6 +26,7 @@ class NBCK:
         self.master_slave_tag_problems = None
         self.wifi_tag_problems = None
 
+
     def load_inventories(self) -> None:
         with self.console.status("[bold]Fetching the latest inventories from NetBox (netbox.m.noc.titech.ac.jp)...") as _:
             sleep(1)  # VLAN fetch
@@ -37,6 +38,7 @@ class NBCK:
             sleep(1)  # Interface fetch
             self.console.log("Fetched all Interfaces")
 
+
     def full_check(self) -> None:
         with self.console.status("[bold]Finding broken consistency...") as _:
             self.__check_master_slave_tag_consistency()
@@ -47,6 +49,7 @@ class NBCK:
             self.console.log(f"total {n_probs} problems found on {n_prob_infs} interfaces on {n_prob_hosts} hosts")
         pass
 
+
     def full_repair(self) -> None:
         with self.console.status("[bold]Repairing broken master/slave tag consistency...") as _:
             sleep(1)  # repairing
@@ -56,8 +59,10 @@ class NBCK:
             sleep(1)  # repairing
             self.console.log(f"Repaired")
 
+
     def __check_master_slave_tag_consistency(self) -> None:
         pass
+
 
     def __check_wifi_tag_consistency(self) -> None:
         pass
