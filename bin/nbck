@@ -15,6 +15,7 @@ See: https://github.com/yamaoka-kitaguchi-lab/tn4-player
 
 """
 
+import click
 from rich.console import Console
 from time import sleep
 
@@ -62,7 +63,16 @@ class NBCK:
         pass
 
 
-nbck = NBCK()
-nbck.load_inventories()
-nbck.full_check()
-nbck.full_repair()
+@click.command(help="A command-line utility to check and repair NetBox integrity and consistency")
+@click.option("--force-repair", "flg_force_repair", is_flag=True, default=False, help="Repair broken consistency")
+def main(flg_force_repair):
+    nbck = NBCK()
+    nbck.load_inventories()
+    nbck.full_check()
+
+    if flg_force_repair:
+        nbck.full_repair()
+
+
+if __name__ == "__main__":
+    main()
