@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 """
+
 NBCK - NetBox Consistency Check
 
-NBCK is a command-line utility to check and repair NetBox registration errors.
+NBCK is a command-line utility to check and repair NetBox registration errors supporting rich CLI interface.
 This makes sure NetBox for integrity and consistency just like the fsck command does for Linux filesystem.
 
 $ PATH=$HOME/tn4-player/bin:$PATH
@@ -11,6 +12,57 @@ $ nbck --full-check --force-repair
 
 Since: March 2022
 See: https://github.com/yamaoka-kitaguchi-lab/tn4-player
+
 """
 
-import os
+from rich.console import Console
+from time import sleep
+
+
+class NBCK:
+    def __init__(self) -> None:
+        self.console = Console()
+        self.master_slave_tag_problems = None
+        self.wifi_tag_problems = None
+
+    def load_inventories(self) -> None:
+        with self.console.status("[bold]Fetching the latest inventories from NetBox (netbox.m.noc.titech.ac.jp)...") as _:
+            sleep(1)  # VLAN fetch
+            self.console.log("Fetched all VLANs")
+            sleep(1)  # IP Address fetch
+            self.console.log("Fetched all IP Addresses")
+            sleep(1)  # Device fetch
+            self.console.log("Fetched all Devices")
+            sleep(1)  # Interface fetch
+            self.console.log("Fetched all Interfaces")
+
+    def full_check(self) -> None:
+        with self.console.status("[bold]Finding broken consistency...") as _:
+            self.__check_master_slave_tag_consistency()
+            self.__check_wifi_tag_consistency()
+            sleep(1)  # dummy
+
+            n_probs, n_prob_infs, n_prob_hosts = 102, 100, 10
+            self.console.log(f"total {n_probs} problems found on {n_prob_infs} interfaces on {n_prob_hosts} hosts")
+        pass
+
+    def full_repair(self) -> None:
+        with self.console.status("[bold]Repairing broken master/slave tag consistency...") as _:
+            sleep(1)  # repairing
+            self.console.log(f"Repaired")
+
+        with self.console.status("[bold]Repairing broken Wi-Fi tag consistency...") as _:
+            sleep(1)  # repairing
+            self.console.log(f"Repaired")
+
+    def __check_master_slave_tag_consistency(self) -> None:
+        pass
+
+    def __check_wifi_tag_consistency(self) -> None:
+        pass
+
+
+nbck = NBCK()
+nbck.load_inventories()
+nbck.full_check()
+nbck.full_repair()
