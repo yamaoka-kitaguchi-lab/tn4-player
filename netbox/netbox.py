@@ -1,6 +1,35 @@
+#!/usr/bin/env python3
+
+import json
+import os
+import requests
+import sys
+import yaml
+
+from ansible.constants import DEFAULT_VAULT_ID_MATCH
+from ansible.parsing.vault import VaultLib
+from ansible.parsing.vault import VaultSecret
+from ansible.parsing.vault import AnsibleVaultError
+
+VAULT_FILE = os.path.join(os.path.dirname(__file__), "../inventories/production/group_vars/all/vault.yml")
+VAULT_PASSWORD_FILE = os.path.join(os.path.dirname(__file__), "../.secrets/vault-pass.txt")
+
+
+def load_encrypted_secrets():
+  with open(VAULT_FILE) as v, open(VAULT_PASSWORD_FILE, "r") as p:
+    key = str.encode(p.read().rstrip())
+    try:
+      vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(key))])
+      raw = vault.decrypt(v.read())
+      return yaml.load(raw, Loader=yaml.CLoader)
+    except AnsibleVaultError as e:
+      print("Failed to decrypt the vault. Check your password and try again:", e, file=sys.stderr)
+      sys.exit(1)
+
 
 class NetBoxClient:
   def __init__(self, netbox_url, netbox_api_token):
+    self.netbox_url = netbox_url
     self.api_endpoint = netbox_url.rstrip("/") + "/api"
     self.token = netbox_api_token
     self.all_sites = []
@@ -63,32 +92,3 @@ class NetBoxClient:
       for address in self.all_addresses:
         address["tags"] = [tag["slug"] for tag in address["tags"]]
     return self.all_addresses
-
-
-
-
-
-
-
-
-from ansible.constants import DEFAULT_VAULT_ID_MATCH
-from ansible.parsing.vault import VaultLib
-from ansible.parsing.vault import VaultSecret
-from ansible.parsing.vault import AnsibleVaultError
-
-VAULT_FILE = os.path.join(os.path.dirname(__file__), "./group_vars/all/vault.yml")
-VAULT_PASSWORD_FILE = os.path.join(os.path.dirname(__file__), "../../.secrets/vault-pass.txt")
-
-
-
-
-def __load_encrypted_secrets():
-  with open(VAULT_FILE) as v, open(VAULT_PASSWORD_FILE, "r") as p:
-    key = str.encode(p.read().rstrip())
-    try:
-      vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(key))])
-      raw = vault.decrypt(v.read())
-      return yaml.load(raw, Loader=yaml.CLoader)
-    except AnsibleVaultError as e:
-      print("Failed to decrypt the vault. Check your password and try again:", e, file=sys.stderr)
-      sys.exit(1)

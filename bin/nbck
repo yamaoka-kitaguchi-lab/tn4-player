@@ -22,11 +22,18 @@ from rich.prompt import Prompt, Confirm
 from rich.table import Table
 from time import sleep
 import click
+import os
 import sys
+
+CURDIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(CURDIR, "../netbox"))
+
+from netbox import NetBoxClient, load_encrypted_secrets
 
 
 class NBCK:
-    def __init__(self) -> None:
+    def __init__(self, nb) -> None:
+        self.nb = nb
         self.console = Console(log_time_format="%Y-%m-%dT%H:%M:%S")
         self.n_total_problems = 0
         self.core_downstream_problems = None
@@ -35,7 +42,8 @@ class NBCK:
 
     def load_inventories(self, verbose=False) -> None:
         self.console.log("NBCK - NetBox Consistency Check")
-        with self.console.status("[bold]Fetching the latest inventories from NetBox (netbox.m.noc.titech.ac.jp)..."):
+        self.console.log(f"API endpoint: {self.nb.netbox_url}")
+        with self.console.status("[bold]Fetching the latest inventories from NetBox..."):
             sleep(0.5)  # dummy
             self.console.log("Fetched all VLANs (1000 VLANs fetched)")
             sleep(0.5)  # dummy
@@ -163,7 +171,12 @@ class NBCK:
 @click.option("-f", "--force-repair", "flg_force_repair", is_flag=True, default=False, help="Repair all inconsistencies without confirmation.")
 @click.option("-v", "--verbose", "flg_verbose", is_flag=True, default=False, help="Show defailed logging.")
 def main(flg_force_repair, flg_verbose):
-    nbck = NBCK()
+    secrets = load_encrypted_secrets()
+    nb_url = secrets["netbox_url"]
+    nb_token = secrets["netbox_api_token"]
+
+    nb = NetBoxClient(nb_url, nb_token)
+    nbck = NBCK(nb)
     nbck.load_inventories(verbose=flg_verbose)
     nbck.full_check(verbose=flg_verbose)
     nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
