@@ -26,8 +26,7 @@ class NBCK:
         self.master_slave_tag_problems = None
         self.wifi_tag_problems = None
 
-
-    def load_inventories(self) -> None:
+    def load_inventories(self, verbose=False) -> None:
         with self.console.status("[bold]Fetching the latest inventories from NetBox (netbox.m.noc.titech.ac.jp)..."):
             sleep(1)  # VLAN fetch
             self.console.log("Fetched all VLANs")
@@ -39,25 +38,24 @@ class NBCK:
             self.console.log("Fetched all Interfaces")
 
 
-    def full_check(self) -> None:
+    def full_check(self, verbose=False) -> None:
         with self.console.status("[bold]Finding broken consistency..."):
             self.__check_master_slave_tag_consistency()
             self.__check_wifi_tag_consistency()
             sleep(1)  # dummy
 
             n_probs, n_prob_infs, n_prob_hosts = 102, 100, 10
-            self.console.log(f"total {n_probs} problems found on {n_prob_infs} interfaces on {n_prob_hosts} hosts")
-        pass
+            self.console.log(f"Found {n_probs} problems on {n_prob_infs} interfaces on {n_prob_hosts} hosts")
 
 
-    def full_repair(self) -> None:
+    def full_repair(self, skip_confirm=False, verbose=False) -> None:
         with self.console.status("[bold]Repairing broken master/slave tag consistency..."):
             sleep(1)  # repairing
-            self.console.log(f"Repaired")
+            self.console.log("Repaired")
 
         with self.console.status("[bold]Repairing broken Wi-Fi tag consistency..."):
             sleep(1)  # repairing
-            self.console.log(f"Repaired")
+            self.console.log("Repaired")
 
 
     def __check_master_slave_tag_consistency(self) -> None:
@@ -69,12 +67,13 @@ class NBCK:
 
 
 @click.command(help="A command-line utility to check and repair NetBox integrity and consistency")
-@click.option("--force-repair", "flg_force_repair", is_flag=True, default=False, help="Repair broken consistency")
-def main(flg_force_repair):
+@click.option("--force-repair", "flg_force_repair", is_flag=True, default=False, help="Repair all inconsistencies without confirmation")
+@click.option("--verbose", "flg_verbose", is_flag=True, default=False, help="Show defailed logging")
+def main(flg_force_repair, flg_verbose):
     nbck = NBCK()
-    nbck.load_inventories()
-    nbck.full_check()
-    nbck.full_repair(skip_confirm=flg_force_repair)
+    nbck.load_inventories(verbose=flg_verbose)
+    nbck.full_check(verbose=flg_verbose)
+    nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
 
 
 if __name__ == "__main__":
