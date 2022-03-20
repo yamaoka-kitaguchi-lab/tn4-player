@@ -41,29 +41,34 @@ class NBCK:
     def full_check(self, verbose=False) -> None:
         with self.console.status("[bold]Finding broken consistency..."):
             self.__check_master_slave_tag_consistency()
-            self.__check_wifi_tag_consistency()
-            sleep(1)  # dummy
+            self.console.log(f"Checked Master/Slave tag consistency ({len(self.master_slave_tag_problems)} problems found)")
 
-            n_probs, n_prob_infs, n_prob_hosts = 102, 100, 10
-            self.console.log(f"Found {n_probs} problems on {n_prob_infs} interfaces on {n_prob_hosts} hosts")
+            self.__check_wifi_tag_consistency()
+            self.console.log(f"Checked Wi-Fi tag consistency ({len(self.wifi_tag_problems)} problems found)")
 
 
     def full_repair(self, skip_confirm=False, verbose=False) -> None:
         with self.console.status("[bold]Repairing broken master/slave tag consistency..."):
-            sleep(1)  # repairing
-            self.console.log("Repaired")
+            self.__repair(self.master_slave_tag_problems)
+            self.console.log("Repaired all Master/Slave tag inconsistencies")
 
         with self.console.status("[bold]Repairing broken Wi-Fi tag consistency..."):
-            sleep(1)  # repairing
-            self.console.log("Repaired")
+            self.__repair(self.wifi_tag_problems)
+            self.console.log("Repaired all Wi-Fi tag inconsistencies")
+
+
+    def __repair(self, problems) -> None:
+        sleep(1)  # dummy
 
 
     def __check_master_slave_tag_consistency(self) -> None:
-        pass
+        sleep(1)  # dummy
+        self.master_slave_tag_problems = [{}]
 
 
     def __check_wifi_tag_consistency(self) -> None:
-        pass
+        sleep(1)  # dummy
+        self.wifi_tag_problems = [{}]
 
 
 @click.command(help="A command-line utility to check and repair NetBox integrity and consistency")
