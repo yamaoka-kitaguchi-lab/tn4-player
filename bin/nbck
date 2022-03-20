@@ -17,7 +17,8 @@ See: https://github.com/yamaoka-kitaguchi-lab/tn4-player
 
 import click
 from rich import box
-from rich.console import Console
+from rich.console import Console, Group
+from rich.panel import Panel
 from rich.table import Table
 from time import sleep
 
@@ -29,6 +30,7 @@ class NBCK:
         self.wifi_tag_problems = None
 
     def load_inventories(self, verbose=False) -> None:
+        self.console.log("NBCK - NetBox Consistency Check")
         with self.console.status("[bold]Fetching the latest inventories from NetBox (netbox.m.noc.titech.ac.jp)..."):
             sleep(1)  # VLAN fetch
             self.console.log("Fetched all VLANs")
@@ -48,11 +50,13 @@ class NBCK:
             self.__check_wifi_tag_consistency()
             self.console.log(f"Checked Wi-Fi tag consistency ({len(self.wifi_tag_problems)} problems found)")
 
-        self.__print_problem_summary(self.master_slave_tag_problems, verbose=verbose)
-        self.__print_problem_summary(self.wifi_tag_problems, verbose=verbose)
+        all_problems = [self.master_slave_tag_problems, self.wifi_tag_problems]
+        for idx, problems in enumerate(all_problems):
+            print()
+            self.__print_problem_summary(problems, verbose=verbose, panel_title=f"Consistency Check Problem Report ({idx+1})")
 
 
-    def __print_problem_summary(self, problems, verbose=False) -> None:
+    def __print_problem_summary(self, problems, verbose=False, use_panel=True, panel_title="") -> None:
         table = Table(show_header=True, header_style="bold red")
         table.box = box.SIMPLE
         #table.row_styles = ["none", "dim"]
@@ -69,11 +73,15 @@ class NBCK:
             d = [str(i), "s7-flets", "172.16.32.133", "GigabitEthernet0/1/20", "Master/Slave"]
             if verbose:
                 d.extend([
-                    "vlan100 vlan120 vlan130 description hoge hoge hoge hoge hoge hoge \n"*2,
-                    "vlan100 vlan120 vlan130 description hoge hoge hoge hoge hoge hoge \n"*2,
+                    "VLAN:  100, 120, 300, 310, 330\nPoE:   Enabled\nSpeed: Auto",
+                    "VLAN:  100, 120, 300, 310, 330\nPoE:   Enabled\nSpeed: Auto",
                 ])
             table.add_row(*d)
-        self.console.print(table)
+
+        if use_panel:
+            self.console.print(Panel.fit(table, title=panel_title))
+        else:
+            self.console.print(table)
 
 
     def full_repair(self, skip_confirm=False, verbose=False) -> None:
@@ -105,9 +113,9 @@ class NBCK:
 @click.option("--verbose", "flg_verbose", is_flag=True, default=False, help="Show defailed logging")
 def main(flg_force_repair, flg_verbose):
     nbck = NBCK()
-    nbck.load_inventories(verbose=flg_verbose)
+    #nbck.load_inventories(verbose=flg_verbose)
     nbck.full_check(verbose=flg_verbose)
-    nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
+    #nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
 
 
 if __name__ == "__main__":
