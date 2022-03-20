@@ -15,13 +15,13 @@ See: https://github.com/yamaoka-kitaguchi-lab/tn4-player
 
 """
 
-from typing import List
 import click
 from rich import box
-from rich.console import Console, Group
+from rich.console import Console
 from rich.panel import Panel
-from rich.panel import Prompt
+from rich.prompt import Prompt, Confirm
 from rich.table import Table
+import sys
 from time import sleep
 
 
@@ -89,14 +89,25 @@ class NBCK:
             self.console.print(table)
 
 
-    def __flatten_num_string(self, nstr) -> List:
+    def __flatten_num_string(self, nstr) -> list:
         return []
 
 
     def full_repair(self, skip_confirm=False, verbose=False) -> None:
+        is_confirmed = skip_confirm
+
         if not skip_confirm:
-            nstr = Prompt.ask("Skip to repair (eg: 1 2 3-5):")
+            nstr = Prompt.ask("\nSkip to repair (eg: 1 2 3-5)")
             skipped_idx = self.__flatten_num_string(nstr)
+            is_confirmed = Confirm.ask(
+                f"You are about to force repair [red]{len(skipped_idx)}[/red] interfaces. Continue?",
+                default=False
+            )
+            print()
+
+        if not is_confirmed:
+            self.console.log("Aborted")
+            sys.exit(0)
 
         with self.console.status("[bold]Repairing broken master/slave tag consistency..."):
             self.__repair(self.master_slave_tag_problems)
@@ -127,7 +138,7 @@ class NBCK:
 def main(flg_force_repair, flg_verbose):
     nbck = NBCK()
     #nbck.load_inventories(verbose=flg_verbose)
-    #nbck.full_check(verbose=flg_verbose)
+    nbck.full_check(verbose=flg_verbose)
     nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
 
 
