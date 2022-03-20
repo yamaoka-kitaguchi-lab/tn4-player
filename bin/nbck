@@ -25,7 +25,7 @@ from time import sleep
 
 class NBCK:
     def __init__(self) -> None:
-        self.console = Console()
+        self.console = Console(log_time_format = "%Y-%m-%dT%H:%M:%S")
         self.master_slave_tag_problems = None
         self.wifi_tag_problems = None
 
@@ -45,16 +45,16 @@ class NBCK:
     def full_check(self, verbose=False) -> None:
         with self.console.status("[bold]Finding broken consistency..."):
             self.__check_master_slave_tag_consistency()
-            self.console.log(f"Checked Master/Slave tag consistency ({len(self.master_slave_tag_problems)} problems found)")
+            self.console.log(f"Verified Master/Slave tag consistency ({len(self.master_slave_tag_problems)} problems found)")
 
             self.__check_wifi_tag_consistency()
-            self.console.log(f"Checked Wi-Fi tag consistency ({len(self.wifi_tag_problems)} problems found)")
+            self.console.log(f"Verified Wi-Fi tag consistency ({len(self.wifi_tag_problems)} problems found)")
 
         tbl_idx_from = 0
         all_problems = [self.master_slave_tag_problems, self.wifi_tag_problems]
         for idx, problems in enumerate(all_problems):
             print()
-            self.__print_problem_summary(problems, idx_from=tbl_idx_from, verbose=verbose, panel_title=f"Consistency Check Problem Report ({idx+1})")
+            self.__print_problem_summary(problems, idx_from=tbl_idx_from, verbose=verbose, panel_title=f"Consistency Check Report ({idx+1})")
             #tbl_idx_from += len(problems)
             tbl_idx_from += 10
 
