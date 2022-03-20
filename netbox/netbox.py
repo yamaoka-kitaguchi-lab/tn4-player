@@ -157,6 +157,7 @@ class NetBoxClient:
                 if dev_name in self.all_devices:
                     interface["site"] = self.all_devices[dev_name]["site"]
                     interface["region"] = self.all_devices[dev_name]["region"]
+                    interface["wifi_mgmt_vid"] = self.all_devices[dev_name]["wifi_mgmt_vid"]
                 dev_name = interface["device"]["name"]
                 int_name = interface["name"]
                 self.all_interfaces.setdefault(dev_name, {})[int_name] = interface
