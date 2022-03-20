@@ -109,22 +109,21 @@ class NBCK:
         is_confirmed = skip_confirm
         skipped_idc = []
 
+        print()
         if skip_confirm:
-            print()
             with self.console.status("[bold]Performing force repair in 5 seconds..."):
                 sleep(5)
         else:
-            nstr = Prompt.ask("\nSkip to repair (eg: 1 2 3-5)")
+            nstr = Prompt.ask("Skip to repair (eg: 1 2 3-5)")
             skipped_idc = self.__flatten_num_string(nstr)
             is_confirmed = Confirm.ask(
                 f"You are about to force repair [red]{self.n_total_problems - len(skipped_idc)}[/red] interfaces. Continue?",
                 default=False
             )
-
-        print()
-        if not is_confirmed:
-            self.console.log("Aborted")
-            sys.exit(0)
+            print()
+            if not is_confirmed:
+                self.console.log("Aborted")
+                sys.exit(0)
 
         with self.console.status("[bold]Repairing broken master/slave tag consistency..."):
             self.__repair(self.master_slave_tag_problems)
