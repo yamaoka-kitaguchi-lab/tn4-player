@@ -15,10 +15,12 @@ See: https://github.com/yamaoka-kitaguchi-lab/tn4-player
 
 """
 
+from typing import List
 import click
 from rich import box
 from rich.console import Console, Group
 from rich.panel import Panel
+from rich.panel import Prompt
 from rich.table import Table
 from time import sleep
 
@@ -87,7 +89,15 @@ class NBCK:
             self.console.print(table)
 
 
+    def __flatten_num_string(self, nstr) -> List:
+        return []
+
+
     def full_repair(self, skip_confirm=False, verbose=False) -> None:
+        if not skip_confirm:
+            nstr = Prompt.ask("Skip to repair (eg: 1 2 3-5):")
+            skipped_idx = self.__flatten_num_string(nstr)
+
         with self.console.status("[bold]Repairing broken master/slave tag consistency..."):
             self.__repair(self.master_slave_tag_problems)
             self.console.log("Repaired all Master/Slave tag inconsistencies")
@@ -117,8 +127,8 @@ class NBCK:
 def main(flg_force_repair, flg_verbose):
     nbck = NBCK()
     #nbck.load_inventories(verbose=flg_verbose)
-    nbck.full_check(verbose=flg_verbose)
-    #nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
+    #nbck.full_check(verbose=flg_verbose)
+    nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
 
 
 if __name__ == "__main__":
