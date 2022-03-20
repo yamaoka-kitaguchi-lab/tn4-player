@@ -31,12 +31,23 @@ class Slug:
     role_core_sw = "core_sw"
     role_edge_sw = "edge_sw"
 
+    region_group_ookayama_north = "ookayama-n"
+    region_group_ookayama_south = "ookayama-s"
+    region_group_ookayama_east = "ookayama-e"
+    region_group_ookayama_west = "ookayama-w"
+    region_group_ishikawadai = "ishikawadai"
+    region_group_midorigaoka = "midorigaoka"
+    region_group_tamachi = "tamachi"
+
     tag_mgmt_vlan_border_ookayama = "mgmt_vlan_bo"
     tag_mgmt_vlan_border_suzukake = "mgmt_vlan_bs"
     tag_mgmt_vlan_core_ookayama = "mgmt_vlan_co"
     tag_mgmt_vlan_core_suzukake = "mgmt_vlan_cs"
     tag_mgmt_vlan_edge_ookayama = "mgmt_vlan_eo"
     tag_mgmt_vlan_edge_suzukake = "mgmt_vlan_es"
+    tag_wifi_mgmt_vlan_ookayama1 = "wifi_mgmt_vlan_o1"
+    tag_wifi_mgmt_vlan_ookayama2 = "wifi_mgmt_vlan_o2"
+    tag_wifi_mgmt_vlan_suzukake = "wifi_mgmt_vlan_s"
 
 
 class NetBoxClient:
@@ -54,6 +65,10 @@ class NetBoxClient:
         self.mgmt_vid_es = None
         self.mgmt_vid_co = None
         self.mgmt_vid_cs = None
+
+        self.wifi_mgmt_vid_o1 = None
+        self.wifi_mgmt_vid_o2 = None
+        self.wifi_mgmt_vid_s = None
 
 
     def query(self, request_path):
@@ -94,6 +109,12 @@ class NetBoxClient:
                     self.mgmt_vid_co = vlan["vid"]
                 if Slug.tag_mgmt_vlan_core_suzukake in vlan["tags"]:
                     self.mgmt_vid_cs = vlan["vid"]
+                if Slug.tag_wifi_mgmt_vlan_ookayama1 in vlan["tags"]:
+                    self.wifi_mgmt_vid_o1 = vlan["vid"]
+                if Slug.tag_wifi_mgmt_vlan_ookayama2 in vlan["tags"]:
+                    self.wifi_mgmt_vid_o2 = vlan["vid"]
+                if Slug.tag_wifi_mgmt_vlan_suzukake in vlan["tags"]:
+                    self.wifi_mgmt_vid_s = vlan["vid"]
                 self.all_vlans[vlan["id"]] = vlan
         return self.all_vlans
 
@@ -111,8 +132,18 @@ class NetBoxClient:
             all_devices = self.query("/dcim/devices/")
             for device in all_devices:
                 device["tags"] = [tag["slug"] for tag in device["tags"]]
-                if device["site"]["slug"] in self.all_sites:
-                    device["region"] = self.all_sites[device["site"]["slug"]]
+                dev_site = device["site"]["slug"]
+
+                if dev_site in self.all_sites:
+                    device["region"] = self.all_sites[dev_site]
+
+                    if dev_site in [Slug.region_group_ookayama_north, Slug.region_group_ookayama_west, Slug.region_group_midorigaoka]:
+                        device["wifi_mgmt_vid"] = self.wifi_mgmt_vid_o1
+                    elif dev_site in [Slug.region_group_ookayama_east, Slug.region_group_ookayama_south, Slug.region_group_ishikawadai, Slug.region_group_tamachi]:
+                        device["wifi_mgmt_vid"] = self.wifi_mgmt_vid_o2
+                    else:
+                        device["wifi_mgmt_vid"] = self.wifi_mgmt_vid_s
+
                 self.all_devices[device["name"]] = device
         return self.all_devices
 
