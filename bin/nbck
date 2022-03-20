@@ -60,7 +60,7 @@ class NBCK:
 
         with open(".sites.cache") as fd:
             self.nb.all_sites = json.load(fd)
-            self.console.log(f"Fetched all Sites ({len(self.nb.all_vlans)} sites fetched)")
+            self.console.log(f"Fetched all Sites ({len(self.nb.all_sites)} sites fetched)")
         with open(".vlans.cache") as fd:
             self.nb.all_vlans = json.load(fd)
             self.console.log(f"Fetched all VLANs ({len(self.nb.all_vlans)} VLANs fetched)")
@@ -80,7 +80,7 @@ class NBCK:
         self.console.log(f"API endpoint: {self.nb.netbox_url}")
         with self.console.status("[bold]Fetching the latest inventories from NetBox..."):
             self.nb.get_all_sites()
-            self.console.log(f"Fetched all Sites ({len(self.nb.all_vlans)} sites fetched)")
+            self.console.log(f"Fetched all Sites ({len(self.nb.all_sites)} sites fetched)")
 
             self.nb.get_all_vlans()
             self.console.log(f"Fetched all VLANs ({len(self.nb.all_vlans)} VLANs fetched)")
