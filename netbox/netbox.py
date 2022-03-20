@@ -45,9 +45,9 @@ class Slug:
     tag_mgmt_vlan_core_suzukake = "mgmt_vlan_cs"
     tag_mgmt_vlan_edge_ookayama = "mgmt_vlan_eo"
     tag_mgmt_vlan_edge_suzukake = "mgmt_vlan_es"
-    tag_wifi_mgmt_vlan_ookayama1 = "wifi_mgmt_vlan_o1"
-    tag_wifi_mgmt_vlan_ookayama2 = "wifi_mgmt_vlan_o2"
-    tag_wifi_mgmt_vlan_suzukake = "wifi_mgmt_vlan_s"
+    tag_wifi_mgmt_vlan_ookayama1 = "wlan_mgmt_vlan_o1"
+    tag_wifi_mgmt_vlan_ookayama2 = "wlan_mgmt_vlan_o2"
+    tag_wifi_mgmt_vlan_suzukake = "wlan_mgmt_vlan_s"
 
 
 class NetBoxClient:

@@ -22,8 +22,10 @@ from rich.prompt import Prompt, Confirm
 from rich.table import Table
 from time import sleep
 import click
+import copy
 import json
 import os
+import re
 import sys
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
@@ -240,7 +242,27 @@ def debug():
     #pprint(nb.all_devices["core-honkan"])
     #pprint(nb.all_devices["minami3 (1)"])
     #pprint(nb.all_interfaces["core-honkan"]["ae103"])
-    pprint(nb.all_vlans["514"])
+    #pprint(nb.all_interfaces["minami3 (1)"]["ge-0/0/13"])
+    #pprint(nb.all_vlans["514"])
+
+    all_desired_interfaces = copy.deepcopy(nb.all_interfaces)
+
+    desired_upstream_vlan_ids = {}  # key: VC hostname, value: list of VLAN object IDs
+    for hostname, interfaces in all_desired_interfaces.items():
+        l = []
+        hostname_reg = re.match("([\w|-]+) \((\d+)\)", hostname)
+        if hostname_reg is not None:
+            hostname = hostname_reg.group(1)
+        for interface in interfaces.values():
+            l.extend([v["id"] for v in interface["tagged_vlans"]])
+            if interface["untagged_vlan"] is not None:
+                l.append(interface["untagged_vlan"]["vid"])
+        if hostname in desired_upstream_vlan_ids:
+            l.extend(desired_upstream_vlan_ids[hostname])
+        desired_upstream_vlan_ids[hostname] = list(set(l))
+
+    pprint(desired_upstream_vlan_ids)
+
 
 
 if __name__ == "__main__":
