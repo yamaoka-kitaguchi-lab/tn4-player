@@ -60,16 +60,16 @@ class NBCK:
         table.add_column("IP address", style="")
         table.add_column("Interface", style="bold")
         table.add_column("Violation", style="cyan")
-        table.add_column("Current state", style="red")
+        table.add_column("Current state", style="magenta")
         table.add_column("Desired state", style="green")
-        for i in range(30):
+        for i in range(100):
             table.add_row(
                 str(i),
                 "s7-flets",
                 "172.16.32.133",
                 "GigabitEthernet0/1/20",
                 "Master/Slave",
-                "i"*1000,
+                "vlan100 vlan120 vlan130 description hoge"*1000,
                 "x"*1000,
             )
         table.row_styles = ["none", "dim"]
