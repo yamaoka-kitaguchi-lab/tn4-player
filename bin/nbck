@@ -1,0 +1,11 @@
+"""
+NBCK - NetBox Consistency Check
+
+NBCK is a command-line utility to check and repair NetBox registration errors.
+This makes sure NetBox for integrity and consistency just like the fsck command does for Linux filesystem.
+
+$
+
+Since: March 2022
+See: https://github.com/yamaoka-kitaguchi-lab/tn4-player
+"""

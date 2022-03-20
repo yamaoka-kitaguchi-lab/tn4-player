@@ -8,7 +8,7 @@ import sys
 import time
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
-INVENTORYDIR = os.path.join(CURDIR, "inventories/production")
+INVENTORYDIR = os.path.join(CURDIR, "../inventories/production")
 sys.path.append(INVENTORYDIR)
 
 from netbox import dynamic_inventory
