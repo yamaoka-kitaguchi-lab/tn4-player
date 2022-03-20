@@ -39,15 +39,15 @@ class Slug:
     site_group_midorigaoka = "midorigaoka"
     site_group_tamachi = "tamachi"
 
-    tag_mgmt_vlan_border_ookayama = "mgmt_vlan_bo"
-    tag_mgmt_vlan_border_suzukake = "mgmt_vlan_bs"
-    tag_mgmt_vlan_core_ookayama = "mgmt_vlan_co"
-    tag_mgmt_vlan_core_suzukake = "mgmt_vlan_cs"
-    tag_mgmt_vlan_edge_ookayama = "mgmt_vlan_eo"
-    tag_mgmt_vlan_edge_suzukake = "mgmt_vlan_es"
-    tag_wifi_mgmt_vlan_ookayama1 = "wlan_mgmt_vlan_o1"
-    tag_wifi_mgmt_vlan_ookayama2 = "wlan_mgmt_vlan_o2"
-    tag_wifi_mgmt_vlan_suzukake = "wlan_mgmt_vlan_s"
+    tag_mgmt_vlan_border_ookayama = "mgmt-vlan-bo"
+    tag_mgmt_vlan_border_suzukake = "mgmt-vlan-bs"
+    tag_mgmt_vlan_core_ookayama = "mgmt-vlan-co"
+    tag_mgmt_vlan_core_suzukake = "mgmt-vlan-cs"
+    tag_mgmt_vlan_edge_ookayama = "mgmt-vlan-eo"
+    tag_mgmt_vlan_edge_suzukake = "mgmt-vlan-es"
+    tag_wifi_mgmt_vlan_ookayama1 = "wlan-mgmt-vlan-o1"
+    tag_wifi_mgmt_vlan_ookayama2 = "wlan-mgmt-vlan-o2"
+    tag_wifi_mgmt_vlan_suzukake = "wlan-mgmt-vlan-s"
 
 
 class NetBoxClient:

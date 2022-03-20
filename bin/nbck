@@ -238,9 +238,9 @@ def debug():
     nbck = NBCK(nb)
     nbck.load_inventories_for_debug(verbose=True)
 
-    pprint(nb.all_sites["minami3"])
+    #pprint(nb.all_sites["minami3"])
     #pprint(nb.all_devices["core-honkan"])
-    pprint(nb.all_devices["minami3 (1)"])
+    #pprint(nb.all_devices["minami3 (1)"])
     #pprint(nb.all_interfaces["core-honkan"]["ae103"])
     #pprint(nb.all_interfaces["minami3 (1)"]["ge-0/0/13"])
     #pprint(nb.all_vlans["514"])
