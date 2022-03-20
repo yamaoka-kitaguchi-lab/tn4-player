@@ -236,9 +236,10 @@ def debug():
     nbck = NBCK(nb)
     nbck.load_inventories_for_debug(verbose=True)
 
-    pprint(nb.all_sites)
+    #pprint(nb.all_sites)
     #pprint(nb.all_devices["core-honkan"])
     #pprint(nb.all_interfaces["core-honkan"]["ae103"])
+    pprint(nb.all_vlans[514])
 
 
 if __name__ == "__main__":

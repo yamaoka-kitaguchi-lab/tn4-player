@@ -33,7 +33,7 @@ class NetBoxClient:
         self.api_endpoint = netbox_url.rstrip("/") + "/api"
         self.token = netbox_api_token
         self.all_sites = {}
-        self.all_vlans = []
+        self.all_vlans = {}
         self.all_devices = {}
         self.all_interfaces = {}
         self.all_addresses = []
@@ -60,16 +60,25 @@ class NetBoxClient:
         if not use_cache or not self.all_sites:
             all_sites = self.query("/dcim/sites/")
             for site in all_sites:
-                self.all_sites[site["name"]] = site
+                self.all_sites[site["slug"]] = site
         return self.all_sites
 
 
     def get_all_vlans(self, use_cache=True):
         if not use_cache or not self.all_vlans:
-            self.all_vlans = self.query("/ipam/vlans/")
-            for vlan in self.all_vlans:
+            all_vlans = self.query("/ipam/vlans/")
+            for vlan in all_vlans:
                 vlan["tags"] = [tag["slug"] for tag in vlan["tags"]]
+                self.all_vlans[vlan["id"]] = vlan
         return self.all_vlans
+
+
+    def get_all_addresses(self, use_cache=True):
+        if not use_cache or not self.all_addresses:
+            self.all_addresses = self.query("/ipam/ip-addresses/")
+            for address in self.all_addresses:
+                address["tags"] = [tag["slug"] for tag in address["tags"]]
+        return self.all_addresses
 
 
     def get_all_devices(self, use_cache=True):
@@ -77,6 +86,8 @@ class NetBoxClient:
             all_devices = self.query("/dcim/devices/")
             for device in all_devices:
                 device["tags"] = [tag["slug"] for tag in device["tags"]]
+                if device["site"]["slug"] in self.all_sites:
+                    device["region"] = self.all_sites[device["site"]["slug"]]
                 self.all_devices[device["name"]] = device
         return self.all_devices
 
@@ -86,15 +97,10 @@ class NetBoxClient:
             all_interfaces = self.query("/dcim/interfaces/")
             for interface in all_interfaces:
                 interface["tags"] = [tag["slug"] for tag in interface["tags"]]
+                if interface["device"]["name"] in self.all_devices:
+                    interface["site"] = self.all_devices[interface["device"]["name"]]["site"]
+                    interface["region"] = self.all_devices[interface["device"]["name"]]["region"]
                 dev_name = interface["device"]["name"]
                 int_name = interface["name"]
                 self.all_interfaces.setdefault(dev_name, {})[int_name] = interface
         return self.all_interfaces
-
-
-    def get_all_addresses(self, use_cache=True):
-        if not use_cache or not self.all_addresses:
-            self.all_addresses = self.query("/ipam/ip-addresses/")
-            for address in self.all_addresses:
-                address["tags"] = [tag["slug"] for tag in address["tags"]]
-        return self.all_addresses
