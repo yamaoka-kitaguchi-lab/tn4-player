@@ -72,7 +72,8 @@ class NBCK:
             self.console.log(f"Fetched all Devices ({len(self.nb.all_devices)} devices fetched)")
         with open(".interfaces.cache") as fd:
             self.nb.all_interfaces = json.load(fd)
-            self.console.log(f"Fetched all Interfaces ({len(self.nb.all_interfaces)} interfaces fetched)")
+            n = sum(len(v) for v in self.nb.all_interfaces.values())
+            self.console.log(f"Fetched all Interfaces ({n} interfaces fetched)")
 
 
     def load_inventories(self, verbose=False) -> None:
@@ -92,7 +93,8 @@ class NBCK:
             self.console.log(f"Fetched all Devices ({len(self.nb.all_devices)} devices fetched)")
 
             self.nb.get_all_interfaces()
-            self.console.log(f"Fetched all Interfaces ({len(self.nb.all_interfaces)} interfaces fetched)")
+            n = sum(len(v) for v in self.nb.all_interfaces.values())
+            self.console.log(f"Fetched all Interfaces ({n} interfaces fetched)")
 
 
     def full_check(self, verbose=False) -> None:
