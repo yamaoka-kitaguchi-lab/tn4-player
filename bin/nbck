@@ -83,8 +83,8 @@ class NBCK:
             d = [str(idx_from+i), "s7-flets", "172.16.32.133", "GigabitEthernet0/1/20", "Master/Slave"]
             if verbose:
                 d.extend([
-                    "[bold]VLAN:[/bold]  100, 120, 300, 310, 330\n[bold]PoE:[/bold]   Enabled\n[bold]Speed:[/bold] Auto",
-                    "[bold]VLAN:[/bold]  100, 120, 300, 310, 330\n[bold]PoE:[/bold]   Enabled\n[bold]Speed:[/bold] Auto",
+                    "[bold]VLAN:[/bold]  100, 120, 300, 310, 330, 100, 120, 300, 310, 330, \n[bold]PoE:[/bold]   Enabled\n[bold]Speed:[/bold] Auto",
+                    "[bold]VLAN:[/bold]  100, 120, 300, 310, 330, 100, 120, 300, 310, 330, \n[bold]PoE:[/bold]   Enabled\n[bold]Speed:[/bold] Auto",
                 ])
             table.add_row(*d)
 
