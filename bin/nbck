@@ -128,7 +128,7 @@ class NBCK:
 
 
     def __check_wifi_tag_consistency(self) -> None:
-        sleep(1)  # dummy
+        sleep(0.5)  # dummy
         self.wifi_tag_problems = [{}]
 
 
