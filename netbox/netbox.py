@@ -27,6 +27,18 @@ def load_encrypted_secrets():
             sys.exit(1)
 
 
+class Slug:
+    role_core_sw = "core_sw"
+    role_edge_sw = "edge_sw"
+
+    tag_mgmt_vlan_border_ookayama = "mgmt_vlan_bo"
+    tag_mgmt_vlan_border_suzukake = "mgmt_vlan_bs"
+    tag_mgmt_vlan_core_ookayama = "mgmt_vlan_co"
+    tag_mgmt_vlan_core_suzukake = "mgmt_vlan_cs"
+    tag_mgmt_vlan_edge_ookayama = "mgmt_vlan_eo"
+    tag_mgmt_vlan_edge_suzukake = "mgmt_vlan_es"
+
+
 class NetBoxClient:
     def __init__(self, netbox_url, netbox_api_token):
         self.netbox_url = netbox_url
@@ -37,6 +49,11 @@ class NetBoxClient:
         self.all_devices = {}
         self.all_interfaces = {}
         self.all_addresses = []
+
+        self.mgmt_vid_eo = None
+        self.mgmt_vid_es = None
+        self.mgmt_vid_co = None
+        self.mgmt_vid_cs = None
 
 
     def query(self, request_path):
@@ -69,8 +86,15 @@ class NetBoxClient:
             all_vlans = self.query("/ipam/vlans/")
             for vlan in all_vlans:
                 vlan["tags"] = [tag["slug"] for tag in vlan["tags"]]
+                if Slug.tag_mgmt_vlan_edge_ookayama in vlan["tags"]:
+                    self.mgmt_vid_eo = vlan["vid"]
+                if Slug.tag_mgmt_vlan_edge_suzukake in vlan["tags"]:
+                    self.mgmt_vid_es = vlan["vid"]
+                if Slug.tag_mgmt_vlan_core_ookayama in vlan["tags"]:
+                    self.mgmt_vid_co = vlan["vid"]
+                if Slug.tag_mgmt_vlan_core_suzukake in vlan["tags"]:
+                    self.mgmt_vid_cs = vlan["vid"]
                 self.all_vlans[vlan["id"]] = vlan
-                ## todo: save management vlan id
         return self.all_vlans
 
 
@@ -102,7 +126,6 @@ class NetBoxClient:
                 if dev_name in self.all_devices:
                     interface["site"] = self.all_devices[dev_name]["site"]
                     interface["region"] = self.all_devices[dev_name]["region"]
-                    ## todo: add interface["upstream_vlans"]
                 dev_name = interface["device"]["name"]
                 int_name = interface["name"]
                 self.all_interfaces.setdefault(dev_name, {})[int_name] = interface
