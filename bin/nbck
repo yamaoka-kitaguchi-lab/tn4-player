@@ -50,13 +50,16 @@ class NBCK:
             self.__check_wifi_tag_consistency()
             self.console.log(f"Checked Wi-Fi tag consistency ({len(self.wifi_tag_problems)} problems found)")
 
+        tbl_idx_from = 0
         all_problems = [self.master_slave_tag_problems, self.wifi_tag_problems]
         for idx, problems in enumerate(all_problems):
             print()
-            self.__print_problem_summary(problems, verbose=verbose, panel_title=f"Consistency Check Problem Report ({idx+1})")
+            self.__print_problem_summary(problems, idx_from=tbl_idx_from, verbose=verbose, panel_title=f"Consistency Check Problem Report ({idx+1})")
+            #tbl_idx_from += len(problems)
+            tbl_idx_from += 10
 
 
-    def __print_problem_summary(self, problems, verbose=False, use_panel=True, panel_title="") -> None:
+    def __print_problem_summary(self, problems, idx_from=0, verbose=False, use_panel=True, panel_title="") -> None:
         table = Table(show_header=True, header_style="bold red")
         table.box = box.SIMPLE
         #table.row_styles = ["none", "dim"]
@@ -70,7 +73,7 @@ class NBCK:
             table.add_column("Desired state", style="green")
 
         for i in range(10):
-            d = [str(i), "s7-flets", "172.16.32.133", "GigabitEthernet0/1/20", "Master/Slave"]
+            d = [str(idx_from+i), "s7-flets", "172.16.32.133", "GigabitEthernet0/1/20", "Master/Slave"]
             if verbose:
                 d.extend([
                     "VLAN:  100, 120, 300, 310, 330\nPoE:   Enabled\nSpeed: Auto",
