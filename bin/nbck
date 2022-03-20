@@ -8,7 +8,7 @@ NBCK is a command-line utility to check and repair NetBox registration errors.
 This makes sure NetBox for integrity and consistency just like the fsck command does for Linux filesystem.
 
 $ PATH=$HOME/tn4-player/bin:$PATH
-$ nbck --force-repair --verbose
+$ nbck -fv
 
 Since: March 2022
 See: https://github.com/yamaoka-kitaguchi-lab/tn4-player
@@ -29,6 +29,7 @@ class NBCK:
     def __init__(self) -> None:
         self.console = Console(log_time_format="%Y-%m-%dT%H:%M:%S")
         self.n_total_problems = 0
+        self.core_downstream_problems = None
         self.master_slave_tag_problems = None
         self.wifi_tag_problems = None
 
@@ -36,26 +37,31 @@ class NBCK:
         self.console.log("NBCK - NetBox Consistency Check")
         with self.console.status("[bold]Fetching the latest inventories from NetBox (netbox.m.noc.titech.ac.jp)..."):
             sleep(0.5)  # dummy
-            self.console.log("Fetched all VLANs")
+            self.console.log("Fetched all VLANs (1000 VLANs fetched)")
             sleep(0.5)  # dummy
-            self.console.log("Fetched all IP Addresses")
+            self.console.log("Fetched all IP Addresses (1000 addresses fetched)")
             sleep(0.5)  # dummy
-            self.console.log("Fetched all Devices")
+            self.console.log("Fetched all Devices (100 devices fetched)")
             sleep(0.5)  # dummy
-            self.console.log("Fetched all Interfaces")
+            self.console.log("Fetched all Interfaces (1200 interfaces fetched)")
 
 
     def full_check(self, verbose=False) -> None:
         with self.console.status("[bold]Finding broken consistency..."):
-            self.__check_master_slave_tag_consistency()
-            n_problems = len(self.master_slave_tag_problems)
-            self.n_total_problems += n_problems
-            self.console.log(f"Verified Master/Slave tag consistency ({n_problems} problems found)")
-
             self.__check_wifi_tag_consistency()
             n_problems = len(self.wifi_tag_problems)
             self.n_total_problems += n_problems
-            self.console.log(f"Verified Wi-Fi tag consistency ({n_problems} problems found)")
+            self.console.log(f"Checked Wi-Fi tag consistency ({n_problems} problems found)")
+
+            self.__check_master_slave_tag_consistency()
+            n_problems = len(self.master_slave_tag_problems)
+            self.n_total_problems += n_problems
+            self.console.log(f"Checked Master/Slave tag consistency ({n_problems} problems found)")
+
+            self.__check_core_downstream_consistency()
+            n_problems = len(self.core_downstream_problems)
+            self.n_total_problems += n_problems
+            self.console.log(f"Checked core downstream VLAN consistency ({n_problems} problems found)")
 
         tbl_idx_from = 0
         all_problems = [self.master_slave_tag_problems, self.wifi_tag_problems]
@@ -114,7 +120,7 @@ class NBCK:
             with self.console.status("[bold]Performing force repair in 5 seconds..."):
                 sleep(5)
         else:
-            nstr = Prompt.ask("Skip to repair (eg: 1 2 3-5)")
+            nstr = Prompt.ask("Interfaces to skip repairing (eg: 1 2 3-5)")
             skipped_idc = self.__flatten_num_string(nstr)
             is_confirmed = Confirm.ask(
                 f"You are about to force repair [red]{self.n_total_problems - len(skipped_idc)}[/red] interfaces. Continue?",
@@ -148,9 +154,14 @@ class NBCK:
         self.wifi_tag_problems = [{}]
 
 
+    def __check_core_downstream_consistency(self) -> None:
+        sleep(0.5)  # dummy
+        self.core_downstream_problems = [{}]
+
+
 @click.command(help="A command-line utility to check and repair NetBox integrity and consistency")
-@click.option("--force-repair", "flg_force_repair", is_flag=True, default=False, help="Repair all inconsistencies without confirmation")
-@click.option("--verbose", "flg_verbose", is_flag=True, default=False, help="Show defailed logging")
+@click.option("-f", "--force-repair", "flg_force_repair", is_flag=True, default=False, help="Repair all inconsistencies without confirmation")
+@click.option("-v", "--verbose", "flg_verbose", is_flag=True, default=False, help="Show defailed logging")
 def main(flg_force_repair, flg_verbose):
     nbck = NBCK()
     nbck.load_inventories(verbose=flg_verbose)
