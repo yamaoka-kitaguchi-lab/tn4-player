@@ -28,7 +28,7 @@ class NBCK:
 
 
     def load_inventories(self) -> None:
-        with self.console.status("[bold]Fetching the latest inventories from NetBox (netbox.m.noc.titech.ac.jp)...") as _:
+        with self.console.status("[bold]Fetching the latest inventories from NetBox (netbox.m.noc.titech.ac.jp)..."):
             sleep(1)  # VLAN fetch
             self.console.log("Fetched all VLANs")
             sleep(1)  # IP Address fetch
