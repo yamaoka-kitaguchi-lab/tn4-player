@@ -157,46 +157,9 @@ class NBCK:
                 for message in consoles:
                     self.console.log(message)
 
-            for dev_name, interfaces in self.consistencies.items():
-                for int_name, state in interfaces.items():
-                    if len(self.consistencies[dev_name][int_name]["violation"]) > 0:
-                        address = "-"
-                        if self.nb.all_devices[dev_name]["primary_ip"] is not None:
-                            address = self.nb.all_devices[dev_name]["primary_ip"]["address"]
-
-                        for label in ["current", "desired"]:
-                            s = state[label]
-
-                            s["mode"] = "Access"
-                            if s["tagged"]:
-                                s["mode"] = "Trunk"
-
-                            if len(s["tagged_vlanids"]) > 0:
-                                s["tagged_vids"] = list(map(str, sorted([self.nb.all_vlans[str(i)]["vid"] for i in s["tagged_vlanids"]])))
-                            else:
-                                s["tagged_vids"] = "-"
-
-                            if s["untagged_vlanid"] is not None:
-                                s["untagged_vid"] = str(self.nb.all_vlans[str(s["untagged_vlanid"])]["vid"])
-                            else:
-                                s["untagged_vid"] = "-"
-
-                            if s["enabled"]:
-                                s["enabled"] = "Yes"
-                            else:
-                                s["enabled"] = "No"
-
-                            if s["description"] == "":
-                                s["description"] = "-"
-
-                        self.problems.append({
-                            "device":    dev_name,
-                            "interface": int_name,
-                            "address":   address,
-                            **state,
-                        })
 
             sleep(1)  # for visibility
+            self.__generate_problem_summary()
             n = len(self.problems)
             if n > 0:
                 self.console.log(f"All done. Found [red]{n}[/red] inconsistencies of below.")
@@ -205,6 +168,64 @@ class NBCK:
             else:
                 self.console.log(f"All done. No inconsistencies found. Exiting...")
                 sys.exit(0)
+
+
+    def __generate_problem_summary(self) -> None:
+        for dev_name, interfaces in self.consistencies.items():
+            for int_name, state in interfaces.items():
+                if len(self.consistencies[dev_name][int_name]["violation"]) > 0:
+                    address = "-"
+                    if self.nb.all_devices[dev_name]["primary_ip"] is not None:
+                        address = self.nb.all_devices[dev_name]["primary_ip"]["address"]
+
+                    for label in ["current", "desired"]:
+                        s = state[label]
+
+                        s["mode"] = "Access"
+                        if s["tagged"]:
+                            s["mode"] = "Trunk"
+
+                        if len(s["tagged_vlanids"]) > 0:
+                            s["tagged_vids"] = [str(self.nb.all_vlans[str(i)]["vid"]) for i in s["tagged_vlanids"]]
+                        else:
+                            s["tagged_vids"] = "-"
+
+                        if s["untagged_vlanid"] is not None:
+                            s["untagged_vid"] = str(self.nb.all_vlans[str(s["untagged_vlanid"])]["vid"])
+                        else:
+                            s["untagged_vid"] = "-"
+
+                        if s["enabled"]:
+                            s["enabled"] = "Yes"
+                        else:
+                            s["enabled"] = "No"
+
+                        if s["description"] == "":
+                            s["description"] = "-"
+
+                    self.problems.append({
+                        "device":    dev_name,
+                        "interface": int_name,
+                        "address":   address,
+                        **state,
+                    })
+
+        for problem in self.problems:
+            bef = set(problem["current"]["tagged_vids"])
+            aft = set(problem["desired"]["tagged_vids"])
+            if type(problem["current"]["tagged_vids"]) == list:
+                for vid in bef.difference(aft):
+                    problem["current"]["tagged_vids"].remove(str(vid))
+                    problem["current"]["tagged_vids"].append(f"*{str(vid)}")
+            if type(problem["desired"]["tagged_vids"]) == list:
+                for vid in aft.difference(bef):
+                    problem["desired"]["tagged_vids"].remove(str(vid))
+                    problem["desired"]["tagged_vids"].append(f"*{str(vid)}")
+
+            bef = set(problem["current"]["untagged_vid"])
+            aft = set(problem["desired"]["untagged_vid"])
+            if bef != aft:
+                problem["desired"]["untagged_vid"] = f"*{aft}"
 
 
     def __print_problem_summary(self, idx_from=0, alt_table_bg=False, verbose=False, use_panel=True, panel_title="") -> None:
