@@ -240,7 +240,7 @@ def debug():
     #pprint(nb.all_vlans["514"])
 
 
-    consistency_report = {}
+    consistencies = {}
 
     def new_state(enabled=False, description="", tags=[], tagged_vlanids=None, untagged_vlanid=None) -> dict:
         return {
@@ -262,7 +262,7 @@ def debug():
 
     for dev_name, interfaces in nb.all_interfaces.items():
         for int_name, interface in interfaces.items():
-            consistency_report.setdefault(dev_name, {})[int_name] = {
+            consistencies.setdefault(dev_name, {})[int_name] = {
                 "current": new_state(
                     enabled=interface["enabled"],
                     description=interface["description"],
@@ -287,7 +287,7 @@ def debug():
             if not is_wifi_port:
                 continue
 
-            desired = consistency_report[dev_name][int_name]["desired"]
+            desired = consistencies[dev_name][int_name]["desired"]
             desired["tagged_vlanids"].extend(interface["wifi_vlanids"])
 
             if interface["is_to_ap"]:
@@ -299,12 +299,12 @@ def debug():
             desired["tagged"] = True
 
     #pprint(nb.all_interfaces["minami3 (1)"]["mge-0/0/40"])
-    #pprint(consistency_report["minami3 (1)"]["mge-0/0/40"])
+    #pprint(consistencies["minami3 (1)"]["mge-0/0/40"])
 
 
 
     desired_up_vlanids = {}  # key: edge VC hostname, values list of VLAN object IDs
-    for dev_name, interfaces in consistency_report.items():
+    for dev_name, interfaces in consistencies.items():
         is_edge = nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_edge_sw
         if not is_edge:
             continue
@@ -335,10 +335,10 @@ def debug():
                 print(f"No registration found for {edge_hostname}: missing Downlink tag?")
                 continue
 
-            desired = consistency_report[dev_name][int_name]["desired"]
+            desired = consistencies[dev_name][int_name]["desired"]
             desired["tagged_vlanids"] = desired_up_vlanids[edge_hostname]  # overwrite
 
-    #pprint(consistency_report["core-honkan"]["ae148"])
+    #pprint(consistencies["core-honkan"]["ae148"])
 
 
 
@@ -357,11 +357,11 @@ def debug():
             is_suzukake_master = Slug.tag_core_suzukake_master in interface["tags"]
 
             if is_master:
-                desired_master[int_name] = consistency_report[dev_name][int_name]["desired"]
+                desired_master[int_name] = consistencies[dev_name][int_name]["desired"]
             if is_ookayama_master:
-                desired_o_master[int_name] = consistency_report[dev_name][int_name]["desired"]
+                desired_o_master[int_name] = consistencies[dev_name][int_name]["desired"]
             if is_suzukake_master:
-                desired_s_master[int_name] = consistency_report[dev_name][int_name]["desired"]
+                desired_s_master[int_name] = consistencies[dev_name][int_name]["desired"]
 
     for dev_name, interfaces in nb.all_interfaces.items():
         is_core = nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_core_sw
@@ -374,15 +374,15 @@ def debug():
             is_suzukake_slave = Slug.tag_core_suzukake_slave in interface["tags"]
 
             if is_slave:
-                consistency_report[dev_name][int_name]["desired"] = copy.deepcopy(desired_master[int_name])
+                consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_master[int_name])
             if is_ookayama_slave:
-                consistency_report[dev_name][int_name]["desired"] = copy.deepcopy(desired_o_master[int_name])
+                consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_o_master[int_name])
             if is_suzukake_slave:
-                consistency_report[dev_name][int_name]["desired"] = copy.deepcopy(desired_s_master[int_name])
+                consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_s_master[int_name])
 
 
-    pprint(consistency_report["core-honkan"]["ae148"])
-    pprint(consistency_report["core-gsic"]["ae148"])
+    pprint(consistencies["core-honkan"]["ae148"])
+    pprint(consistencies["core-gsic"]["ae148"])
 
 
 if __name__ == "__main__":
