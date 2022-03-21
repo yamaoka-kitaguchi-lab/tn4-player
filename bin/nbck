@@ -269,7 +269,15 @@ def debug():
                     tagged_vlanids=interface["tagged_vlanids"],
                     untagged_vlanid=interface["untagged_vlanids"],
                 ),
-                "desired": new_state(),
+                "desired": new_state(
+                    enabled=interface["enabled"],
+                    description=interface["description"],
+                    tags=interface["tags"],
+                    tagged_vids=interface["tagged_vids"],
+                    untagged_vid=interface["untagged_vids"],
+                    tagged_vlanids=interface["tagged_vlanids"],
+                    untagged_vlanid=interface["untagged_vlanids"],
+                ),
                 "update":  new_state(),
             })
 
