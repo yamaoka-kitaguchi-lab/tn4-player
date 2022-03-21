@@ -25,7 +25,6 @@ import click
 import copy
 import json
 import os
-import re
 import sys
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
@@ -283,7 +282,7 @@ class NBCK:
         return l
 
 
-    def full_repair(self, skip_confirm=False, verbose=False) -> None:
+    def full_repair(self, skip_confirm=False, verbose=False, dryrun=False) -> None:
         is_confirmed = skip_confirm
         skipped_idx = []
 
@@ -305,8 +304,14 @@ class NBCK:
 
         with self.console.status("[bold]Repairing inconsistencies..."):
             n = len(self.problems) - len(skipped_idx)
+            c = 0
             for i, p in enumerate(self.problems):
+                c += 1
                 if i in skipped_idx:
+                    continue
+
+                if dryrun:
+                    self.console.log(f"[red bold]DRYRUN[/red bold] Repaired [blue bold]{p['interface']}[/blue bold] on [blue bold]{p['device']}[/blue bold] [dim]({c} of {n} finished)[/dim]")
                     continue
 
                 self.nb.update_interface(
@@ -318,7 +323,7 @@ class NBCK:
                     tagged_vlanids=p["desired"]["tagged_vlanids"],
                     tags=p["desired"]["tags"]
                 )
-                self.console.log(f"Repaired [blue bold]{p['interface']}[/blue bold] on [blue bold]{p['device']}[/blue bold] [dim]({i+1} of {n} finished)[/dim]")
+                self.console.log(f"Repaired [blue bold]{p['interface']}[/blue bold] on [blue bold]{p['device']}[/blue bold] [dim]({c} of {n} finished)[/dim]")
             self.console.log("Completed. Exiting...")
 
 
@@ -447,10 +452,11 @@ class NBCK:
 
 
 @click.command(help="A command-line utility to check and repair NetBox integrity and consistency")
+@click.option("-d", "--dry-run", "flg_dryrun", is_flag=True, default=False, help="Skip change to NetBox.")
 @click.option("-f", "--force-repair", "flg_force_repair", is_flag=True, default=False, help="Repair all inconsistencies without confirmation.")
 @click.option("-b", "--alter-bg", "flg_alt_table_bg", is_flag=True, default=False, help="Use alternating background color in the table.")
 @click.option("-v", "--verbose", "flg_verbose", is_flag=True, default=False, help="Show detailed logging.")
-def main(flg_force_repair, flg_alt_table_bg, flg_verbose):
+def main(flg_dryrun, flg_force_repair, flg_alt_table_bg, flg_verbose):
     secrets = load_encrypted_secrets()
     nb_url = secrets["netbox_url"]
     nb_token = secrets["netbox_api_token"]
@@ -460,7 +466,7 @@ def main(flg_force_repair, flg_alt_table_bg, flg_verbose):
     nbck.load_inventories(verbose=flg_verbose)
     #nbck.load_inventories_for_debug(verbose=flg_verbose)
     nbck.full_check(alt_table_bg=flg_alt_table_bg, verbose=flg_verbose)
-    #nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
+    nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose, dryrun=flg_dryrun)
 
 
 def debug():
@@ -473,7 +479,7 @@ def debug():
     nbck = NBCK(nb)
     nbck.load_inventories_for_debug(verbose=True)
     nbck.full_check(verbose=True)
-    nbck.full_repair(skip_confirm=True, verbose=True)
+    nbck.full_repair(skip_confirm=True, verbose=True, dryrun=True)
 
     #pprint(nb.all_sites["minami3"])
     #pprint(nb.all_vlans)
@@ -502,5 +508,5 @@ def debug():
 
 
 if __name__ == "__main__":
-    #main()
-    debug()
+    main()
+    #debug()
