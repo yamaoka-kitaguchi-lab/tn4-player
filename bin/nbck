@@ -154,12 +154,17 @@ class NBCK:
             for dev_name, interfaces in self.consistencies.items():
                 for int_name, state in interfaces.items():
                     if len(self.consistencies[dev_name][int_name]["violation"]) > 0:
+                        address = "-"
+                        if self.nb.all_devices[dev_name]["primary_ip"] is not None:
+                            address = self.nb.all_devices[dev_name]["primary_ip"]["address"]
+
                         self.problems.append({
-                            "device": dev_name,
+                            "device":    dev_name,
                             "interface": int_name,
-                            "address": self.nb.all_devices[dev_name]["primary_ip"]["address"],
+                            "address":   address,
                             **state,
                         })
+
             self.console.log(f"All done. Found {len(self.problems)} inconsistencies")
 
         print()
