@@ -352,9 +352,9 @@ def debug():
             continue
 
         for int_name, interface in interfaces.items():
-            is_master = Slug.tag_core_master in interface["tag"]
-            is_ookayama_master = Slug.tag_core_ookayama_master in interface["tag"]
-            is_suzukake_master = Slug.tag_core_suzukake_master in interface["tag"]
+            is_master = Slug.tag_core_master in interface["tags"]
+            is_ookayama_master = Slug.tag_core_ookayama_master in interface["tags"]
+            is_suzukake_master = Slug.tag_core_suzukake_master in interface["tags"]
 
             if is_master:
                 desired_master[int_name] = consistency_report[dev_name][int_name]["desired"]
@@ -369,9 +369,9 @@ def debug():
             continue
 
         for int_name, interface in interfaces.items():
-            is_slave = Slug.tag_core_slave in interface["tag"]
-            is_ookayama_slave = Slug.tag_core_ookayama_slave in interface["tag"]
-            is_suzukake_slave = Slug.tag_core_suzukake_slave in interface["tag"]
+            is_slave = Slug.tag_core_slave in interface["tags"]
+            is_ookayama_slave = Slug.tag_core_ookayama_slave in interface["tags"]
+            is_suzukake_slave = Slug.tag_core_suzukake_slave in interface["tags"]
 
             if is_slave:
                 consistency_report[dev_name][int_name]["desired"] = copy.deepcopy(desired_master[int_name])
@@ -381,6 +381,8 @@ def debug():
                 consistency_report[dev_name][int_name]["desired"] = copy.deepcopy(desired_s_master[int_name])
 
 
+    pprint(consistency_report["core-honkan"]["ae148"])
+    pprint(consistency_report["core-gsic"]["ae148"])
 
 
 if __name__ == "__main__":
