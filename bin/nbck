@@ -255,8 +255,11 @@ def debug():
         }
 
 
-    def diff_state(s1, s2) -> None:
-        return
+    def is_equal(s1, s2) -> None:
+        for k, v in s1.items():
+            if v != s2[k]:
+                return False
+        return True
 
 
 
@@ -277,6 +280,7 @@ def debug():
                     tagged_vlanids=interface["tagged_vlanids"],
                     untagged_vlanid=interface["untagged_vlanid"],
                 ),
+                "violation": [],
             }
 
 
@@ -287,6 +291,7 @@ def debug():
             if not is_wifi_port:
                 continue
 
+            current = copy.deepcopy(consistencies[dev_name][int_name]["desired"])
             desired = consistencies[dev_name][int_name]["desired"]
             desired["tagged_vlanids"].extend(interface["wifi_vlanids"])
 
@@ -297,6 +302,10 @@ def debug():
 
             desired["tagged_vlanids"] = list(set(desired["tagged_vlanids"]))
             desired["tagged"] = True
+
+            if not is_equal(current, desired):
+                consistencies[dev_name][int_name]["violation"].append("Wi-Fi")
+
 
     #pprint(nb.all_interfaces["minami3 (1)"]["mge-0/0/40"])
     #pprint(consistencies["minami3 (1)"]["mge-0/0/40"])
@@ -335,8 +344,12 @@ def debug():
                 print(f"No registration found for {edge_hostname}: missing Downlink tag?")
                 continue
 
+            current = copy.deepcopy(consistencies[dev_name][int_name]["desired"])
             desired = consistencies[dev_name][int_name]["desired"]
             desired["tagged_vlanids"] = desired_up_vlanids[edge_hostname]  # overwrite
+
+            if not is_equal(current, desired):
+                consistencies[dev_name][int_name]["violation"].append("Edge Upstream")
 
     #pprint(consistencies["core-honkan"]["ae148"])
 
@@ -373,12 +386,17 @@ def debug():
             is_ookayama_slave = Slug.tag_core_ookayama_slave in interface["tags"]
             is_suzukake_slave = Slug.tag_core_suzukake_slave in interface["tags"]
 
+            current = copy.deepcopy(consistencies[dev_name][int_name]["desired"])
+            desired = consistencies[dev_name][int_name]["desired"]
             if is_slave:
-                consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_master[int_name])
+                desired = copy.deepcopy(desired_master[int_name])
             if is_ookayama_slave:
-                consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_o_master[int_name])
+                desired = copy.deepcopy(desired_o_master[int_name])
             if is_suzukake_slave:
-                consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_s_master[int_name])
+                desired = copy.deepcopy(desired_s_master[int_name])
+
+            if not is_equal(current, desired):
+                consistencies[dev_name][int_name]["violation"].append("Master/Slave")
 
 
     pprint(consistencies["core-honkan"]["ae148"])
