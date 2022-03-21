@@ -344,6 +344,7 @@ class DevConfig:
       _, is_lag_port = self.__regex_interface_name(ifname)
       is_lag_member_port = prop["lag"] is not None
       is_upstream_port = DevConfig.TAG_UPLINK in prop["tags"]
+      is_utp_port = prop["type"]["value"] == "1000base-t"
       is_poe_port = DevConfig.TAG_POE in prop["tags"]
       is_10m_port = DevConfig.TAG_SPEED_10M in prop["tags"]
       is_100m_port = DevConfig.TAG_SPEED_100M in prop["tags"]
@@ -404,6 +405,7 @@ class DevConfig:
         "enabled":      prop["enabled"] or is_upstream_port,
         "description":  description,
         "lag_member":   is_lag_member_port,
+        "utp":          is_utp_port,
         "poe":          is_poe_port,
         "speed_10m":    is_10m_port,
         "speed_100m":   is_100m_port,
