@@ -81,20 +81,20 @@ class NBCK:
         self.console.log(f"API endpoint: {self.nb.netbox_url}")
         with self.console.status("[bold]Fetching the latest inventories from NetBox..."):
             self.nb.get_all_sites()
-            self.console.log(f"Fetched all Sites ({len(self.nb.all_sites)} sites fetched)")
+            self.console.log(f"Fetched all Sites. ({len(self.nb.all_sites)} sites fetched)")
 
             self.nb.get_all_vlans()
-            self.console.log(f"Fetched all VLANs ({len(self.nb.all_vlans)} VLANs fetched)")
+            self.console.log(f"Fetched all VLANs. ({len(self.nb.all_vlans)} VLANs fetched)")
 
             self.nb.get_all_addresses()
-            self.console.log(f"Fetched all IP Addresses ({len(self.nb.all_addresses)} addresses fetched)")
+            self.console.log(f"Fetched all IP Addresses. ({len(self.nb.all_addresses)} addresses fetched)")
 
             self.nb.get_all_devices()
-            self.console.log(f"Fetched all Devices ({len(self.nb.all_devices)} devices fetched)")
+            self.console.log(f"Fetched all Devices. ({len(self.nb.all_devices)} devices fetched)")
 
             self.nb.get_all_interfaces()
             n = sum(len(v) for v in self.nb.all_interfaces.values())
-            self.console.log(f"Fetched all Interfaces ({n} interfaces fetched)")
+            self.console.log(f"Fetched all Interfaces. ({n} interfaces fetched)")
 
 
     def __new_state(self, enabled=False, description="", tags=[], tagged_vlanids=None, untagged_vlanid=None) -> dict:
@@ -141,15 +141,20 @@ class NBCK:
                     "violation": [],
                 }
 
-        with self.console.status("[bold]Finding broken consistency..."):
+        with self.console.status("[bold]Finding inconsistencies on NetBox..."):
+            sleep(1)  # for visibility
             self.__check_wifi_tag_consistency()
-            self.console.log("Checked Wi-Fi tag consistency")
+            self.console.log("Checked Wi-Fi tag consistency.")
 
+            sleep(1)  # for visibility
             self.__check_core_downstream_consistency()
-            self.console.log("Checked Core/Edge VLAN consistency")
+            self.console.log("Checked Core/Edge VLAN consistency.")
 
-            self.__check_master_slave_tag_consistency()
-            self.console.log("Checked Master/Slave tag consistency")
+            sleep(1)  # for visibility
+            consoles = self.__check_master_slave_tag_consistency()
+            self.console.log("Checked Master/Slave consistency.")
+            for message in consoles:
+                self.console.log(message)
 
             for dev_name, interfaces in self.consistencies.items():
                 for int_name, state in interfaces.items():
@@ -165,7 +170,13 @@ class NBCK:
                             **state,
                         })
 
-            self.console.log(f"All done. Found {len(self.problems)} inconsistencies")
+            color = "green"
+            n = len(self.problems)
+            if n > 0:
+                color = "red"
+
+            sleep(1)  # for visibility
+            self.console.log(f"All done. Found [{color}]{n}[/{color}] inconsistencies of below.")
 
         print()
         self.__print_problem_summary(self.problems, idx_from=0, verbose=verbose, panel_title=f"Consistency Check Report")
@@ -236,7 +247,7 @@ class NBCK:
 
 
     def __repair(self, problems) -> None:
-        sleep(0.5)  # dummy
+        pass
 
 
     def __check_wifi_tag_consistency(self) -> None:
@@ -262,8 +273,10 @@ class NBCK:
                     self.consistencies[dev_name][int_name]["violation"].append("Wi-Fi")
 
 
-    def __check_master_slave_tag_consistency(self) -> None:
+    def __check_master_slave_tag_consistency(self) -> list:
+        consoles = []
         desired_up_vlanids = {}  # key: edge VC hostname, values list of VLAN object IDs
+
         for dev_name, interfaces in self.consistencies.items():
             is_edge = self.nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_edge_sw
             if not is_edge:
@@ -289,7 +302,7 @@ class NBCK:
 
                 edge_hostname = interface["description"]
                 if edge_hostname not in desired_up_vlanids:
-                    print(f"No registration found for {edge_hostname}: missing Downlink tag?")
+                    consoles.append(f"[yellow][bold]{edge_hostname}[/bold] No path found on any core switches. Perhaps you forgot the downlink tag?[/yellow]")
                     continue
 
                 current = copy.deepcopy(self.consistencies[dev_name][int_name]["desired"])
@@ -297,7 +310,9 @@ class NBCK:
                 desired["tagged_vlanids"] = desired_up_vlanids[edge_hostname]  # overwrite
 
                 if not self.__is_equal(current, desired):
-                    self.consistencies[dev_name][int_name]["violation"].append("Edge Upstream")
+                    self.consistencies[dev_name][int_name]["violation"].append("Edge/Core")
+
+        return consoles
 
 
     def __check_core_downstream_consistency(self) -> None:
@@ -357,7 +372,7 @@ def main(flg_force_repair, flg_verbose):
     #nbck.load_inventories(verbose=flg_verbose)
     nbck.load_inventories_for_debug(verbose=flg_verbose)
     nbck.full_check(verbose=flg_verbose)
-    nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
+    #nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
 
 
 def debug():
