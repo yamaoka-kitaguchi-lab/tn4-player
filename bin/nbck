@@ -246,9 +246,9 @@ def debug():
         return {
             "enabled":          enabled,
             "description":      description,
-            "tags":             tags,
+            "tags":             copy.deepcopy(tags),
             "tagged":           tagged_vlanids is not None,
-            "tagged_vlanids":   tagged_vlanids,
+            "tagged_vlanids":   copy.deepcopy(tagged_vlanids),
             "untagged_vlanid":  untagged_vlanid,
             "tagged_vids":      [],
             "untagged_vid":     None,
@@ -273,7 +273,6 @@ def debug():
                 ),
             }
 
-    #pprint(consistency_report["core-honkan"])
 
     for dev_name, interfaces in nb.all_interfaces.items():
         for int_name, interface in interfaces.items():
@@ -291,6 +290,9 @@ def debug():
 
             desired["tagged_vlanids"] = list(set(desired["tagged_vlanids"]))
 
+
+
+    pprint(nb.all_interfaces["minami3 (1)"]["mge-0/0/40"])
 
 
 
