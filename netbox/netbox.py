@@ -33,21 +33,21 @@ class Slug:
 
     site_group_ookayama_north = "ookayama-n"
     site_group_ookayama_south = "ookayama-s"
-    site_group_ookayama_east = "ookayama-e"
-    site_group_ookayama_west = "ookayama-w"
-    site_group_ishikawadai = "ishikawadai"
-    site_group_midorigaoka = "midorigaoka"
-    site_group_tamachi = "tamachi"
+    site_group_ookayama_east  = "ookayama-e"
+    site_group_ookayama_west  = "ookayama-w"
+    site_group_ishikawadai    = "ishikawadai"
+    site_group_midorigaoka    = "midorigaoka"
+    site_group_tamachi        = "tamachi"
 
     tag_mgmt_vlan_border_ookayama = "mgmt-vlan-bo"
     tag_mgmt_vlan_border_suzukake = "mgmt-vlan-bs"
-    tag_mgmt_vlan_core_ookayama = "mgmt-vlan-co"
-    tag_mgmt_vlan_core_suzukake = "mgmt-vlan-cs"
-    tag_mgmt_vlan_edge_ookayama = "mgmt-vlan-eo"
-    tag_mgmt_vlan_edge_suzukake = "mgmt-vlan-es"
-    tag_wifi_mgmt_vlan_ookayama1 = "wlan-mgmt-vlan-o1"
-    tag_wifi_mgmt_vlan_ookayama2 = "wlan-mgmt-vlan-o2"
-    tag_wifi_mgmt_vlan_suzukake = "wlan-mgmt-vlan-s"
+    tag_mgmt_vlan_core_ookayama   = "mgmt-vlan-co"
+    tag_mgmt_vlan_core_suzukake   = "mgmt-vlan-cs"
+    tag_mgmt_vlan_edge_ookayama   = "mgmt-vlan-eo"
+    tag_mgmt_vlan_edge_suzukake   = "mgmt-vlan-es"
+    tag_wifi_mgmt_vlan_ookayama1  = "wlan-mgmt-vlan-o1"
+    tag_wifi_mgmt_vlan_ookayama2  = "wlan-mgmt-vlan-o2"
+    tag_wifi_mgmt_vlan_suzukake   = "wlan-mgmt-vlan-s"
 
 
 class NetBoxClient:
@@ -55,10 +55,10 @@ class NetBoxClient:
         self.netbox_url = netbox_url
         self.api_endpoint = netbox_url.rstrip("/") + "/api"
         self.token = netbox_api_token
-        self.all_sites = {}
-        self.all_vlans = {}
-        self.all_devices = {}
-        self.all_interfaces = {}
+        self.all_sites = {}       # key: site slug, value site object
+        self.all_vlans = {}       # key: vlan object id not vid, value: vlan object
+        self.all_devices = {}     # key: device name, value: device object
+        self.all_interfaces = {}  # key: device name, subkey: interface name, value: interface object
         self.all_addresses = []
 
         self.mgmt_vid_eo = None
