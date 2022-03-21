@@ -387,20 +387,24 @@ def debug():
             is_suzukake_slave = Slug.tag_core_suzukake_slave in interface["tags"]
 
             current = copy.deepcopy(consistencies[dev_name][int_name]["desired"])
-            desired = consistencies[dev_name][int_name]["desired"]
             if is_slave:
-                desired = copy.deepcopy(desired_master[int_name])
+                consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_master[int_name])
+                #desired = copy.deepcopy(desired_master[int_name])
             if is_ookayama_slave:
-                desired = copy.deepcopy(desired_o_master[int_name])
+                consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_o_master[int_name])
+                #desired = copy.deepcopy(desired_o_master[int_name])
             if is_suzukake_slave:
-                desired = copy.deepcopy(desired_s_master[int_name])
+                consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_s_master[int_name])
 
-            if not is_equal(current, desired):
+            if not is_equal(current, consistencies[dev_name][int_name]["desired"]):
                 consistencies[dev_name][int_name]["violation"].append("Master/Slave")
 
 
-    pprint(consistencies["core-honkan"]["ae148"])
-    pprint(consistencies["core-gsic"]["ae148"])
+    #pprint(consistencies["core-honkan"]["ae148"])
+    #pprint(consistencies["core-gsic"]["ae148"])
+
+
+
 
 
 if __name__ == "__main__":
