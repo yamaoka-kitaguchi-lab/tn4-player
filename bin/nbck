@@ -337,39 +337,6 @@ def debug():
 
 
 
-
-
-    all_desired_interfaces = copy.deepcopy(nb.all_interfaces)
-
-    current_vlan_ids = {}  # key: edge VC hostname, values: list of VLAN object IDs
-    for interfaces in nb.all_interfaces.values():
-        for interface in interfaces.values():
-            is_skipped = not interface["is_deploy_target"] or interface["is_lag_member"] or not interface["is_to_edge"]
-            if is_skipped:
-                continue
-            edge_hostname = interface["description"]
-            current_vlan_ids[edge_hostname] = interface["all_vlan_ids"]
-
-    desired_vlan_ids = {}  # key: edge VC hostname, value: list of VLAN object IDs
-    for dev_name, interfaces in all_desired_interfaces.items():
-        l = []
-        device = nb.all_devices[dev_name]
-        edge_hostname = device["hostname"]
-        if device["device_role"]["slug"] != Slug.role_edge_sw:
-            continue
-        if edge_hostname not in current_vlan_ids:
-            print(f"No registration found for {edge_hostname}: missing Downlink tag?")
-            continue
-        for interface in interfaces.values():
-            l.extend(interface["all_vlan_ids"])
-
-        dd = set(l)
-        cd = set(current_vlan_ids[edge_hostname])
-        #if cd > dd:
-        #    print(f"({edge_hostname}) Missing:", cd - dd)
-        desired_vlan_ids[edge_hostname] = list(dd)
-
-
 if __name__ == "__main__":
     #main()
     debug()
