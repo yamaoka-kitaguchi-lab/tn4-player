@@ -194,12 +194,21 @@ class NetBoxClient:
 
                 all_vlan_ids = []
                 all_vids = []
+                interface["tagged_vlanids"] = None
+                interface["tagged_vids"] = None
+                interface["untagged_vlanids"] = None
+                interface["untagged_vids"] = None
+
                 if interface["tagged_vlans"] is not None:
-                    all_vlan_ids.extend([v["id"] for v in interface["tagged_vlans"]])
-                    all_vids.extend([v["vid"] for v in interface["tagged_vlans"]])
+                    interface["tagged_vlanids"] = [v["id"] for v in interface["tagged_vlans"]]
+                    interface["tagged_vids"] = [v["vid"] for v in interface["tagged_vlans"]]
+                    all_vlan_ids.extend(interface["tagged_vlanids"])
+                    all_vids.extend(interface["tagged_vids"])
                 if interface["untagged_vlan"] is not None:
-                    all_vlan_ids.append(interface["untagged_vlan"]["id"])
-                    all_vids.append(interface["untagged_vlan"]["vid"])
+                    interface["untagged_vlanid"] = interface["untagged_vlan"]["id"]
+                    interface["untagged_vid"] = interface["untagged_vlan"]["vid"]
+                    all_vlan_ids.append(interface["untagged_vlanid"])
+                    all_vids.append(interface["untagged_vid"])
 
                 interface["all_vlan_ids"] = list(set(all_vlan_ids))
                 interface["all_vids"] = list(set(all_vids))

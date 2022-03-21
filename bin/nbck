@@ -239,27 +239,40 @@ def debug():
     #pprint(nb.all_interfaces["minami3 (1)"]["ge-0/0/13"])
     #pprint(nb.all_vlans["514"])
 
-    # for vlan in nb.all_vlans.values():
-    #     if Slug.tag_wifi_mgmt_vlan_ookayama1 in vlan["tags"]:
-    #         pprint(vlan)
-    #     if Slug.tag_wifi_mgmt_vlan_ookayama2 in vlan["tags"]:
-    #         pprint(vlan)
-    #     if Slug.tag_wifi_mgmt_vlan_suzukake in vlan["tags"]:
-    #         pprint(vlan)
 
-    # for device in nb.all_devices.values():
-    #     dev_sg = nb.all_sites[device["site"]["slug"]]["group"]["slug"]
-    #     print(dev_sg)
-    #     if dev_sg in [Slug.site_group_ookayama_north, Slug.site_group_ookayama_west, Slug.site_group_midorigaoka]:
-    #         pprint(device)
-    #     elif dev_sg in [Slug.site_group_ookayama_east, Slug.site_group_ookayama_south, Slug.site_group_ishikawadai, Slug.site_group_tamachi]:
-    #         pprint(device)
-    #     else:
-    #         pprint(device)
+    consistency_report = {}
+
+    def new_state(enabled=False, description="", tags=[], tagged_vids=None, untagged_vid=None, tagged_vlanids=None, untagged_vlanid=None):
+        return {
+            "enabled":          enabled,
+            "description":      description,
+            "tagged_vids":      tagged_vids,
+            "untagged_vid":     untagged_vid,
+            "tags":             tags,
+            "tagged_vlanids":   tagged_vlanids,
+            "untagged_vlanids": untagged_vlanid,
+        }
+
+    for dev_name, interfaces in nb.all_interfaces.items():
+        for int_name, interface in interfaces.items():
+            consistency_report.setdefault(dev_name, {}).setdefault(int_name, {
+                "current": new_state(
+                    enabled=interface["enabled"],
+                    description=interface["description"],
+                    tags=interface["tags"],
+                    tagged_vids=interface["tagged_vids"],
+                    untagged_vid=interface["untagged_vids"],
+                    tagged_vlanids=interface["tagged_vlanids"],
+                    untagged_vlanid=interface["untagged_vlanids"],
+                ),
+                "desired": new_state(),
+                "update":  new_state(),
+            })
+
+
 
 
     all_desired_interfaces = copy.deepcopy(nb.all_interfaces)
-
 
     current_vlan_ids = {}  # key: edge VC hostname, values: list of VLAN object IDs
     for interfaces in nb.all_interfaces.values():
