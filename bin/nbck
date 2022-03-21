@@ -163,6 +163,13 @@ class NBCK:
                         if self.nb.all_devices[dev_name]["primary_ip"] is not None:
                             address = self.nb.all_devices[dev_name]["primary_ip"]["address"]
 
+                        for label in ["current", "desired"]:
+                            s = state[label]
+                            if len(s["tagged_vlanids"]) > 0:
+                                s["tagged_vids"] = [self.nb.all_vlans[str(i)]["vid"] for i in s["tagged_vlanids"]]
+                            if s["untagged_vlanid"] is not None:
+                                s["untagged_vid"] = self.nb.all_vlans[str(s["untagged_vlanid"])]["vid"]
+
                         self.problems.append({
                             "device":    dev_name,
                             "interface": int_name,
@@ -170,16 +177,15 @@ class NBCK:
                             **state,
                         })
 
-            color = "green"
+            sleep(1)  # for visibility
             n = len(self.problems)
             if n > 0:
-                color = "red"
-
-            sleep(1)  # for visibility
-            self.console.log(f"All done. Found [{color}]{n}[/{color}] inconsistencies of below.")
-
-        print()
-        self.__print_problem_summary(self.problems, idx_from=0, verbose=verbose, panel_title=f"Consistency Check Report")
+                self.console.log(f"All done. Found [red]{n}[/red] inconsistencies of below.")
+                print()
+                self.__print_problem_summary(self.problems, idx_from=0, verbose=verbose, panel_title=f"Consistency Check Report")
+            else:
+                self.console.log(f"All done. No inconsistencies found. Exiting...")
+                sys.exit(0)
 
 
     def __print_problem_summary(self, problems, idx_from=0, verbose=False, use_panel=True, panel_title="") -> None:
