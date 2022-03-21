@@ -255,6 +255,10 @@ def debug():
 
     for dev_name, interfaces in nb.all_interfaces.items():
         for int_name, interface in interfaces.items():
+            is_skipped = not interface["is_deploy_target"]
+            if is_skipped:
+                continue
+
             consistency_report.setdefault(dev_name, {}).setdefault(int_name, {
                 "current": new_state(
                     enabled=interface["enabled"],
@@ -269,6 +273,7 @@ def debug():
                 "update":  new_state(),
             })
 
+    pprint(consistency_report["core-honkan"])
 
 
 
