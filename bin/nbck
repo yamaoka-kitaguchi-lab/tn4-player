@@ -298,8 +298,8 @@ def debug():
 
         dd = set(l)
         cd = set(current_vlan_ids[edge_hostname])
-        if cd > dd:
-            print(f"({edge_hostname}) Missing:", cd - dd)
+        #if cd > dd:
+        #    print(f"({edge_hostname}) Missing:", cd - dd)
         desired_vlan_ids[edge_hostname] = list(dd)
 
 
