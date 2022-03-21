@@ -167,9 +167,17 @@ class NBCK:
                         for label in ["current", "desired"]:
                             s = state[label]
                             if len(s["tagged_vlanids"]) > 0:
-                                s["tagged_vids"] = sorted([str(self.nb.all_vlans[str(i)]["vid"]) for i in s["tagged_vlanids"]])
+                                s["tagged_vids"] = list(map(str, sorted([self.nb.all_vlans[str(i)]["vid"] for i in s["tagged_vlanids"]])))
+                            else:
+                                s["tagged_vids"] = "-"
+
                             if s["untagged_vlanid"] is not None:
                                 s["untagged_vid"] = str(self.nb.all_vlans[str(s["untagged_vlanid"])]["vid"])
+                            else:
+                                s["untagged_vid"] = "-"
+
+                            if s["description"] == "":
+                                s["description"] = "-"
 
                         self.problems.append({
                             "device":    dev_name,
@@ -206,11 +214,11 @@ class NBCK:
         n = len(self.problems)
         for i, problem in enumerate(self.problems):
             d = [str(idx_from+i), problem["device"], problem["address"], problem["interface"], "\n".join(problem["violation"])]
-            b, f = problem["current"], problem["desired"]
+            b, a = problem["current"], problem["desired"]
             if verbose:
                 d.extend([
                     f"[bold]VLAN(T):[/bold] {', '.join(b['tagged_vids'])}\n[bold]VLAN(U):[/bold] {b['untagged_vid']}\n[bold]Enabled:[/bold] {b['enabled']}\n[bold]Desc:[/bold]    {b['description']}\n[bold]Tags:[/bold]    {', '.join(b['tags'])}",
-                    f"[bold]VLAN(T):[/bold] {', '.join(f['tagged_vids'])}\n[bold]VLAN(U):[/bold] {f['untagged_vid']}\n[bold]Enabled:[/bold] {f['enabled']}\n[bold]Desc:[/bold]    {f['description']}\n[bold]Tags:[/bold]    {', '.join(f['tags'])}",
+                    f"[bold]VLAN(T):[/bold] {', '.join(a['tagged_vids'])}\n[bold]VLAN(U):[/bold] {a['untagged_vid']}\n[bold]Enabled:[/bold] {a['enabled']}\n[bold]Desc:[/bold]    {a['description']}\n[bold]Tags:[/bold]    {', '.join(a['tags'])}",
                 ])
             table.add_row(*d)
             if verbose and i < n-1:
