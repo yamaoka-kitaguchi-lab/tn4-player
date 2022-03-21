@@ -236,8 +236,8 @@ def debug():
     #pprint(nb.all_interfaces["core-honkan"]["et-0/0/1"])
     #pprint(nb.all_interfaces["core-honkan"]["ae103"])
 
-    #pprint(nb.all_interfaces["minami3 (1)"]["ge-0/0/13"])
-    #pprint(nb.all_vlans["514"])
+    pprint(nb.all_interfaces["minami3 (1)"]["mge-0/0/40"])
+    pprint(nb.all_vlans["514"])
 
 
     consistency_report = {}
@@ -278,10 +278,21 @@ def debug():
                     tagged_vlanids=interface["tagged_vlanids"],
                     untagged_vlanid=interface["untagged_vlanids"],
                 ),
-                "update":  new_state(),
             })
 
-    pprint(consistency_report["core-honkan"])
+    #pprint(consistency_report["core-honkan"])
+
+
+    for dev_name, interfaces in nb.all_interfaces.items():
+        for int_name, interface in interfaces.items():
+            is_wifi_port = interface["is_to_ap"] or interface["is_to_poesw"]
+            if not is_wifi_port:
+                continue
+
+
+
+
+
 
 
 
