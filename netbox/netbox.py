@@ -228,7 +228,7 @@ class NetBoxClient:
                     all_vlan_ids.append(interface["untagged_vlanid"])
                     all_vids.append(interface["untagged_vid"])
 
-                interface["all_vlan_ids"] = list(set(all_vlan_ids))
+                interface["all_vlanids"] = list(set(all_vlan_ids))
                 interface["all_vids"] = list(set(all_vids))
 
                 self.all_interfaces.setdefault(dev_name, {})[int_name] = interface

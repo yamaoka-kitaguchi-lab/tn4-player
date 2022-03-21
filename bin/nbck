@@ -274,6 +274,7 @@ def debug():
             }
 
 
+
     for dev_name, interfaces in nb.all_interfaces.items():
         for int_name, interface in interfaces.items():
             is_wifi_port = interface["is_to_ap"] or interface["is_to_poesw"]
@@ -289,14 +290,37 @@ def debug():
                 desired["tagged_vlanids"].append(interface["wifi_mgmt_vlanid"])
 
             desired["tagged_vlanids"] = list(set(desired["tagged_vlanids"]))
-
+            desired["tagged"] = True
 
     #pprint(nb.all_interfaces["minami3 (1)"]["mge-0/0/40"])
     #pprint(consistency_report["minami3 (1)"]["mge-0/0/40"])
 
 
 
+    desired_up_vlanids = {}  # key: edge VC hostname, values list of VLAN object IDs
+    for dev_name, interfaces in consistency_report.items():
+        is_edge = nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_edge_sw
+        if not is_edge:
+            continue
 
+        device = nb.all_devices[dev_name]
+        edge_hostname = device["hostname"]
+        l = []
+        for interface in interfaces.values():
+            l.extend(interface["desired"]["tagged_vlanids"])
+            l.append(interface["desired"]["untagged_vlanid"])
+        desired_up_vlanids[edge_hostname] = [v for v in set(l) if v is not None]
+
+    pprint(desired_up_vlanids)
+    #pprint(desired_up_vlanids["minami3"])
+
+
+
+
+
+    # if edge_hostname not in current_vlan_ids:
+    #     print(f"No registration found for {edge_hostname}: missing Downlink tag?")
+    #     continue
 
 
 
