@@ -234,19 +234,109 @@ class NBCK:
         sleep(0.5)  # dummy
 
 
-    def __check_master_slave_tag_consistency(self) -> None:
-        sleep(0.5)  # dummy
-        self.master_slave_tag_problems = [{}]
-
-
     def __check_wifi_tag_consistency(self) -> None:
-        sleep(0.5)  # dummy
-        self.wifi_tag_problems = [{}]
+        for dev_name, interfaces in self.nb.all_interfaces.items():
+            for int_name, interface in interfaces.items():
+                is_wifi_port = interface["is_to_ap"] or interface["is_to_poesw"]
+                if not is_wifi_port:
+                    continue
+
+                current = copy.deepcopy(self.consistencies[dev_name][int_name]["desired"])
+                desired = self.consistencies[dev_name][int_name]["desired"]
+                desired["tagged_vlanids"].extend(interface["wifi_vlanids"])
+
+                if interface["is_to_ap"]:
+                    desired["untagged_vlanid"] = interface["wifi_mgmt_vlanid"]
+                if interface["is_to_poesw"]:
+                    desired["tagged_vlanids"].append(interface["wifi_mgmt_vlanid"])
+
+                desired["tagged_vlanids"] = list(set(desired["tagged_vlanids"]))
+                desired["tagged"] = True
+
+                if not self.__is_equal(current, desired):
+                    self.consistencies[dev_name][int_name]["violation"].append("Wi-Fi")
+
+
+    def __check_master_slave_tag_consistency(self) -> None:
+        desired_up_vlanids = {}  # key: edge VC hostname, values list of VLAN object IDs
+        for dev_name, interfaces in self.consistencies.items():
+            is_edge = self.nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_edge_sw
+            if not is_edge:
+                continue
+
+            device = self.nb.all_devices[dev_name]
+            edge_hostname = device["hostname"]
+            l = []
+            for interface in interfaces.values():
+                l.extend(interface["desired"]["tagged_vlanids"])
+                l.append(interface["desired"]["untagged_vlanid"])
+            desired_up_vlanids[edge_hostname] = [v for v in set(l) if v is not None]
+
+        for dev_name, interfaces in self.nb.all_interfaces.items():
+            is_core = self.nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_core_sw
+            if not is_core:
+                continue
+
+            for int_name, interface in interfaces.items():
+                is_to_edge = interface["is_deploy_target"] and not interface["is_lag_member"] and interface["is_to_edge"]
+                if not is_to_edge:
+                    continue
+
+                edge_hostname = interface["description"]
+                if edge_hostname not in desired_up_vlanids:
+                    print(f"No registration found for {edge_hostname}: missing Downlink tag?")
+                    continue
+
+                current = copy.deepcopy(self.consistencies[dev_name][int_name]["desired"])
+                desired = self.consistencies[dev_name][int_name]["desired"]
+                desired["tagged_vlanids"] = desired_up_vlanids[edge_hostname]  # overwrite
+
+                if not self.__is_equal(current, desired):
+                    self.consistencies[dev_name][int_name]["violation"].append("Edge Upstream")
 
 
     def __check_core_downstream_consistency(self) -> None:
-        sleep(0.5)  # dummy
-        self.core_downstream_problems = [{}]
+        ## Master's interface name must be unique, cannot be dupplicated
+        desired_master = {}    # key: interface name, value: state object (reference)
+        desired_o_master = {}  # key: interface name, value: state object (reference)
+        desired_s_master = {}  # key: interface name, value: state object (reference)
+        for dev_name, interfaces in self.nb.all_interfaces.items():
+            is_core = self.nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_core_sw
+            if not is_core:
+                continue
+
+            for int_name, interface in interfaces.items():
+                is_master = Slug.tag_core_master in interface["tags"]
+                is_ookayama_master = Slug.tag_core_ookayama_master in interface["tags"]
+                is_suzukake_master = Slug.tag_core_suzukake_master in interface["tags"]
+
+                if is_master:
+                    desired_master[int_name] = self.consistencies[dev_name][int_name]["desired"]
+                if is_ookayama_master:
+                    desired_o_master[int_name] = self.consistencies[dev_name][int_name]["desired"]
+                if is_suzukake_master:
+                    desired_s_master[int_name] = self.consistencies[dev_name][int_name]["desired"]
+
+        for dev_name, interfaces in self.nb.all_interfaces.items():
+            is_core = self.nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_core_sw
+            if not is_core:
+                continue
+
+            for int_name, interface in interfaces.items():
+                is_slave = Slug.tag_core_slave in interface["tags"]
+                is_ookayama_slave = Slug.tag_core_ookayama_slave in interface["tags"]
+                is_suzukake_slave = Slug.tag_core_suzukake_slave in interface["tags"]
+
+                current = copy.deepcopy(self.consistencies[dev_name][int_name]["desired"])
+                if is_slave:
+                    self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_master[int_name])
+                if is_ookayama_slave:
+                    self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_o_master[int_name])
+                if is_suzukake_slave:
+                    self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_s_master[int_name])
+
+                if not self.__is_equal(current, self.consistencies[dev_name][int_name]["desired"]):
+                    self.consistencies[dev_name][int_name]["violation"].append("Master/Slave")
 
 
 @click.command(help="A command-line utility to check and repair NetBox integrity and consistency")
@@ -463,5 +553,5 @@ def debug():
 
 
 if __name__ == "__main__":
-    #main()
-    debug()
+    main()
+    #debug()
