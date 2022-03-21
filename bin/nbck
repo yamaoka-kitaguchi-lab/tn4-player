@@ -242,7 +242,7 @@ def debug():
 
     consistency_report = {}
 
-    def new_state(enabled=False, description="", tags=[], tagged_vlanids=None, untagged_vlanid=None):
+    def new_state(enabled=False, description="", tags=[], tagged_vlanids=None, untagged_vlanid=None) -> dict:
         return {
             "enabled":          enabled,
             "description":      description,
@@ -253,6 +253,12 @@ def debug():
             "tagged_vids":      [],
             "untagged_vid":     None,
         }
+
+
+    def diff_state(s1, s2) -> None:
+        return
+
+
 
     for dev_name, interfaces in nb.all_interfaces.items():
         for int_name, interface in interfaces.items():
@@ -311,7 +317,7 @@ def debug():
             l.append(interface["desired"]["untagged_vlanid"])
         desired_up_vlanids[edge_hostname] = [v for v in set(l) if v is not None]
 
-    pprint(desired_up_vlanids)
+    #pprint(desired_up_vlanids)
     #pprint(desired_up_vlanids["minami3"])
 
     for dev_name, interfaces in nb.all_interfaces.items():
@@ -332,7 +338,47 @@ def debug():
             desired = consistency_report[dev_name][int_name]["desired"]
             desired["tagged_vlanids"] = desired_up_vlanids[edge_hostname]  # overwrite
 
-    pprint(consistency_report["core-honkan"]["ae148"])
+    #pprint(consistency_report["core-honkan"]["ae148"])
+
+
+
+    ## Master's interface name must be unique, cannot be dupplicated
+    desired_master = {}  # key: interface name, value: state object (reference)
+    desired_o_master = {}  # key: interface name, value: state object (reference)
+    desired_s_master = {}  # key: interface name, value: state object (reference)
+    for dev_name, interfaces in nb.all_interfaces.items():
+        is_core = nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_core_sw
+        if not is_core:
+            continue
+
+        for int_name, interface in interfaces.items():
+            is_master = Slug.tag_core_master in interface["tag"]
+            is_ookayama_master = Slug.tag_core_ookayama_master in interface["tag"]
+            is_suzukake_master = Slug.tag_core_suzukake_master in interface["tag"]
+
+            if is_master:
+                desired_master[int_name] = consistency_report[dev_name][int_name]["desired"]
+            if is_ookayama_master:
+                desired_o_master[int_name] = consistency_report[dev_name][int_name]["desired"]
+            if is_suzukake_master:
+                desired_s_master[int_name] = consistency_report[dev_name][int_name]["desired"]
+
+    for dev_name, interfaces in nb.all_interfaces.items():
+        is_core = nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_core_sw
+        if not is_core:
+            continue
+
+        for int_name, interface in interfaces.items():
+            is_slave = Slug.tag_core_slave in interface["tag"]
+            is_ookayama_slave = Slug.tag_core_ookayama_slave in interface["tag"]
+            is_suzukake_slave = Slug.tag_core_suzukake_slave in interface["tag"]
+
+            if is_slave:
+                consistency_report[dev_name][int_name]["desired"] = copy.deepcopy(desired_master[int_name])
+            if is_ookayama_slave:
+                consistency_report[dev_name][int_name]["desired"] = copy.deepcopy(desired_o_master[int_name])
+            if is_suzukake_slave:
+                consistency_report[dev_name][int_name]["desired"] = copy.deepcopy(desired_s_master[int_name])
 
 
 

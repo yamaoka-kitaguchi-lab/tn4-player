@@ -42,6 +42,12 @@ class Slug:
 
     tag_core_downstream           = "downlink"
     tag_edge_upstream             = "uplink"
+    tag_core_master               = "mclag-master-core"
+    tag_core_slave                = "mclag-slave-core"
+    tag_core_ookayama_master      = "mclag-master-co"
+    tag_core_ookayama_slave       = "mclag-slave-co"
+    tag_core_suzukake_master      = "mclag-master-cs"
+    tag_core_suzukake_slave       = "mclag-slave-cs"
     tag_mgmt_vlan_border_ookayama = "mgmt-vlan-bo"
     tag_mgmt_vlan_border_suzukake = "mgmt-vlan-bs"
     tag_mgmt_vlan_core_ookayama   = "mgmt-vlan-co"
