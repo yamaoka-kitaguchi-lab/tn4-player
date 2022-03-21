@@ -242,7 +242,7 @@ def debug():
     #pprint(nb.all_devices["core-honkan"])
     #pprint(nb.all_devices["minami3 (1)"])
     #pprint(nb.all_interfaces["core-honkan"]["et-0/0/1"])
-    pprint(nb.all_interfaces["core-honkan"]["ae103"])
+    #pprint(nb.all_interfaces["core-honkan"]["ae103"])
 
     #pprint(nb.all_interfaces["minami3 (1)"]["ge-0/0/13"])
     #pprint(nb.all_vlans["514"])
@@ -279,20 +279,25 @@ def debug():
             current_vlan_ids[edge_hostname] = interface["all_vlan_ids"]
 
     desired_vlan_ids = {}  # key: edge VC hostname, value: list of VLAN object IDs
-    for interfaces in all_desired_interfaces.values():
+    for dev_name, interfaces in all_desired_interfaces.items():
+        l = []
+        edge_hostname = nb.all_devices[dev_name]["hostname"]
+        if edge_hostname not in current_vlan_ids:
+            print(f"No registration found for {edge_hostname}: missing Downlink tag?")
+            continue
         for interface in interfaces.values():
             is_skipped = interface["device_role"]["slug"] != Slug.role_edge_sw
             if is_skipped:
                 continue
-            edge_hostname = interface["hostname"]
-            l = interface["all_vlan_ids"]
-            if edge_hostname in desired_vlan_ids:
-                l.extend(desired_vlan_ids[edge_hostname])
-            dd = set(l)
-            cd = set(current_vlan_ids[edge_hostname])
-            if dd >= cd:
-                print(f"({edge_hostname}) Missing:", dd - cd)
-            desired_vlan_ids[edge_hostname] = list(dd)
+            l.extend(interface["all_vlan_ids"])
+
+        dd = set(l)
+        cd = set(current_vlan_ids[edge_hostname])
+        print(edge_hostname, "current:", cd)
+        print(edge_hostname, "desired:", dd)
+        if cd > dd:
+            print(f"({edge_hostname}) Missing:", cd - dd)
+        desired_vlan_ids[edge_hostname] = list(dd)
 
 
 if __name__ == "__main__":
