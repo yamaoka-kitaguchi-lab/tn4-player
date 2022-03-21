@@ -306,9 +306,9 @@ class NBCK:
             n = len(self.problems) - len(skipped_idx)
             c = 0
             for i, p in enumerate(self.problems):
-                c += 1
                 if i in skipped_idx:
                     continue
+                c += 1
 
                 if dryrun:
                     self.console.log(f"[red bold]DRYRUN[/red bold] Repaired [blue bold]{p['interface']}[/blue bold] on [blue bold]{p['device']}[/blue bold] [dim]({c} of {n} finished)[/dim]")
@@ -325,10 +325,6 @@ class NBCK:
                 )
                 self.console.log(f"Repaired [blue bold]{p['interface']}[/blue bold] on [blue bold]{p['device']}[/blue bold] [dim]({c} of {n} finished)[/dim]")
             self.console.log("Completed. Exiting...")
-
-
-    def __repair(self, problems) -> None:
-        pass
 
 
     def __check_wifi_tag_consistency(self) -> None:
