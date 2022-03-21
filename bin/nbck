@@ -60,20 +60,20 @@ class NBCK:
 
         with open(".sites.cache") as fd:
             self.nb.all_sites = json.load(fd)
-            self.console.log(f"Fetched all Sites ({len(self.nb.all_sites)} sites fetched)")
+            self.console.log(f"Fetched all Sites. ({len(self.nb.all_sites)} sites fetched)")
         with open(".vlans.cache") as fd:
             self.nb.all_vlans = json.load(fd)
-            self.console.log(f"Fetched all VLANs ({len(self.nb.all_vlans)} VLANs fetched)")
+            self.console.log(f"Fetched all VLANs. ({len(self.nb.all_vlans)} VLANs fetched)")
         with open(".addresses.cache") as fd:
             self.nb.all_addresses = json.load(fd)
-            self.console.log(f"Fetched all IP Addresses ({len(self.nb.all_addresses)} addresses fetched)")
+            self.console.log(f"Fetched all IP Addresses. ({len(self.nb.all_addresses)} addresses fetched)")
         with open(".devices.cache") as fd:
             self.nb.all_devices = json.load(fd)
-            self.console.log(f"Fetched all Devices ({len(self.nb.all_devices)} devices fetched)")
+            self.console.log(f"Fetched all Devices. ({len(self.nb.all_devices)} devices fetched)")
         with open(".interfaces.cache") as fd:
             self.nb.all_interfaces = json.load(fd)
             n = sum(len(v) for v in self.nb.all_interfaces.values())
-            self.console.log(f"Fetched all Interfaces ({n} interfaces fetched)")
+            self.console.log(f"Fetched all Interfaces. ({n} interfaces fetched)")
 
 
     def load_inventories(self, verbose=False) -> None:
