@@ -241,8 +241,10 @@ def debug():
     #pprint(nb.all_sites["minami3"])
     #pprint(nb.all_devices["core-honkan"])
     #pprint(nb.all_devices["minami3 (1)"])
-    #pprint(nb.all_interfaces["core-honkan"]["ae103"])
-    pprint(nb.all_interfaces["minami3 (1)"]["ge-0/0/13"])
+    #pprint(nb.all_interfaces["core-honkan"]["et-0/0/1"])
+    pprint(nb.all_interfaces["core-honkan"]["ae103"])
+
+    #pprint(nb.all_interfaces["minami3 (1)"]["ge-0/0/13"])
     #pprint(nb.all_vlans["514"])
 
     # for vlan in nb.all_vlans.values():
@@ -270,11 +272,15 @@ def debug():
     current_downstream_vlan_ids = {}  # key: edge VC hostname, values: list of VLAN object IDs
     for hostname, interfaces in nb.all_interfaces.items():
         for interface in interfaces.values():
-            if interface["device_role"]["slug"] == Slug.role_core_sw:
-                edge_hostname = interface["description"]
-                pass
+            is_skipped = not interface["is_deploy_target"] or interface["is_lag_member"] or not interface["is_to_edge"]
+            if is_skipped:
+                continue
+            edge_hostname = interface["description"]
+            current_downstream_vlan_ids[edge_hostname] = interface["all_vlan_ids"]
+    pprint(current_downstream_vlan_ids)
 
-    desired_upstream_vlan_ids = {}  # key: VC hostname, value: list of VLAN object IDs
+
+    desired_downstream_vlan_ids = {}  # key: edge VC hostname, value: list of VLAN object IDs
     for hostname, interfaces in all_desired_interfaces.items():
         l = []
         hostname_reg = re.match("([\w|-]+) \((\d+)\)", hostname)
@@ -287,6 +293,7 @@ def debug():
         if hostname in desired_upstream_vlan_ids:
             l.extend(desired_upstream_vlan_ids[hostname])
         desired_vlan_ids = list(set(l))
+
         ## todo: violation or not (grep core interface by description)
         desired_upstream_vlan_ids[hostname] = desired_vlan_ids
 

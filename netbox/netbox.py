@@ -39,6 +39,8 @@ class Slug:
     site_group_midorigaoka    = "midorigaoka"
     site_group_tamachi        = "tamachi"
 
+    tag_core_downstream = "downlink"
+    tag_edge_upstream = "uplink"
     tag_mgmt_vlan_border_ookayama = "mgmt-vlan-bo"
     tag_mgmt_vlan_border_suzukake = "mgmt-vlan-bs"
     tag_mgmt_vlan_core_ookayama   = "mgmt-vlan-co"
@@ -148,14 +150,48 @@ class NetBoxClient:
 
 
     def get_all_interfaces(self, use_cache=True):
+        allowed_int_types_virtual = ["lag"]  # Ignore virtual type interfaces
+        allowed_int_types_ethernet_utp = [
+             "1000base-t", "2.5gbase-t", "5gbase-t", "10gbase-t",
+        ],
+        allowed_int_types_ethernet = [
+            *allowed_int_types_ethernet_utp,
+            "100base-tx", "1000base-x-gbic", "1000base-x-sfp", "10gbase-cx4", "10gbase-x-sfpp", "10gbase-x-xfp",
+            "10gbase-x-xenpak", "10gbase-x-x2", "25gbase-x-sfp28", "40gbase-x-qsfpp", "50gbase-x-sfp28", "100gbase-x-cfp",
+            "100gbase-x-cfp2", "100gbase-x-cfp4", "100gbase-x-cpak", "100gbase-x-qsfp28", "200gbase-x-cfp2",
+            "200gbase-x-qsfp56", "400gbase-x-qsfpdd", "400gbase-x-osfp",
+        ]
+        allowed_int_types = [*allowed_int_types_virtual, *allowed_int_types_ethernet]
+
         if not use_cache or not self.all_interfaces:
             all_interfaces = self.query("/dcim/interfaces/")
             for interface in all_interfaces:
                 interface["tags"] = [tag["slug"] for tag in interface["tags"]]
+
                 dev_name = interface["device"]["name"]
                 int_name = interface["name"]
                 if dev_name in self.all_devices:
                     for k in ["device_role", "wifi_mgmt_vid"]:
                         interface[k] = self.all_devices[dev_name][k]
+
+                interface["is_deploy_target"] = interface["type"]["value"] in allowed_int_types
+                interface["is_lag_parent"] = interface["type"]["value"] == "lag"
+                interface["is_lag_member"] = interface["lag"] is not None
+                interface["is_utp"] = interface["type"]["value"] in allowed_int_types_ethernet_utp
+                interface["is_to_core"] = interface["device_role"]["slug"] == Slug.role_edge_sw and Slug.tag_edge_upstream in interface["tags"]
+                interface["is_to_edge"] = interface["device_role"]["slug"] == Slug.role_core_sw and Slug.tag_core_downstream in interface["tags"]
+
+                all_vlan_ids = []
+                all_vids = []
+                if interface["tagged_vlans"] is not None:
+                    all_vlan_ids.extend([v["id"] for v in interface["tagged_vlans"]])
+                    all_vids.extend([v["vid"] for v in interface["tagged_vlans"]])
+                if interface["untagged_vlan"] is not None:
+                    all_vlan_ids.append(interface["untagged_vlan"]["id"])
+                    all_vids.append(interface["untagged_vlan"]["vid"])
+
+                interface["all_vlan_ids"] = list(set(all_vlan_ids))
+                interface["all_vids"] = list(set(all_vids))
+
                 self.all_interfaces.setdefault(dev_name, {})[int_name] = interface
         return self.all_interfaces
