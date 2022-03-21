@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import requests
 import sys
 import yaml
@@ -145,6 +146,16 @@ class NetBoxClient:
                     else:
                         device["wifi_mgmt_vid"] = self.wifi_mgmt_vid_s
 
+                device["hostname"] = device["name"]
+                device["is_vc_member"] = False
+                device["vc_chassis_number"] = 0
+                if device["device_role"]["slug"] == Slug.role_edge_sw:
+                    hostname_reg = re.match("([\w|-]+) \((\d+)\)", device["name"])
+                    if hostname_reg is not None:
+                        device["hostname"] = hostname_reg.group(1)
+                        device["is_vc_member"] = True
+                        device["vc_chassis_number"] = hostname_reg.group(2)
+
                 self.all_devices[device["name"]] = device
         return self.all_devices
 
@@ -171,7 +182,7 @@ class NetBoxClient:
                 dev_name = interface["device"]["name"]
                 int_name = interface["name"]
                 if dev_name in self.all_devices:
-                    for k in ["device_role", "wifi_mgmt_vid"]:
+                    for k in ["device_role", "wifi_mgmt_vid", "hostname", "is_vc_member", "vc_chassis_number"]:
                         interface[k] = self.all_devices[dev_name][k]
 
                 interface["is_deploy_target"] = interface["type"]["value"] in allowed_int_types

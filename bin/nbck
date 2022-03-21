@@ -269,36 +269,30 @@ def debug():
     all_desired_interfaces = copy.deepcopy(nb.all_interfaces)
 
 
-    current_downstream_vlan_ids = {}  # key: edge VC hostname, values: list of VLAN object IDs
-    for hostname, interfaces in nb.all_interfaces.items():
+    current_vlan_ids = {}  # key: edge VC hostname, values: list of VLAN object IDs
+    for interfaces in nb.all_interfaces.values():
         for interface in interfaces.values():
             is_skipped = not interface["is_deploy_target"] or interface["is_lag_member"] or not interface["is_to_edge"]
             if is_skipped:
                 continue
             edge_hostname = interface["description"]
-            current_downstream_vlan_ids[edge_hostname] = interface["all_vlan_ids"]
-    pprint(current_downstream_vlan_ids)
+            current_vlan_ids[edge_hostname] = interface["all_vlan_ids"]
 
-
-    desired_downstream_vlan_ids = {}  # key: edge VC hostname, value: list of VLAN object IDs
-    for hostname, interfaces in all_desired_interfaces.items():
-        l = []
-        hostname_reg = re.match("([\w|-]+) \((\d+)\)", hostname)
-        if hostname_reg is not None:
-            hostname = hostname_reg.group(1)
+    desired_vlan_ids = {}  # key: edge VC hostname, value: list of VLAN object IDs
+    for interfaces in all_desired_interfaces.values():
         for interface in interfaces.values():
-            l.extend([v["id"] for v in interface["tagged_vlans"]])
-            if interface["untagged_vlan"] is not None:
-                l.append(interface["untagged_vlan"]["id"])
-        if hostname in desired_upstream_vlan_ids:
-            l.extend(desired_upstream_vlan_ids[hostname])
-        desired_vlan_ids = list(set(l))
-
-        ## todo: violation or not (grep core interface by description)
-        desired_upstream_vlan_ids[hostname] = desired_vlan_ids
-
-    #pprint(desired_upstream_vlan_ids)
-
+            is_skipped = interface["device_role"]["slug"] != Slug.role_edge_sw
+            if is_skipped:
+                continue
+            edge_hostname = interface["hostname"]
+            l = interface["all_vlan_ids"]
+            if edge_hostname in desired_vlan_ids:
+                l.extend(desired_vlan_ids[edge_hostname])
+            dd = set(l)
+            cd = set(current_vlan_ids[edge_hostname])
+            if dd >= cd:
+                print(f"({edge_hostname}) Missing:", dd - cd)
+            desired_vlan_ids[edge_hostname] = list(dd)
 
 
 if __name__ == "__main__":
