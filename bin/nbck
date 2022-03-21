@@ -120,7 +120,7 @@ class NBCK:
         return True
 
 
-    def full_check(self, verbose=False) -> None:
+    def full_check(self, alt_table_bg=False, verbose=False) -> None:
         for dev_name, interfaces in self.nb.all_interfaces.items():
             for int_name, interface in interfaces.items():
                 self.consistencies.setdefault(dev_name, {})[int_name] = {
@@ -183,16 +183,17 @@ class NBCK:
             if n > 0:
                 self.console.log(f"All done. Found [red]{n}[/red] inconsistencies of below.")
                 print()
-                self.__print_problem_summary(self.problems, idx_from=0, verbose=verbose, panel_title=f"Consistency Check Report")
+                self.__print_problem_summary(alt_table_bg=alt_table_bg, verbose=verbose, panel_title=f"Consistency Check Report")
             else:
                 self.console.log(f"All done. No inconsistencies found. Exiting...")
                 sys.exit(0)
 
 
-    def __print_problem_summary(self, problems, idx_from=0, verbose=False, use_panel=True, panel_title="") -> None:
+    def __print_problem_summary(self, idx_from=0, alt_table_bg=False, verbose=False, use_panel=True, panel_title="") -> None:
         table = Table(show_header=True, header_style="bold red")
         table.box = box.SIMPLE
-        #table.row_styles = ["none", "dim"]
+        if alt_table_bg:
+            table.row_styles = ["none", "dim"]
         table.add_column("#", style="dim")
         table.add_column("Hostname", style="bold")
         table.add_column("IP address", style="dim")
@@ -202,6 +203,7 @@ class NBCK:
             table.add_column("Current state", style="magenta")
             table.add_column("Desired state", style="green")
 
+        n = len(self.problems)
         for i, problem in enumerate(self.problems):
             d = [str(idx_from+i), problem["device"], problem["address"], problem["interface"], "\n".join(problem["violation"])]
             b, f = problem["current"], problem["desired"]
@@ -211,6 +213,8 @@ class NBCK:
                     f"[bold]VLAN(T):[/bold] {', '.join(f['tagged_vids'])}\n[bold]VLAN(U):[/bold] {f['untagged_vid']}\n[bold]Enabled:[/bold] {f['enabled']}\n[bold]Desc:[/bold]    {f['description']}\n[bold]Tags:[/bold]    {', '.join(f['tags'])}",
                 ])
             table.add_row(*d)
+            if verbose and i < n-1:
+                table.add_row()
 
         if use_panel:
             self.console.print(Panel.fit(table, title=panel_title))
@@ -369,8 +373,9 @@ class NBCK:
 
 @click.command(help="A command-line utility to check and repair NetBox integrity and consistency")
 @click.option("-f", "--force-repair", "flg_force_repair", is_flag=True, default=False, help="Repair all inconsistencies without confirmation.")
+@click.option("-b", "--alter-bg", "flg_alt_table_bg", is_flag=True, default=False, help="Use alternating background color in the table.")
 @click.option("-v", "--verbose", "flg_verbose", is_flag=True, default=False, help="Show detailed logging.")
-def main(flg_force_repair, flg_verbose):
+def main(flg_force_repair, flg_alt_table_bg, flg_verbose):
     secrets = load_encrypted_secrets()
     nb_url = secrets["netbox_url"]
     nb_token = secrets["netbox_api_token"]
@@ -379,7 +384,7 @@ def main(flg_force_repair, flg_verbose):
     nbck = NBCK(nb)
     #nbck.load_inventories(verbose=flg_verbose)
     nbck.load_inventories_for_debug(verbose=flg_verbose)
-    nbck.full_check(verbose=flg_verbose)
+    nbck.full_check(alt_table_bg=flg_alt_table_bg, verbose=flg_verbose)
     #nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
 
 
