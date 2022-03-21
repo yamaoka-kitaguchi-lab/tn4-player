@@ -86,20 +86,32 @@ class NetBoxClient:
         self.wifi_mgmt_vlanid_s = None
 
 
-    def query(self, request_path):
+    def query(self, request_path, data=None, update=False):
         responses = []
         url = self.api_endpoint + request_path
         headers = {
             "Authorization": f"Token {self.token}",
             "Content-Type":  "application/json",
-            "Accept":                "application/json; indent=4"
+            "Accept":        "application/json; indent=4"
         }
 
-        while url:
-            raw = requests.get(url, headers=headers, verify=True)
-            res = json.loads(raw.text)
-            responses += res["results"]
-            url = res["next"]
+        if data:
+            cnt, limit = 0, 100
+            while cnt < len(data):
+                d = data[cnt:cnt+limit]
+                raw = None
+                if update:
+                    raw = requests.patch(url, json.dumps(d), headers=headers, verify=True)
+                else:
+                    raw = requests.post(url, json.dumps(d), headers=headers, verify=True)
+                responses += json.loads(raw.text)
+                cnt += limit
+        else:
+            while url:
+                raw = requests.get(url, headers=headers, verify=True)
+                res = json.loads(raw.text)
+                responses += res["results"]
+                url = res["next"]
         return responses
 
 
