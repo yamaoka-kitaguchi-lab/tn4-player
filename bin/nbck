@@ -181,6 +181,11 @@ class NBCK:
                             else:
                                 s["untagged_vid"] = "-"
 
+                            if s["enabled"]:
+                                s["enabled"] = "Yes"
+                            else:
+                                s["enabled"] = "No"
+
                             if s["description"] == "":
                                 s["description"] = "-"
 
