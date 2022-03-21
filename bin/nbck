@@ -153,8 +153,9 @@ class NBCK:
             sleep(1)  # for visibility
             consoles = self.__check_master_slave_tag_consistency()
             self.console.log("Checked Master/Slave consistency.")
-            for message in consoles:
-                self.console.log(message)
+            if verbose:
+                for message in consoles:
+                    self.console.log(message)
 
             for dev_name, interfaces in self.consistencies.items():
                 for int_name, state in interfaces.items():
@@ -166,9 +167,9 @@ class NBCK:
                         for label in ["current", "desired"]:
                             s = state[label]
                             if len(s["tagged_vlanids"]) > 0:
-                                s["tagged_vids"] = [self.nb.all_vlans[str(i)]["vid"] for i in s["tagged_vlanids"]]
+                                s["tagged_vids"] = sorted([str(self.nb.all_vlans[str(i)]["vid"]) for i in s["tagged_vlanids"]])
                             if s["untagged_vlanid"] is not None:
-                                s["untagged_vid"] = self.nb.all_vlans[str(s["untagged_vlanid"])]["vid"]
+                                s["untagged_vid"] = str(self.nb.all_vlans[str(s["untagged_vlanid"])]["vid"])
 
                         self.problems.append({
                             "device":    dev_name,
@@ -203,10 +204,11 @@ class NBCK:
 
         for i, problem in enumerate(self.problems):
             d = [str(idx_from+i), problem["device"], problem["address"], problem["interface"], "\n".join(problem["violation"])]
+            b, f = problem["current"], problem["desired"]
             if verbose:
                 d.extend([
-                    "[bold]VLAN(T):[/bold] test",
-                    "[bold]VLAN(T):[/bold] test",
+                    f"[bold]VLAN(T):[/bold] {', '.join(b['tagged_vids'])}\n[bold]VLAN(U):[/bold] {b['untagged_vid']}\n[bold]Enabled:[/bold] {b['enabled']}\n[bold]Desc:[/bold]    {b['description']}\n[bold]Tags:[/bold]    {', '.join(b['tags'])}",
+                    f"[bold]VLAN(T):[/bold] {', '.join(f['tagged_vids'])}\n[bold]VLAN(U):[/bold] {f['untagged_vid']}\n[bold]Enabled:[/bold] {f['enabled']}\n[bold]Desc:[/bold]    {f['description']}\n[bold]Tags:[/bold]    {', '.join(f['tags'])}",
                 ])
             table.add_row(*d)
 
