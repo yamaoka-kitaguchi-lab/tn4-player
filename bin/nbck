@@ -256,8 +256,11 @@ def debug():
 
 
     def is_equal(s1, s2) -> None:
-        for k, v in s1.items():
-            if v != s2[k]:
+        for k in ["enabled", "description", "tagged", "untagged_vlanid"]:
+            if s1[k] != s2[k]:
+                return False
+        for k in ["tags", "tagged_vlanids"]:
+            if set(s1[k]) != set(s2[k]):
                 return False
         return True
 
@@ -404,6 +407,13 @@ def debug():
     #pprint(consistencies["core-gsic"]["ae148"])
 
 
+    problems = {}
+    for dev_name, interfaces in consistencies.items():
+        for int_name, state in interfaces.items():
+            if len(consistencies[dev_name][int_name]["violation"]) > 0:
+                problems.setdefault(dev_name, {})[int_name] = state
+
+    pprint(problems)
 
 
 
