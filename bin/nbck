@@ -1,0 +1,471 @@
+#!/usr/bin/env python3
+
+"""
+
+NBCK - NetBox Consistency Check
+
+NBCK is a command-line utility to check and repair NetBox registration errors.
+This makes sure NetBox for integrity and consistency just like the fsck command does for Linux filesystem.
+
+$ PATH=$HOME/tn4-player/bin:$PATH
+$ nbck -fv
+
+Since: March 2022
+See: https://github.com/yamaoka-kitaguchi-lab/tn4-player
+
+"""
+
+from rich import box
+from rich.console import Console
+from rich.panel import Panel
+from rich.prompt import Prompt, Confirm
+from rich.table import Table
+from time import sleep
+import click
+import copy
+import json
+import os
+import re
+import sys
+
+CURDIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(CURDIR, "../netbox"))
+
+from netbox import NetBoxClient, Slug, load_encrypted_secrets
+
+
+class NBCK:
+    def __init__(self, nb) -> None:
+        self.nb = nb
+        self.console = Console(log_time_format="%Y-%m-%dT%H:%M:%S")
+        self.consistencies = {}
+        self.problems = []
+
+
+    def load_inventories_for_debug(self, verbose=False) -> None:
+        for cache in [".sites.cache", ".vlans.cache", ".addresses.cache", ".devices.cache", ".interfaces.cache"]:
+            if not os.path.exists(cache):
+                self.load_inventories(verbose=verbose)
+                with open(".sites.cache", "w") as fd:
+                    json.dump(self.nb.all_sites, fd)
+                with open(".vlans.cache", "w") as fd:
+                    json.dump(self.nb.all_vlans, fd)
+                with open(".addresses.cache", "w") as fd:
+                    json.dump(self.nb.all_addresses, fd)
+                with open(".devices.cache", "w") as fd:
+                    json.dump(self.nb.all_devices, fd)
+                with open(".interfaces.cache", "w") as fd:
+                    json.dump(self.nb.all_interfaces, fd)
+                break
+
+        with open(".sites.cache") as fd:
+            self.nb.all_sites = json.load(fd)
+            self.console.log(f"Fetched all Sites ({len(self.nb.all_sites)} sites fetched)")
+        with open(".vlans.cache") as fd:
+            self.nb.all_vlans = json.load(fd)
+            self.console.log(f"Fetched all VLANs ({len(self.nb.all_vlans)} VLANs fetched)")
+        with open(".addresses.cache") as fd:
+            self.nb.all_addresses = json.load(fd)
+            self.console.log(f"Fetched all IP Addresses ({len(self.nb.all_addresses)} addresses fetched)")
+        with open(".devices.cache") as fd:
+            self.nb.all_devices = json.load(fd)
+            self.console.log(f"Fetched all Devices ({len(self.nb.all_devices)} devices fetched)")
+        with open(".interfaces.cache") as fd:
+            self.nb.all_interfaces = json.load(fd)
+            n = sum(len(v) for v in self.nb.all_interfaces.values())
+            self.console.log(f"Fetched all Interfaces ({n} interfaces fetched)")
+
+
+    def load_inventories(self, verbose=False) -> None:
+        self.console.log("NBCK - NetBox Consistency Check")
+        self.console.log(f"API endpoint: {self.nb.netbox_url}")
+        with self.console.status("[bold]Fetching the latest inventories from NetBox..."):
+            self.nb.get_all_sites()
+            self.console.log(f"Fetched all Sites ({len(self.nb.all_sites)} sites fetched)")
+
+            self.nb.get_all_vlans()
+            self.console.log(f"Fetched all VLANs ({len(self.nb.all_vlans)} VLANs fetched)")
+
+            self.nb.get_all_addresses()
+            self.console.log(f"Fetched all IP Addresses ({len(self.nb.all_addresses)} addresses fetched)")
+
+            self.nb.get_all_devices()
+            self.console.log(f"Fetched all Devices ({len(self.nb.all_devices)} devices fetched)")
+
+            self.nb.get_all_interfaces()
+            n = sum(len(v) for v in self.nb.all_interfaces.values())
+            self.console.log(f"Fetched all Interfaces ({n} interfaces fetched)")
+
+
+    def __new_state(self, enabled=False, description="", tags=[], tagged_vlanids=None, untagged_vlanid=None) -> dict:
+        return {
+            "enabled":          enabled,
+            "description":      description,
+            "tags":             copy.deepcopy(tags),
+            "tagged":           tagged_vlanids is not None,
+            "tagged_vlanids":   copy.deepcopy(tagged_vlanids),
+            "untagged_vlanid":  untagged_vlanid,
+            "tagged_vids":      [],
+            "untagged_vid":     None,
+        }
+
+
+    def __is_equal(self, s1, s2) -> bool:
+        for k in ["enabled", "description", "tagged", "untagged_vlanid"]:
+            if s1[k] != s2[k]:
+                return False
+        for k in ["tags", "tagged_vlanids"]:
+            if set(s1[k]) != set(s2[k]):
+                return False
+        return True
+
+
+    def full_check(self, alt_table_bg=False, verbose=False) -> None:
+        for dev_name, interfaces in self.nb.all_interfaces.items():
+            for int_name, interface in interfaces.items():
+                self.consistencies.setdefault(dev_name, {})[int_name] = {
+                    "current": self.__new_state(
+                        enabled=interface["enabled"],
+                        description=interface["description"],
+                        tags=interface["tags"],
+                        tagged_vlanids=interface["tagged_vlanids"],
+                        untagged_vlanid=interface["untagged_vlanid"],
+                    ),
+                    "desired": self.__new_state(
+                        enabled=interface["enabled"],
+                        description=interface["description"],
+                        tags=interface["tags"],
+                        tagged_vlanids=interface["tagged_vlanids"],
+                        untagged_vlanid=interface["untagged_vlanid"],
+                    ),
+                    "violation": [],
+                }
+
+        with self.console.status("[bold]Finding inconsistencies on NetBox..."):
+            sleep(1)  # for visibility
+            self.__check_wifi_tag_consistency()
+            self.console.log("Checked Wi-Fi tag consistency")
+
+            sleep(1)  # for visibility
+            self.__check_core_downstream_consistency()
+            self.console.log("Checked Core/Edge VLAN consistency")
+
+            sleep(1)  # for visibility
+            consoles = self.__check_master_slave_tag_consistency()
+            self.console.log("Checked Master/Slave consistency")
+            if verbose:
+                for message in consoles:
+                    self.console.log(message)
+
+
+            sleep(1)  # for visibility
+            self.__generate_problem_summary()
+            n = len(self.problems)
+            if n > 0:
+                self.console.log(f"All done. Found [red]{n}[/red] inconsistencies of below")
+                print()
+                self.__print_problem_summary(alt_table_bg=alt_table_bg, verbose=verbose, panel_title=f"Consistency Check Report")
+            else:
+                self.console.log(f"All done. No inconsistencies found. Exiting...")
+                sys.exit(0)
+
+
+    def __generate_problem_summary(self) -> None:
+        for dev_name, interfaces in self.consistencies.items():
+            for int_name, state in interfaces.items():
+                if len(self.consistencies[dev_name][int_name]["violation"]) > 0:
+                    address = "-"
+                    if self.nb.all_devices[dev_name]["primary_ip"] is not None:
+                        address = self.nb.all_devices[dev_name]["primary_ip"]["address"]
+
+                    for label in ["current", "desired"]:
+                        s = state[label]
+
+                        s["mode"] = "Access"
+                        if s["tagged"]:
+                            s["mode"] = "Trunk"
+
+                        if len(s["tagged_vlanids"]) > 0:
+                            s["tagged_vids"] = [str(self.nb.all_vlans[str(i)]["vid"]) for i in s["tagged_vlanids"]]
+                        else:
+                            s["tagged_vids"] = "-"
+
+                        if s["untagged_vlanid"] is not None:
+                            s["untagged_vid"] = str(self.nb.all_vlans[str(s["untagged_vlanid"])]["vid"])
+                        else:
+                            s["untagged_vid"] = "-"
+
+                        if s["enabled"]:
+                            s["enabled"] = "Yes"
+                        else:
+                            s["enabled"] = "No"
+
+                        if s["description"] == "":
+                            s["description"] = "-"
+
+                    self.problems.append({
+                        "device":    dev_name,
+                        "interface": int_name,
+                        "address":   address,
+                        **state,
+                    })
+
+        for problem in self.problems:
+            bef = set(problem["current"]["tagged_vids"])
+            aft = set(problem["desired"]["tagged_vids"])
+            sorter = lambda v: int(v[1:]) if (v[0] == "*") else int(v)
+            if type(problem["current"]["tagged_vids"]) == list:
+                for vid in bef.difference(aft):
+                    problem["current"]["tagged_vids"].remove(str(vid))
+                    problem["current"]["tagged_vids"].append(f"*{str(vid)}")
+                    problem["current"]["tagged_vids"].sort(key=sorter)
+            if type(problem["desired"]["tagged_vids"]) == list:
+                for vid in aft.difference(bef):
+                    problem["desired"]["tagged_vids"].remove(str(vid))
+                    problem["desired"]["tagged_vids"].append(f"*{str(vid)}")
+                    problem["desired"]["tagged_vids"].sort(key=sorter)
+
+            bef = problem["current"]["untagged_vid"]
+            aft = problem["desired"]["untagged_vid"]
+            if bef != aft and bef != "-":
+                problem["current"]["untagged_vid"] = f"*{bef}"
+            if bef != aft and aft != "-":
+                problem["desired"]["untagged_vid"] = f"*{aft}"
+
+            for label in ["mode", "enabled"]:
+                bef = problem["current"][label]
+                aft = problem["desired"][label]
+                if bef != aft:
+                    problem["desired"][label] = f"*{aft}"
+
+
+    def __print_problem_summary(self, idx_from=0, alt_table_bg=False, verbose=False, use_panel=True, panel_title="") -> None:
+        table = Table(show_header=True, header_style="bold red")
+        table.box = box.SIMPLE
+        if alt_table_bg:
+            table.row_styles = ["none", "dim"]
+        table.add_column("#", style="dim")
+        table.add_column("Hostname", style="bold")
+        table.add_column("IP address", style="dim")
+        table.add_column("Interface", style="bold")
+        table.add_column("Violation", style="cyan")
+        if verbose:
+            table.add_column("Current state", style="magenta")
+            table.add_column("Desired state", style="green")
+
+        n = len(self.problems)
+        for i, problem in enumerate(self.problems):
+            d = [str(idx_from+i), problem["device"], problem["address"], problem["interface"], "\n".join(problem["violation"])]
+            b, a = problem["current"], problem["desired"]
+            if verbose:
+                d.extend([
+                    f"[bold]Mode:[/bold]    {b['mode']}\n[bold]VLAN(T):[/bold] {', '.join(b['tagged_vids'])}\n[bold]VLAN(U):[/bold] {b['untagged_vid']}\n[bold]Enabled:[/bold] {b['enabled']}\n[bold]Desc:[/bold]    {b['description']}\n[bold]Tags:[/bold]    {', '.join(b['tags'])}",
+                    f"[bold]Mode:[/bold]    {a['mode']}\n[bold]VLAN(T):[/bold] {', '.join(a['tagged_vids'])}\n[bold]VLAN(U):[/bold] {a['untagged_vid']}\n[bold]Enabled:[/bold] {a['enabled']}\n[bold]Desc:[/bold]    {a['description']}\n[bold]Tags:[/bold]    {', '.join(a['tags'])}",
+                ])
+            table.add_row(*d)
+            if verbose and i < n-1:
+                table.add_row()
+
+        if use_panel:
+            self.console.print(Panel.fit(table, title=panel_title))
+        else:
+            self.console.print(table)
+
+
+    def __flatten_num_string(self, nstr) -> list:
+        l = []
+        for n in nstr.split():
+            if "-" in n:
+                a, b = map(int, n.split("-"))
+                l.extend([i for i in range(a,b+1)])
+            else:
+                l.append(int(n))
+        return l
+
+
+    def full_repair(self, skip_confirm=False, verbose=False) -> None:
+        is_confirmed = skip_confirm
+        skipped_idc = []
+
+        print()
+        if skip_confirm:
+            with self.console.status("[bold]Performing force repair in 5 seconds..."):
+                sleep(5)
+        else:
+            nstr = Prompt.ask("Interfaces to skip repairing (eg: 1 2 3-5)")
+            skipped_idc = self.__flatten_num_string(nstr)
+            is_confirmed = Confirm.ask(
+                f"You are about to force repair [red]{self.n_total_problems - len(skipped_idc)}[/red] interfaces. Continue?",
+                default=False
+            )
+            print()
+            if not is_confirmed:
+                self.console.log("Aborted")
+                sys.exit(0)
+
+        with self.console.status("[bold]Repairing inconsistencies..."):
+            self.__repair(self.wifi_tag_problems)
+            self.console.log("Completed repairing")
+
+
+    def __repair(self, problems) -> None:
+        pass
+
+
+    def __check_wifi_tag_consistency(self) -> None:
+        for dev_name, interfaces in self.nb.all_interfaces.items():
+            for int_name, interface in interfaces.items():
+                is_wifi_port = interface["is_to_ap"] or interface["is_to_poesw"]
+                if not is_wifi_port:
+                    continue
+
+                current = copy.deepcopy(self.consistencies[dev_name][int_name]["desired"])
+                desired = self.consistencies[dev_name][int_name]["desired"]
+                desired["tagged_vlanids"].extend(interface["wifi_vlanids"])
+
+                if interface["is_to_ap"]:
+                    desired["untagged_vlanid"] = interface["wifi_mgmt_vlanid"]
+                if interface["is_to_poesw"]:
+                    desired["tagged_vlanids"].append(interface["wifi_mgmt_vlanid"])
+
+                desired["tagged_vlanids"] = list(set(desired["tagged_vlanids"]))
+                desired["tagged"] = True
+
+                if not self.__is_equal(current, desired):
+                    self.consistencies[dev_name][int_name]["violation"].append("Wi-Fi")
+
+
+    def __check_master_slave_tag_consistency(self) -> list:
+        consoles = []
+        desired_up_vlanids = {}  # key: edge VC hostname, values list of VLAN object IDs
+
+        for dev_name, interfaces in self.consistencies.items():
+            is_edge = self.nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_edge_sw
+            if not is_edge:
+                continue
+
+            device = self.nb.all_devices[dev_name]
+            edge_hostname = device["hostname"]
+            l = []
+            for interface in interfaces.values():
+                l.extend(interface["desired"]["tagged_vlanids"])
+                l.append(interface["desired"]["untagged_vlanid"])
+            desired_up_vlanids[edge_hostname] = [v for v in set(l) if v is not None]
+
+        for dev_name, interfaces in self.nb.all_interfaces.items():
+            is_core = self.nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_core_sw
+            if not is_core:
+                continue
+
+            for int_name, interface in interfaces.items():
+                is_to_edge = interface["is_deploy_target"] and not interface["is_lag_member"] and interface["is_to_edge"]
+                if not is_to_edge:
+                    continue
+
+                edge_hostname = interface["description"]
+                if edge_hostname not in desired_up_vlanids:
+                    consoles.append(f"[yellow][bold]{edge_hostname}[/bold] No path found on any core switches. Perhaps you forgot the downlink tag or typo the description?[/yellow]")
+                    continue
+
+                current = copy.deepcopy(self.consistencies[dev_name][int_name]["desired"])
+                desired = self.consistencies[dev_name][int_name]["desired"]
+                desired["tagged_vlanids"] = desired_up_vlanids[edge_hostname]  # overwrite
+
+                if not self.__is_equal(current, desired):
+                    self.consistencies[dev_name][int_name]["violation"].append("Edge/Core")
+
+        return consoles
+
+
+    def __check_core_downstream_consistency(self) -> None:
+        ## Master's interface name must be unique, cannot be dupplicated
+        desired_master = {}    # key: interface name, value: state object (reference)
+        desired_o_master = {}  # key: interface name, value: state object (reference)
+        desired_s_master = {}  # key: interface name, value: state object (reference)
+
+        def __deepcopy_without_tag(ref):
+            copied = copy.deepcopy(ref)
+            for tag in [Slug.tag_core_master, Slug.tag_core_ookayama_master, Slug.tag_core_suzukake_master]:
+                if tag in copied["tags"]:
+                    copied["tags"].remove(tag)
+            return copied
+
+        for dev_name, interfaces in self.nb.all_interfaces.items():
+            is_core = self.nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_core_sw
+            if not is_core:
+                continue
+
+            for int_name, interface in interfaces.items():
+                is_master = Slug.tag_core_master in interface["tags"]
+                is_ookayama_master = Slug.tag_core_ookayama_master in interface["tags"]
+                is_suzukake_master = Slug.tag_core_suzukake_master in interface["tags"]
+
+                if is_master:
+                    desired_master[int_name] = __deepcopy_without_tag(self.consistencies[dev_name][int_name]["desired"])
+                if is_ookayama_master:
+                    desired_o_master[int_name] = __deepcopy_without_tag(self.consistencies[dev_name][int_name]["desired"])
+                if is_suzukake_master:
+                    desired_s_master[int_name] = __deepcopy_without_tag(self.consistencies[dev_name][int_name]["desired"])
+
+        for dev_name, interfaces in self.nb.all_interfaces.items():
+            is_core = self.nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_core_sw
+            if not is_core:
+                continue
+
+            for int_name, interface in interfaces.items():
+                is_slave = Slug.tag_core_slave in interface["tags"]
+                is_ookayama_slave = Slug.tag_core_ookayama_slave in interface["tags"]
+                is_suzukake_slave = Slug.tag_core_suzukake_slave in interface["tags"]
+
+                current = copy.deepcopy(self.consistencies[dev_name][int_name]["desired"])
+                if is_slave:
+                    self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_master[int_name])
+                    self.consistencies[dev_name][int_name]["desired"]["tags"].append(Slug.tag_core_slave)
+                if is_ookayama_slave:
+                    self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_o_master[int_name])
+                    self.consistencies[dev_name][int_name]["desired"]["tags"].append(Slug.tag_core_ookayama_slave)
+                if is_suzukake_slave:
+                    self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_s_master[int_name])
+                    self.consistencies[dev_name][int_name]["desired"]["tags"].append(Slug.tag_core_suzukake_slave)
+
+                if not self.__is_equal(current, self.consistencies[dev_name][int_name]["desired"]):
+                    self.consistencies[dev_name][int_name]["violation"].append("Master/Slave")
+
+
+@click.command(help="A command-line utility to check and repair NetBox integrity and consistency")
+@click.option("-f", "--force-repair", "flg_force_repair", is_flag=True, default=False, help="Repair all inconsistencies without confirmation.")
+@click.option("-b", "--alter-bg", "flg_alt_table_bg", is_flag=True, default=False, help="Use alternating background color in the table.")
+@click.option("-v", "--verbose", "flg_verbose", is_flag=True, default=False, help="Show detailed logging.")
+def main(flg_force_repair, flg_alt_table_bg, flg_verbose):
+    secrets = load_encrypted_secrets()
+    nb_url = secrets["netbox_url"]
+    nb_token = secrets["netbox_api_token"]
+
+    nb = NetBoxClient(nb_url, nb_token)
+    nbck = NBCK(nb)
+    #nbck.load_inventories(verbose=flg_verbose)
+    nbck.load_inventories_for_debug(verbose=flg_verbose)
+    nbck.full_check(alt_table_bg=flg_alt_table_bg, verbose=flg_verbose)
+    #nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
+
+
+def debug():
+    from pprint import pprint
+
+    secrets = load_encrypted_secrets()
+    nb_url = secrets["netbox_url"]
+    nb_token = secrets["netbox_api_token"]
+    nb = NetBoxClient(nb_url, nb_token)
+    nbck = NBCK(nb)
+    nbck.load_inventories_for_debug(verbose=True)
+
+    #pprint(nb.all_sites["minami3"])
+    #pprint(nb.all_devices["core-honkan"])
+    pprint(nb.all_devices["minami3 (1)"])
+    #pprint(nb.all_interfaces["core-honkan"]["et-0/0/1"])
+    #pprint(nb.all_interfaces["core-honkan"]["ae103"])
+
+
+if __name__ == "__main__":
+    main()
+    #debug()
