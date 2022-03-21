@@ -302,7 +302,7 @@ class NBCK:
 
                 edge_hostname = interface["description"]
                 if edge_hostname not in desired_up_vlanids:
-                    consoles.append(f"[yellow][bold]{edge_hostname}[/bold] No path found on any core switches. Perhaps you forgot the downlink tag?[/yellow]")
+                    consoles.append(f"[yellow][bold]{edge_hostname}[/bold] No path found on any core switches. Perhaps you forgot the downlink tag or typo the description?[/yellow]")
                     continue
 
                 current = copy.deepcopy(self.consistencies[dev_name][int_name]["desired"])
