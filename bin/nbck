@@ -166,6 +166,11 @@ class NBCK:
 
                         for label in ["current", "desired"]:
                             s = state[label]
+
+                            s["mode"] = "Access"
+                            if s["tagged"]:
+                                s["mode"] = "Trunk"
+
                             if len(s["tagged_vlanids"]) > 0:
                                 s["tagged_vids"] = list(map(str, sorted([self.nb.all_vlans[str(i)]["vid"] for i in s["tagged_vlanids"]])))
                             else:
@@ -217,8 +222,8 @@ class NBCK:
             b, a = problem["current"], problem["desired"]
             if verbose:
                 d.extend([
-                    f"[bold]VLAN(T):[/bold] {', '.join(b['tagged_vids'])}\n[bold]VLAN(U):[/bold] {b['untagged_vid']}\n[bold]Enabled:[/bold] {b['enabled']}\n[bold]Desc:[/bold]    {b['description']}\n[bold]Tags:[/bold]    {', '.join(b['tags'])}",
-                    f"[bold]VLAN(T):[/bold] {', '.join(a['tagged_vids'])}\n[bold]VLAN(U):[/bold] {a['untagged_vid']}\n[bold]Enabled:[/bold] {a['enabled']}\n[bold]Desc:[/bold]    {a['description']}\n[bold]Tags:[/bold]    {', '.join(a['tags'])}",
+                    f"[bold]Mode:[/bold]    {b['mode']}\n[bold]VLAN(T):[/bold] {', '.join(b['tagged_vids'])}\n[bold]VLAN(U):[/bold] {b['untagged_vid']}\n[bold]Enabled:[/bold] {b['enabled']}\n[bold]Desc:[/bold]    {b['description']}\n[bold]Tags:[/bold]    {', '.join(b['tags'])}",
+                    f"[bold]Mode:[/bold]    {a['mode']}\n[bold]VLAN(T):[/bold] {', '.join(a['tagged_vids'])}\n[bold]VLAN(U):[/bold] {a['untagged_vid']}\n[bold]Enabled:[/bold] {a['enabled']}\n[bold]Desc:[/bold]    {a['description']}\n[bold]Tags:[/bold]    {', '.join(a['tags'])}",
                 ])
             table.add_row(*d)
             if verbose and i < n-1:
@@ -340,6 +345,14 @@ class NBCK:
         desired_master = {}    # key: interface name, value: state object (reference)
         desired_o_master = {}  # key: interface name, value: state object (reference)
         desired_s_master = {}  # key: interface name, value: state object (reference)
+
+        def __deepcopy_without_tag(ref):
+            copied = copy.deepcopy(ref)
+            for tag in [Slug.tag_core_master, Slug.tag_core_ookayama_master, Slug.tag_core_suzukake_master]:
+                if tag in copied["tags"]:
+                    copied["tags"].remove(tag)
+            return copied
+
         for dev_name, interfaces in self.nb.all_interfaces.items():
             is_core = self.nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_core_sw
             if not is_core:
@@ -351,11 +364,11 @@ class NBCK:
                 is_suzukake_master = Slug.tag_core_suzukake_master in interface["tags"]
 
                 if is_master:
-                    desired_master[int_name] = self.consistencies[dev_name][int_name]["desired"]
+                    desired_master[int_name] = __deepcopy_without_tag(self.consistencies[dev_name][int_name]["desired"])
                 if is_ookayama_master:
-                    desired_o_master[int_name] = self.consistencies[dev_name][int_name]["desired"]
+                    desired_o_master[int_name] = __deepcopy_without_tag(self.consistencies[dev_name][int_name]["desired"])
                 if is_suzukake_master:
-                    desired_s_master[int_name] = self.consistencies[dev_name][int_name]["desired"]
+                    desired_s_master[int_name] = __deepcopy_without_tag(self.consistencies[dev_name][int_name]["desired"])
 
         for dev_name, interfaces in self.nb.all_interfaces.items():
             is_core = self.nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_core_sw
@@ -370,10 +383,13 @@ class NBCK:
                 current = copy.deepcopy(self.consistencies[dev_name][int_name]["desired"])
                 if is_slave:
                     self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_master[int_name])
+                    self.consistencies[dev_name][int_name]["desired"]["tags"].append(Slug.tag_core_slave)
                 if is_ookayama_slave:
                     self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_o_master[int_name])
+                    self.consistencies[dev_name][int_name]["desired"]["tags"].append(Slug.tag_core_ookayama_slave)
                 if is_suzukake_slave:
                     self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_s_master[int_name])
+                    self.consistencies[dev_name][int_name]["desired"]["tags"].append(Slug.tag_core_suzukake_slave)
 
                 if not self.__is_equal(current, self.consistencies[dev_name][int_name]["desired"]):
                     self.consistencies[dev_name][int_name]["violation"].append("Master/Slave")
