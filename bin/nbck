@@ -291,8 +291,8 @@ def debug():
             desired["tagged_vlanids"] = list(set(desired["tagged_vlanids"]))
 
 
-
-    pprint(nb.all_interfaces["minami3 (1)"]["mge-0/0/40"])
+    #pprint(nb.all_interfaces["minami3 (1)"]["mge-0/0/40"])
+    #pprint(consistency_report["minami3 (1)"]["mge-0/0/40"])
 
 
 
