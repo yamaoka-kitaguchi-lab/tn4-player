@@ -236,58 +236,61 @@ def debug():
     #pprint(nb.all_interfaces["core-honkan"]["et-0/0/1"])
     #pprint(nb.all_interfaces["core-honkan"]["ae103"])
 
-    pprint(nb.all_interfaces["minami3 (1)"]["mge-0/0/40"])
-    pprint(nb.all_vlans["514"])
+    #pprint(nb.all_interfaces["minami3 (1)"]["mge-0/0/40"])
+    #pprint(nb.all_vlans["514"])
 
 
     consistency_report = {}
 
-    def new_state(enabled=False, description="", tags=[], tagged_vids=None, untagged_vid=None, tagged_vlanids=None, untagged_vlanid=None):
+    def new_state(enabled=False, description="", tags=[], tagged_vlanids=None, untagged_vlanid=None):
         return {
             "enabled":          enabled,
             "description":      description,
-            "tagged_vids":      tagged_vids,
-            "untagged_vid":     untagged_vid,
             "tags":             tags,
+            "tagged":           tagged_vlanids is not None,
             "tagged_vlanids":   tagged_vlanids,
-            "untagged_vlanids": untagged_vlanid,
+            "untagged_vlanid":  untagged_vlanid,
+            "tagged_vids":      [],
+            "untagged_vid":     None,
         }
 
     for dev_name, interfaces in nb.all_interfaces.items():
         for int_name, interface in interfaces.items():
-            is_skipped = not interface["is_deploy_target"]
-            if is_skipped:
-                continue
-
-            consistency_report.setdefault(dev_name, {}).setdefault(int_name, {
+            consistency_report.setdefault(dev_name, {})[int_name] = {
                 "current": new_state(
                     enabled=interface["enabled"],
                     description=interface["description"],
                     tags=interface["tags"],
-                    tagged_vids=interface["tagged_vids"],
-                    untagged_vid=interface["untagged_vids"],
                     tagged_vlanids=interface["tagged_vlanids"],
-                    untagged_vlanid=interface["untagged_vlanids"],
+                    untagged_vlanid=interface["untagged_vlanid"],
                 ),
                 "desired": new_state(
                     enabled=interface["enabled"],
                     description=interface["description"],
                     tags=interface["tags"],
-                    tagged_vids=interface["tagged_vids"],
-                    untagged_vid=interface["untagged_vids"],
                     tagged_vlanids=interface["tagged_vlanids"],
-                    untagged_vlanid=interface["untagged_vlanids"],
+                    untagged_vlanid=interface["untagged_vlanid"],
                 ),
-            })
+            }
 
     #pprint(consistency_report["core-honkan"])
-
 
     for dev_name, interfaces in nb.all_interfaces.items():
         for int_name, interface in interfaces.items():
             is_wifi_port = interface["is_to_ap"] or interface["is_to_poesw"]
             if not is_wifi_port:
                 continue
+
+            desired = consistency_report[dev_name][int_name]["desired"]
+            desired["tagged_vlanids"].extend(interface["wifi_vlanids"])
+
+            if interface["is_to_ap"]:
+                desired["untagged_vlanid"] = interface["wifi_mgmt_vlanid"]
+            if interface["is_to_poesw"]:
+                desired["tagged_vlanids"].append(interface["wifi_mgmt_vlanid"])
+
+            desired["tagged_vlanids"] = list(set(desired["tagged_vlanids"]))
+
 
 
 

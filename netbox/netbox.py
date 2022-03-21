@@ -180,7 +180,7 @@ class NetBoxClient:
         allowed_int_types_virtual = ["lag"]  # Ignore virtual type interfaces
         allowed_int_types_ethernet_utp = [
              "1000base-t", "2.5gbase-t", "5gbase-t", "10gbase-t",
-        ],
+        ]
         allowed_int_types_ethernet = [
             *allowed_int_types_ethernet_utp,
             "100base-tx", "1000base-x-gbic", "1000base-x-sfp", "10gbase-cx4", "10gbase-x-sfpp", "10gbase-x-xfp",
@@ -214,8 +214,8 @@ class NetBoxClient:
                 all_vids = []
                 interface["tagged_vlanids"] = None
                 interface["tagged_vids"] = None
-                interface["untagged_vlanids"] = None
-                interface["untagged_vids"] = None
+                interface["untagged_vlanid"] = None
+                interface["untagged_vid"] = None
 
                 if interface["tagged_vlans"] is not None:
                     interface["tagged_vlanids"] = [v["id"] for v in interface["tagged_vlans"]]
