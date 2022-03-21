@@ -102,19 +102,15 @@ class NBCK:
     def full_check(self, verbose=False) -> None:
         with self.console.status("[bold]Finding broken consistency..."):
             self.__check_wifi_tag_consistency()
-            n_problems = len(self.wifi_tag_problems)
-            self.n_total_problems += n_problems
-            self.console.log(f"Checked Wi-Fi tag consistency ({n_problems} problems found)")
-
-            self.__check_master_slave_tag_consistency()
-            n_problems = len(self.master_slave_tag_problems)
-            self.n_total_problems += n_problems
-            self.console.log(f"Checked Master/Slave tag consistency ({n_problems} problems found)")
+            self.console.log("Checked Wi-Fi tag consistency")
 
             self.__check_core_downstream_consistency()
-            n_problems = len(self.core_downstream_problems)
-            self.n_total_problems += n_problems
-            self.console.log(f"Checked downstream VLAN consistency ({n_problems} problems found)")
+            self.console.log("Checked downstream VLAN consistency")
+
+            self.__check_master_slave_tag_consistency()
+            self.console.log("Checked Master/Slave tag consistency")
+
+            self.console.log(f"All done, found 0 inconsistencies")
 
         tbl_idx_from = 0
         all_problems = [self.master_slave_tag_problems, self.wifi_tag_problems]
@@ -184,13 +180,9 @@ class NBCK:
                 self.console.log("Aborted")
                 sys.exit(0)
 
-        with self.console.status("[bold]Repairing broken master/slave tag consistency..."):
-            self.__repair(self.master_slave_tag_problems)
-            self.console.log("Repaired all Master/Slave tag inconsistencies")
-
-        with self.console.status("[bold]Repairing broken Wi-Fi tag consistency..."):
+        with self.console.status("[bold]Repairing inconsistencies..."):
             self.__repair(self.wifi_tag_problems)
-            self.console.log("Repaired all Wi-Fi tag inconsistencies")
+            self.console.log("Completed repairing")
 
 
     def __repair(self, problems) -> None:
@@ -281,20 +273,18 @@ def debug():
     desired_vlan_ids = {}  # key: edge VC hostname, value: list of VLAN object IDs
     for dev_name, interfaces in all_desired_interfaces.items():
         l = []
-        edge_hostname = nb.all_devices[dev_name]["hostname"]
+        device = nb.all_devices[dev_name]
+        edge_hostname = device["hostname"]
+        if device["device_role"]["slug"] != Slug.role_edge_sw:
+            continue
         if edge_hostname not in current_vlan_ids:
             print(f"No registration found for {edge_hostname}: missing Downlink tag?")
             continue
         for interface in interfaces.values():
-            is_skipped = interface["device_role"]["slug"] != Slug.role_edge_sw
-            if is_skipped:
-                continue
             l.extend(interface["all_vlan_ids"])
 
         dd = set(l)
         cd = set(current_vlan_ids[edge_hostname])
-        print(edge_hostname, "current:", cd)
-        print(edge_hostname, "desired:", dd)
         if cd > dd:
             print(f"({edge_hostname}) Missing:", cd - dd)
         desired_vlan_ids[edge_hostname] = list(dd)
