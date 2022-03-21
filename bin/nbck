@@ -443,8 +443,8 @@ def main(flg_force_repair, flg_alt_table_bg, flg_verbose):
 
     nb = NetBoxClient(nb_url, nb_token)
     nbck = NBCK(nb)
-    #nbck.load_inventories(verbose=flg_verbose)
-    nbck.load_inventories_for_debug(verbose=flg_verbose)
+    nbck.load_inventories(verbose=flg_verbose)
+    #nbck.load_inventories_for_debug(verbose=flg_verbose)
     nbck.full_check(alt_table_bg=flg_alt_table_bg, verbose=flg_verbose)
     #nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose)
 
@@ -460,12 +460,31 @@ def debug():
     nbck.load_inventories_for_debug(verbose=True)
 
     #pprint(nb.all_sites["minami3"])
+    #pprint(nb.all_vlans)
     #pprint(nb.all_devices["core-honkan"])
-    pprint(nb.all_devices["minami3 (1)"])
+    #pprint(nb.all_devices["minami3 (1)"])
     #pprint(nb.all_interfaces["core-honkan"]["et-0/0/1"])
     #pprint(nb.all_interfaces["core-honkan"]["ae103"])
 
+    #pprint(nb.update_interface(
+    #    "test-c", "GigabitEthernet1/0/1",
+    #    description="update_test てすと",
+    #    enabled=False,
+    #    mode="Trunk",
+    #    untagged_vlanid=91,
+    #    tagged_vlanids=[92, 93, 94]
+    #))
+
+    #pprint(nb.update_interface(
+    #    "midori1 (1)", "ge-0/0/22",
+    #    description="update_test てすと",
+    #    enabled=False,
+    #    mode="Trunk",
+    #    untagged_vlanid=91,
+    #    tagged_vlanids=[92, 93, 94]
+    #))
+
 
 if __name__ == "__main__":
-    main()
-    #debug()
+    #main()
+    debug()
