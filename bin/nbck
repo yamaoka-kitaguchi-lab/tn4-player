@@ -218,12 +218,12 @@ class NBCK:
                 for vid in bef.difference(aft):
                     problem["current"]["tagged_vids"].remove(str(vid))
                     problem["current"]["tagged_vids"].append(f"*{str(vid)}")
-                    problem["current"]["tagged_vids"].sort(key=sorter)
+                problem["current"]["tagged_vids"].sort(key=sorter)
             if type(problem["desired"]["tagged_vids"]) == list:
                 for vid in aft.difference(bef):
                     problem["desired"]["tagged_vids"].remove(str(vid))
                     problem["desired"]["tagged_vids"].append(f"*{str(vid)}")
-                    problem["desired"]["tagged_vids"].sort(key=sorter)
+                problem["desired"]["tagged_vids"].sort(key=sorter)
 
             bef = problem["current"]["untagged_vid"]
             aft = problem["desired"]["untagged_vid"]
