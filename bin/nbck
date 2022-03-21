@@ -314,13 +314,27 @@ def debug():
     pprint(desired_up_vlanids)
     #pprint(desired_up_vlanids["minami3"])
 
+    for dev_name, interfaces in nb.all_interfaces.items():
+        is_core = nb.all_devices[dev_name]["device_role"]["slug"] == Slug.role_core_sw
+        if not is_core:
+            continue
+
+        for int_name, interface in interfaces.items():
+            is_to_edge = interface["is_deploy_target"] and not interface["is_lag_member"] and interface["is_to_edge"]
+            if not is_to_edge:
+                continue
+
+            edge_hostname = interface["description"]
+            if edge_hostname not in desired_up_vlanids:
+                print(f"No registration found for {edge_hostname}: missing Downlink tag?")
+                continue
+
+            desired = consistency_report[dev_name][int_name]["desired"]
+            desired["tagged_vlanids"] = desired_up_vlanids[edge_hostname]  # overwrite
+
+    pprint(consistency_report["core-honkan"]["ae148"])
 
 
-
-
-    # if edge_hostname not in current_vlan_ids:
-    #     print(f"No registration found for {edge_hostname}: missing Downlink tag?")
-    #     continue
 
 
 
