@@ -60,20 +60,20 @@ class NBCK:
 
         with open(".sites.cache") as fd:
             self.nb.all_sites = json.load(fd)
-            self.console.log(f"Fetched all Sites ({len(self.nb.all_sites)} sites fetched)")
+            self.console.log(f"Fetched all Sites [dim]({len(self.nb.all_sites)} sites fetched)[/dim]")
         with open(".vlans.cache") as fd:
             self.nb.all_vlans = json.load(fd)
-            self.console.log(f"Fetched all VLANs ({len(self.nb.all_vlans)} VLANs fetched)")
+            self.console.log(f"Fetched all VLANs [dim]({len(self.nb.all_vlans)} VLANs fetched)[/dim]")
         with open(".addresses.cache") as fd:
             self.nb.all_addresses = json.load(fd)
-            self.console.log(f"Fetched all IP Addresses ({len(self.nb.all_addresses)} addresses fetched)")
+            self.console.log(f"Fetched all IP Addresses [dim]({len(self.nb.all_addresses)} addresses fetched)[/dim]")
         with open(".devices.cache") as fd:
             self.nb.all_devices = json.load(fd)
-            self.console.log(f"Fetched all Devices ({len(self.nb.all_devices)} devices fetched)")
+            self.console.log(f"Fetched all Devices [dim]({len(self.nb.all_devices)} devices fetched)[/dim]")
         with open(".interfaces.cache") as fd:
             self.nb.all_interfaces = json.load(fd)
             n = sum(len(v) for v in self.nb.all_interfaces.values())
-            self.console.log(f"Fetched all Interfaces ({n} interfaces fetched)")
+            self.console.log(f"Fetched all Interfaces [dim]({n} interfaces fetched)[/dim]")
 
 
     def load_inventories(self, verbose=False) -> None:
@@ -81,20 +81,20 @@ class NBCK:
         self.console.log(f"API endpoint: {self.nb.netbox_url}")
         with self.console.status("[bold]Fetching the latest inventories from NetBox..."):
             self.nb.get_all_sites()
-            self.console.log(f"Fetched all Sites ({len(self.nb.all_sites)} sites fetched)")
+            self.console.log(f"Fetched all Sites [dim]({len(self.nb.all_sites)} sites fetched)[/dim]")
 
             self.nb.get_all_vlans()
-            self.console.log(f"Fetched all VLANs ({len(self.nb.all_vlans)} VLANs fetched)")
+            self.console.log(f"Fetched all VLANs [dim]({len(self.nb.all_vlans)} VLANs fetched)[/dim]")
 
             self.nb.get_all_addresses()
-            self.console.log(f"Fetched all IP Addresses ({len(self.nb.all_addresses)} addresses fetched)")
+            self.console.log(f"Fetched all IP Addresses [dim]({len(self.nb.all_addresses)} addresses fetched)[/dim]")
 
             self.nb.get_all_devices()
-            self.console.log(f"Fetched all Devices ({len(self.nb.all_devices)} devices fetched)")
+            self.console.log(f"Fetched all Devices [dim]({len(self.nb.all_devices)} devices fetched)[/dim]")
 
             self.nb.get_all_interfaces()
             n = sum(len(v) for v in self.nb.all_interfaces.values())
-            self.console.log(f"Fetched all Interfaces ({n} interfaces fetched)")
+            self.console.log(f"Fetched all Interfaces [dim]({n} interfaces fetched)[/dim]")
 
 
     def __new_state(self, enabled=False, description="", tags=[], tagged_vlanids=None, untagged_vlanid=None) -> dict:
@@ -195,13 +195,13 @@ class NBCK:
                         else:
                             s["untagged_vid"] = "-"
 
+                        s["_enabled"] = "No"
                         if s["enabled"]:
-                            s["enabled"] = "Yes"
-                        else:
-                            s["enabled"] = "No"
+                            s["_enabled"] = "Yes"
 
+                        s["_description"] = s["description"]
                         if s["description"] == "":
-                            s["description"] = "-"
+                            s["_description"] = "-"
 
                     self.problems.append({
                         "device":    dev_name,
@@ -259,8 +259,8 @@ class NBCK:
             b, a = problem["current"], problem["desired"]
             if verbose:
                 d.extend([
-                    f"[bold]Mode:[/bold]    {b['mode']}\n[bold]VLAN(T):[/bold] {', '.join(b['tagged_vids'])}\n[bold]VLAN(U):[/bold] {b['untagged_vid']}\n[bold]Enabled:[/bold] {b['enabled']}\n[bold]Desc:[/bold]    {b['description']}\n[bold]Tags:[/bold]    {', '.join(b['tags'])}",
-                    f"[bold]Mode:[/bold]    {a['mode']}\n[bold]VLAN(T):[/bold] {', '.join(a['tagged_vids'])}\n[bold]VLAN(U):[/bold] {a['untagged_vid']}\n[bold]Enabled:[/bold] {a['enabled']}\n[bold]Desc:[/bold]    {a['description']}\n[bold]Tags:[/bold]    {', '.join(a['tags'])}",
+                    f"[bold]Mode:[/bold]    {b['mode']}\n[bold]VLAN(T):[/bold] {', '.join(b['tagged_vids'])}\n[bold]VLAN(U):[/bold] {b['untagged_vid']}\n[bold]Enabled:[/bold] {b['_enabled']}\n[bold]Desc:[/bold]    {b['_description']}\n[bold]Tags:[/bold]    {', '.join(b['tags'])}",
+                    f"[bold]Mode:[/bold]    {a['mode']}\n[bold]VLAN(T):[/bold] {', '.join(a['tagged_vids'])}\n[bold]VLAN(U):[/bold] {a['untagged_vid']}\n[bold]Enabled:[/bold] {a['_enabled']}\n[bold]Desc:[/bold]    {a['_description']}\n[bold]Tags:[/bold]    {', '.join(a['tags'])}",
                 ])
             table.add_row(*d)
             if verbose and i < n-1:
@@ -285,17 +285,17 @@ class NBCK:
 
     def full_repair(self, skip_confirm=False, verbose=False) -> None:
         is_confirmed = skip_confirm
-        skipped_idc = []
+        skipped_idx = []
 
         print()
         if skip_confirm:
             with self.console.status("[bold]Performing force repair in 5 seconds..."):
                 sleep(5)
         else:
-            nstr = Prompt.ask("Interfaces to skip repairing (eg: 1 2 3-5)")
-            skipped_idc = self.__flatten_num_string(nstr)
+            nstr = Prompt.ask("Interfaces to skip repairing (eg: 0 1 2-6)")
+            skipped_idx = self.__flatten_num_string(nstr)
             is_confirmed = Confirm.ask(
-                f"You are about to force repair [red]{self.n_total_problems - len(skipped_idc)}[/red] interfaces. Continue?",
+                f"You are about to force repair [red]{len(self.problems) - len(skipped_idx)}[/red] interfaces. Continue?",
                 default=False
             )
             print()
@@ -304,8 +304,22 @@ class NBCK:
                 sys.exit(0)
 
         with self.console.status("[bold]Repairing inconsistencies..."):
-            self.__repair(self.wifi_tag_problems)
-            self.console.log("Completed repairing")
+            n = len(self.problems) - len(skipped_idx)
+            for i, p in enumerate(self.problems):
+                if i in skipped_idx:
+                    continue
+
+                self.nb.update_interface(
+                    p["device"], p["interface"],
+                    description=p["desired"]["description"],
+                    enabled=p["desired"]["enabled"],
+                    mode=p["desired"]["mode"],
+                    untagged_vlanid=p["desired"]["untagged_vlanid"],
+                    tagged_vlanids=p["desired"]["tagged_vlanids"],
+                    tags=p["desired"]["tags"]
+                )
+                self.console.log(f"Repaired [blue bold]{p['interface']}[/blue bold] on [blue bold]{p['device']}[/blue bold] [dim]({i+1} of {n} finished)[/dim]")
+            self.console.log("Completed. Exiting...")
 
 
     def __repair(self, problems) -> None:
@@ -458,6 +472,8 @@ def debug():
     nb = NetBoxClient(nb_url, nb_token)
     nbck = NBCK(nb)
     nbck.load_inventories_for_debug(verbose=True)
+    nbck.full_check(verbose=True)
+    nbck.full_repair(skip_confirm=True, verbose=True)
 
     #pprint(nb.all_sites["minami3"])
     #pprint(nb.all_vlans)

@@ -283,5 +283,6 @@ class NetBoxClient:
 
         data.append(body)
         if data:
-            return self.query("/dcim/interfaces/", data, update=True)
+            #return self.query("/dcim/interfaces/", data, update=True)
+            pass
         return
