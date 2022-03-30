@@ -77,7 +77,7 @@ class NBCK:
 
     def load_inventories(self, verbose=False) -> None:
         self.console.log("NBCK - NetBox Consistency Check")
-        self.console.log(f"API endpoint: {self.nb.netbox_url}")
+        self.console.log(f"NetBox URL: {self.nb.netbox_url}")
         with self.console.status("[bold]Fetching the latest inventories from NetBox..."):
             self.nb.get_all_sites()
             self.console.log(f"Fetched all Sites [dim]({len(self.nb.all_sites)} sites fetched)[/dim]")
@@ -452,10 +452,16 @@ class NBCK:
 @click.option("-f", "--force-repair", "flg_force_repair", is_flag=True, default=False, help="Repair all inconsistencies without confirmation.")
 @click.option("-b", "--alter-bg", "flg_alt_table_bg", is_flag=True, default=False, help="Use alternating background color in the table.")
 @click.option("-v", "--verbose", "flg_verbose", is_flag=True, default=False, help="Show detailed logging.")
-def main(flg_dryrun, flg_force_repair, flg_alt_table_bg, flg_verbose):
-    secrets = load_encrypted_secrets()
-    nb_url = secrets["netbox_url"]
-    nb_token = secrets["netbox_api_token"]
+@click.argument("nb_url", type=str, default="")
+@click.argument("nb_token", type=str, default="")
+def main(flg_dryrun, flg_force_repair, flg_alt_table_bg, flg_verbose, nb_url, nb_token):
+    if nb_url == "" and nb_token == "":
+        secrets = load_encrypted_secrets()
+        nb_url = secrets["netbox_url"]
+        nb_token = secrets["netbox_api_token"]
+
+    if nb_url[-1] != "/":
+        nb_url += "/"
 
     nb = NetBoxClient(nb_url, nb_token)
     nbck = NBCK(nb)
