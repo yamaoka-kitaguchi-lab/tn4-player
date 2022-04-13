@@ -43,6 +43,10 @@ interface {{ interface }}
 {% else %}
  power inline never
 {% endif %}
+
+ storm-control broadcast level bps 3000000
+ storm-control unicast level bps 3000000
+ storm-control multicast level bps 3000000
 {% endif %}
 
 {% if prop.trunk_all %}
