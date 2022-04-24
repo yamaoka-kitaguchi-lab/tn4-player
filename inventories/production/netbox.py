@@ -110,6 +110,7 @@ class DevConfig:
   TAG_SPEED_10M             = "speed-10m"
   TAG_SPEED_100M            = "speed-100m"
   TAG_SPEED_1G              = "speed-1g"
+  TAG_WIFI                  = "wifi"
 
 
   def __init__(self, netbox_cli):
@@ -351,6 +352,7 @@ class DevConfig:
       is_1g_port = DevConfig.TAG_SPEED_1G in prop["tags"]
       is_10g_port = DevConfig.TAG_SPEED_1G in prop["tags"]
       is_bpdu_filtered_port = DevConfig.TAG_BPDU_FILTER in prop["tags"]
+      is_wifi_port = DevConfig.TAG_WIFI in prop["tags"]
 
       if not is_target_iftype or is_protected:
         continue
@@ -419,6 +421,7 @@ class DevConfig:
         "trunk_all":    is_trunk_all,
         "uplink":       is_upstream_port,
         "skip_delete":  is_upstream_port,
+        "wifi":         is_wifi_port,
         "addresses4":   addr4,
         "addresses6":   addr6,
       }

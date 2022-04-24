@@ -15,7 +15,7 @@ interface {{ interface }}
  no description
 {% endif %}
 
-{% if prop.uplink %}
+{% if prop.uplink or prop.wifi %}
   lldp transmit
   lldp receive
 {% else %}

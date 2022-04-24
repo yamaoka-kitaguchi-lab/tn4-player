@@ -32,7 +32,7 @@ set interfaces {{ interface }} {{ "enable" if prop.enabled else "disable" }}
 set interfaces {{ interface }} description "{{ prop.description }}"
 {% endif %}
 
-{% if prop.uplink %}
+{% if prop.uplink or prop.wifi %}
   set interfaces lldp interface {{ interface }}
 {% endif %}
 
