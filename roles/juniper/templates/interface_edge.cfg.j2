@@ -33,7 +33,7 @@ set interfaces {{ interface }} description "{{ prop.description }}"
 {% endif %}
 
 {% if prop.uplink or prop.wifi %}
-  set interfaces lldp interface {{ interface }}
+  set protocols lldp interface {{ interface }}
 {% endif %}
 
 
