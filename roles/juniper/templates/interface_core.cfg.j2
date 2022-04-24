@@ -18,6 +18,12 @@ set interfaces {{ interface }} description "{{ prop.description }}"
 delete interfaces {{ interface }} description
 {% endif %}
 
+{% if prop.physical and not prop.lag_member %}
+{% if prop.bpdu_filter %}
+set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list BPDU
+set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list BPDU
+{% endif %}
+{% endif %}
 
 {% if prop.vlan_mode and prop.vids or prop.trunk_all %}
 delete interfaces {{ interface }} unit 0
