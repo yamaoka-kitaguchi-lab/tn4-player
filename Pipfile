@@ -14,7 +14,8 @@ pynetbox     = "*"
 paramiko     = "*"
 ncclient     = "*"
 openpyxl     = "*"
-rich = "*"
+rich         = "*"
+click        = "*"
 
 [dev-packages]
 
