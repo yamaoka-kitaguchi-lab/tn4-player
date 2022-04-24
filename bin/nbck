@@ -146,15 +146,15 @@ class NBCK:
             self.console.log("Checked Wi-Fi tag consistency")
 
             sleep(1)  # for visibility
-            self.__check_core_downstream_consistency()
-            self.console.log("Checked Core/Edge VLAN consistency")
-
-            sleep(1)  # for visibility
-            consoles = self.__check_master_slave_tag_consistency()
-            self.console.log("Checked Master/Slave consistency")
+            consoles = self.__check_edge_core_consistency()
+            self.console.log("Checked Edge/Core VLAN consistency")
             if verbose:
                 for message in consoles:
                     self.console.log(message)
+
+            sleep(1)  # for visibility
+            self.__check_master_slave_tag_consistency()
+            self.console.log("Checked Master/Slave consistency")
 
 
             sleep(1)  # for visibility
@@ -350,7 +350,7 @@ class NBCK:
                     self.consistencies[dev_name][int_name]["violation"].append("Wi-Fi")
 
 
-    def __check_master_slave_tag_consistency(self) -> list:
+    def __check_edge_core_consistency(self) -> None:
         consoles = []
         desired_up_vlanids = {}  # key: edge VC hostname, values list of VLAN object IDs
 
@@ -362,6 +362,9 @@ class NBCK:
             device = self.nb.all_devices[dev_name]
             edge_hostname = device["hostname"]
             l = []
+            if edge_hostname in desired_up_vlanids:
+                l = desired_up_vlanids[edge_hostname]
+
             for interface in interfaces.values():
                 l.extend(interface["desired"]["tagged_vlanids"])
                 l.append(interface["desired"]["untagged_vlanid"])
@@ -379,7 +382,7 @@ class NBCK:
 
                 edge_hostname = interface["description"]
                 if edge_hostname not in desired_up_vlanids:
-                    consoles.append(f"[yellow][bold]{edge_hostname}[/bold] No path found on any core switches. Perhaps you forgot the downlink tag or typo the description?[/yellow]")
+                    consoles.append(f"[yellow][bold]{edge_hostname}[/bold] No downlink path found on any core switches. Perhaps you forgot the downlink tag or typo the description?[/yellow]")
                     continue
 
                 current = copy.deepcopy(self.consistencies[dev_name][int_name]["desired"])
@@ -392,7 +395,7 @@ class NBCK:
         return consoles
 
 
-    def __check_core_downstream_consistency(self) -> None:
+    def __check_master_slave_tag_consistency(self) -> list:
         ## Master's interface name must be unique, cannot be dupplicated
         desired_master = {}    # key: interface name, value: state object (reference)
         desired_o_master = {}  # key: interface name, value: state object (reference)
