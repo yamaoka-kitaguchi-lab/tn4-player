@@ -15,6 +15,14 @@ interface {{ interface }}
  no description
 {% endif %}
 
+{% if prop.uplink %}
+  lldp transmit
+  lldp receive
+{% else %}
+  no lldp transmit
+  no lldp receive
+{% endif %}
+
 {% if not prop.enabled %}
  shutdown
  no switchport

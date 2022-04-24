@@ -23,8 +23,20 @@ set interfaces {{ child }} ether-options 802.3ad {{ parent }}
 {% endfor %}
 {% endfor %}
 
+set protocols lldp interface all disable
+
 {% for interface, prop in interfaces.items() %}
 set interfaces {{ interface }} {{ "enable" if prop.enabled else "disable" }}
+
+{% if prop.description %}
+set interfaces {{ interface }} description "{{ prop.description }}"
+{% endif %}
+
+{% if prop.uplink %}
+  set interfaces lldp interface {{ interface }}
+{% endif %}
+
+
 {% if prop.description %}
 set interfaces {{ interface }} description "{{ prop.description }}"
 {% endif %}
@@ -36,8 +48,10 @@ set interfaces {{ interface }} unit 0 family ethernet-switching storm-control "s
 set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list CDP
 set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list CDP
 
+{% if not prop.uplink %}
 set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list DEFAULT
 set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list DEFAULT
+{% endif %}
 
 {% if prop.speed_10m %}
 set interfaces {{ interface }} speed 10m

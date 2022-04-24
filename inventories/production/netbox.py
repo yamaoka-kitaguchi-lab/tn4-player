@@ -417,6 +417,7 @@ class DevConfig:
         "removed_vids": removed_vids_packed,
         "native_vid":   native_vid,
         "trunk_all":    is_trunk_all,
+        "uplink":       is_upstream_port,
         "skip_delete":  is_upstream_port,
         "addresses4":   addr4,
         "addresses6":   addr6,
