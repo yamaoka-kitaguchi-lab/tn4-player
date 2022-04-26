@@ -170,10 +170,10 @@ class NetBoxClient:
                 dev_sg = self.all_sites[dev_site]["group"]["slug"]
 
                 if dev_site in self.all_sites:
-                    if dev_sg in [Slug.site_group_ookayama_north, Slug.site_group_ookayama_west, Slug.site_group_midorigaoka]:
+                    if dev_sg in [Slug.site_group_ookayama_north, Slug.site_group_ookayama_west, Slug.site_group_midorigaoka, Slug.site_group_tamachi]:
                         device["wifi_mgmt_vlanid"] = self.wifi_mgmt_vlanid_o1
                         device["wifi_vlanids"] = self.wifi_vlanids_o
-                    elif dev_sg in [Slug.site_group_ookayama_east, Slug.site_group_ookayama_south, Slug.site_group_ishikawadai, Slug.site_group_tamachi]:
+                    elif dev_sg in [Slug.site_group_ookayama_east, Slug.site_group_ookayama_south, Slug.site_group_ishikawadai]:
                         device["wifi_mgmt_vlanid"] = self.wifi_mgmt_vlanid_o2
                         device["wifi_vlanids"] = self.wifi_vlanids_o
                     else:
