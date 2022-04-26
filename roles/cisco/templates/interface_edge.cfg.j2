@@ -35,6 +35,9 @@ interface {{ interface }}
 {% else %}
  no shutdown
 
+ storm-control broadcast level bps 3000000
+ storm-control multicast level bps 3000000
+
 {% if prop.physical %}
 {% if prop.speed_10m %}
  speed 10
