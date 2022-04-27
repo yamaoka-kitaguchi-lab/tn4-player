@@ -33,7 +33,7 @@ set interfaces {{ interface }} description "{{ prop.description }}"
 {% endif %}
 
 {% if prop.uplink or prop.wifi %}
-  set protocols lldp interface {{ interface }}
+set protocols lldp interface {{ interface }}
 {% endif %}
 
 
@@ -41,17 +41,10 @@ set interfaces {{ interface }} description "{{ prop.description }}"
 set interfaces {{ interface }} description "{{ prop.description }}"
 {% endif %}
 
-{% if prop.physical and not prop.lag_member %}
-set interfaces {{ interface }} unit 0 family ethernet-switching storm-control "storm3M"
 
-set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list CDP
-set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list CDP
+{% if not prop.lag_member %}
 
-set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list BPDU
-set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list BPDU
-
-set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list DEFAULT
-set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list DEFAULT
+{% if prop.physical %}
 
 {% if prop.speed_10m %}
 set interfaces {{ interface }} speed 10m
@@ -68,7 +61,21 @@ set interfaces {{ interface }} ether-options auto-negotiation
 {% if prop.poe %}
 set poe interface {{ interface }}
 {% endif %}
+
 {% endif %}
+
+{% if not prop.uplink %}
+set interfaces {{ interface }} unit 0 family ethernet-switching storm-control "storm3M"
+set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list CDP
+set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list CDP
+set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list BPDU
+set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list BPDU
+set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list DEFAULT
+set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list DEFAULT
+{% endif %}
+
+{% endif %}
+
 
 {% if prop.vlan_mode %}
 set interfaces {{ interface }} unit 0 family ethernet-switching interface-mode {{ prop.vlan_mode }}
