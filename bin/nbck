@@ -346,7 +346,7 @@ class NBCK:
                 if interface["is_to_ap"]:
                     desired["untagged_vlanid"] = interface["wifi_mgmt_vlanid"]
 
-                desired["tagged_vlanids"] = list(set(desired["tagged_vlanids"]))
+                desired["tagged_vlanids"] = list(set(desired["tagged_vlanids"]))  # remove duplicated?
                 desired["tagged"] = True
 
                 if not self.__is_equal(current, desired):
