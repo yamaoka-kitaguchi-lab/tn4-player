@@ -41,17 +41,15 @@ set interfaces {{ interface }} description "{{ prop.description }}"
 set interfaces {{ interface }} description "{{ prop.description }}"
 {% endif %}
 
-{% if prop.physical and not prop.lag_member %}
 set interfaces {{ interface }} unit 0 family ethernet-switching storm-control "storm3M"
-
 set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list CDP
 set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list CDP
-
 set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list BPDU
 set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list BPDU
-
 set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list DEFAULT
 set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list DEFAULT
+
+{% if prop.physical and not prop.lag_member %}
 
 {% if prop.speed_10m %}
 set interfaces {{ interface }} speed 10m
