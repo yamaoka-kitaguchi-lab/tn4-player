@@ -2,6 +2,7 @@
 .secrets/*
 !.secrets/*.example
 backup
+tmp
 
 # Created by https://www.toptal.com/developers/gitignore/api/linux,macos,windows,vim,emacs,visualstudiocode,python,ansible
 # Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,windows,vim,emacs,visualstudiocode,python,ansible
