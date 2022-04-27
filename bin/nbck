@@ -42,34 +42,37 @@ class NBCK:
 
 
     def load_inventories_for_debug(self, verbose=False) -> None:
-        for cache in [".sites.cache", ".vlans.cache", ".addresses.cache", ".devices.cache", ".interfaces.cache"]:
-            if not os.path.exists(cache):
+        basedir = os.path.join(CURDIR, ".nbck")
+        os.makedirs(basedir, exist_ok=True)
+
+        for cache in ["sites.cache", "vlans.cache", "addresses.cache", "devices.cache", "interfaces.cache"]:
+            if not os.path.exists(os.path.join(basedir, cache)):
                 self.load_inventories(verbose=verbose)
-                with open(".sites.cache", "w") as fd:
+                with open(os.path.join(basedir, "sites.cache"), "w") as fd:
                     json.dump(self.nb.all_sites, fd)
-                with open(".vlans.cache", "w") as fd:
+                with open(os.path.join(basedir, "vlans.cache"), "w") as fd:
                     json.dump(self.nb.all_vlans, fd)
-                with open(".addresses.cache", "w") as fd:
+                with open(os.path.join(basedir, "addresses.cache"), "w") as fd:
                     json.dump(self.nb.all_addresses, fd)
-                with open(".devices.cache", "w") as fd:
+                with open(os.path.join(basedir, "devices.cache"), "w") as fd:
                     json.dump(self.nb.all_devices, fd)
-                with open(".interfaces.cache", "w") as fd:
+                with open(os.path.join(basedir, "interfaces.cache"), "w") as fd:
                     json.dump(self.nb.all_interfaces, fd)
                 break
 
-        with open(".sites.cache") as fd:
+        with open(os.path.join(basedir, "sites.cache")) as fd:
             self.nb.all_sites = json.load(fd)
             self.console.log(f"Fetched all Sites [dim]({len(self.nb.all_sites)} sites fetched)[/dim]")
-        with open(".vlans.cache") as fd:
+        with open(os.path.join(basedir, "vlans.cache")) as fd:
             self.nb.all_vlans = json.load(fd)
             self.console.log(f"Fetched all VLANs [dim]({len(self.nb.all_vlans)} VLANs fetched)[/dim]")
-        with open(".addresses.cache") as fd:
+        with open(os.path.join(basedir, "addresses.cache")) as fd:
             self.nb.all_addresses = json.load(fd)
             self.console.log(f"Fetched all IP Addresses [dim]({len(self.nb.all_addresses)} addresses fetched)[/dim]")
-        with open(".devices.cache") as fd:
+        with open(os.path.join(basedir, "devices.cache")) as fd:
             self.nb.all_devices = json.load(fd)
             self.console.log(f"Fetched all Devices [dim]({len(self.nb.all_devices)} devices fetched)[/dim]")
-        with open(".interfaces.cache") as fd:
+        with open(os.path.join(basedir, "interfaces.cache")) as fd:
             self.nb.all_interfaces = json.load(fd)
             n = sum(len(v) for v in self.nb.all_interfaces.values())
             self.console.log(f"Fetched all Interfaces [dim]({n} interfaces fetched)[/dim]")
@@ -462,9 +465,10 @@ class NBCK:
 @click.option("-f", "--force-repair", "flg_force_repair", is_flag=True, default=False, help="Repair all inconsistencies without confirmation.")
 @click.option("-b", "--alter-bg", "flg_alt_table_bg", is_flag=True, default=False, help="Use alternating background color in the table.")
 @click.option("-v", "--verbose", "flg_verbose", is_flag=True, default=False, help="Show detailed logging.")
+@click.option("--debug", "flg_debug", is_flag=True, default=False, help="Enable debug mode for development use.")
 @click.argument("nb_url", type=str, default="")
 @click.argument("nb_token", type=str, default="")
-def main(flg_dryrun, flg_force_repair, flg_alt_table_bg, flg_verbose, nb_url, nb_token):
+def main(flg_dryrun, flg_force_repair, flg_alt_table_bg, flg_verbose, flg_debug, nb_url, nb_token):
     if nb_url == "" and nb_token == "":
         secrets = load_encrypted_secrets()
         nb_url = secrets["netbox_url"]
@@ -475,8 +479,12 @@ def main(flg_dryrun, flg_force_repair, flg_alt_table_bg, flg_verbose, nb_url, nb
 
     nb = NetBoxClient(nb_url, nb_token)
     nbck = NBCK(nb)
-    nbck.load_inventories(verbose=flg_verbose)
-    #nbck.load_inventories_for_debug(verbose=flg_verbose)
+
+    if flg_debug:
+        nbck.load_inventories_for_debug(verbose=flg_verbose)
+    else:
+        nbck.load_inventories(verbose=flg_verbose)
+
     nbck.full_check(alt_table_bg=flg_alt_table_bg, verbose=flg_verbose)
     nbck.full_repair(skip_confirm=flg_force_repair, verbose=flg_verbose, dryrun=flg_dryrun)
 
