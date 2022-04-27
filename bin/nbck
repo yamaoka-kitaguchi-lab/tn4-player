@@ -153,9 +153,11 @@ class NBCK:
                     self.console.log(message)
 
             sleep(1)  # for visibility
-            self.__check_master_slave_tag_consistency()
+            consoles = self.__check_master_slave_tag_consistency()
             self.console.log("Checked Master/Slave consistency")
-
+            if verbose:
+                for message in consoles:
+                    self.console.log(message)
 
             sleep(1)  # for visibility
             self.__generate_problem_summary()
@@ -394,6 +396,8 @@ class NBCK:
 
 
     def __check_master_slave_tag_consistency(self) -> list:
+        consoles = []
+
         ## Master's interface name must be unique, cannot be dupplicated
         desired_master = {}    # key: interface name, value: state object (reference)
         desired_o_master = {}  # key: interface name, value: state object (reference)
@@ -434,18 +438,23 @@ class NBCK:
                 is_suzukake_slave = Slug.tag_core_suzukake_slave in interface["tags"]
 
                 current = copy.deepcopy(self.consistencies[dev_name][int_name]["desired"])
-                if is_slave:
-                    self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_master[int_name])
-                    self.consistencies[dev_name][int_name]["desired"]["tags"].append(Slug.tag_core_slave)
-                if is_ookayama_slave:
-                    self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_o_master[int_name])
-                    self.consistencies[dev_name][int_name]["desired"]["tags"].append(Slug.tag_core_ookayama_slave)
-                if is_suzukake_slave:
-                    self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_s_master[int_name])
-                    self.consistencies[dev_name][int_name]["desired"]["tags"].append(Slug.tag_core_suzukake_slave)
+                try:
+                    if is_slave:
+                        self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_master[int_name])
+                        self.consistencies[dev_name][int_name]["desired"]["tags"].append(Slug.tag_core_slave)
+                    if is_ookayama_slave:
+                        self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_o_master[int_name])
+                        self.consistencies[dev_name][int_name]["desired"]["tags"].append(Slug.tag_core_ookayama_slave)
+                    if is_suzukake_slave:
+                        self.consistencies[dev_name][int_name]["desired"] = copy.deepcopy(desired_s_master[int_name])
+                        self.consistencies[dev_name][int_name]["desired"]["tags"].append(Slug.tag_core_suzukake_slave)
+                except KeyError:
+                    consoles.append(f"[yellow][bold]{dev_name}[/bold] {int_name}: No interface found on the master switch. Perhaps you forgot the slave tag or pasted an inappropriate one?[/yellow]")
+                else:
+                    if not self.__is_equal(current, self.consistencies[dev_name][int_name]["desired"]):
+                        self.consistencies[dev_name][int_name]["violation"].append("Master/Slave")
 
-                if not self.__is_equal(current, self.consistencies[dev_name][int_name]["desired"]):
-                    self.consistencies[dev_name][int_name]["violation"].append("Master/Slave")
+        return consoles
 
 
 @click.command(help="A command-line utility to check and repair NetBox integrity and consistency")
