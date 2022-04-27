@@ -60,7 +60,6 @@ class Slug:
     tag_wifi_mgmt_vlan_ookayama2  = "wlan-mgmt-vlan-o2"
     tag_wifi_mgmt_vlan_suzukake   = "wlan-mgmt-vlan-s"
     tag_wifi                      = "wifi"
-    tag_wifi_sw                   = "poe-sw"
 
 
 class NetBoxClient:
@@ -226,7 +225,6 @@ class NetBoxClient:
                 interface["is_to_core"] = interface["device_role"]["slug"] == Slug.role_edge_sw and Slug.tag_edge_upstream in interface["tags"]
                 interface["is_to_edge"] = interface["device_role"]["slug"] == Slug.role_core_sw and Slug.tag_core_downstream in interface["tags"]
                 interface["is_to_ap"] = interface["device_role"]["slug"] == Slug.role_edge_sw and Slug.tag_wifi in interface["tags"]
-                interface["is_to_poesw"] = interface["device_role"]["slug"] == Slug.role_edge_sw and Slug.tag_wifi_sw in interface["tags"]
 
                 all_vlan_ids = []
                 all_vids = []

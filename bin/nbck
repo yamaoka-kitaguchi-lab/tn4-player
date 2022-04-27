@@ -330,7 +330,7 @@ class NBCK:
     def __check_wifi_tag_consistency(self) -> None:
         for dev_name, interfaces in self.nb.all_interfaces.items():
             for int_name, interface in interfaces.items():
-                is_wifi_port = interface["is_to_ap"] or interface["is_to_poesw"]
+                is_wifi_port = interface["is_to_ap"]
                 if not is_wifi_port:
                     continue
 
@@ -340,8 +340,6 @@ class NBCK:
 
                 if interface["is_to_ap"]:
                     desired["untagged_vlanid"] = interface["wifi_mgmt_vlanid"]
-                if interface["is_to_poesw"]:
-                    desired["tagged_vlanids"].append(interface["wifi_mgmt_vlanid"])
 
                 desired["tagged_vlanids"] = list(set(desired["tagged_vlanids"]))
                 desired["tagged"] = True
