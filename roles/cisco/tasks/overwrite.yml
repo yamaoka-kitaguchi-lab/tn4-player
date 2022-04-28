@@ -1,4 +1,13 @@
 ---
+- name: Create backup directory
+  ansible.builtin.file:
+    path: "backup/cisco_config.{{ datetime }}"
+    state: directory
+  register: local_dir
+  delegate_to: localhost
+  tags:
+    - nondry
+
 - name: Create pre-snapshots
   ios_config:
     backup: yes
@@ -8,18 +17,17 @@
   tags:
     - nondry
 
-- name: Check template rendering result (Edge)
+- name: Check template rendering result
   debug:
     msg: "{{ lookup('template', 'overwrite.cfg.j2') }}"
   tags:
     - develop
     - rendering
 
-- name: Update interface configurations (Edge)
+- name: Overwrite configurations
   ios_config:
     src: overwrite.cfg.j2
     save_when: modified
-  when: "'edge-sw' in group_names"
 
 - name: Create post-snapshots
   ios_config:
