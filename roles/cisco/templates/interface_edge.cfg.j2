@@ -34,7 +34,11 @@ interface {{ interface }}
 {% else %}
  no shutdown
 
-{% if not prop.uplink and not prop.physical_uplink %}
+{% if prop.uplink or prop.physical_uplink or prop.physical and prop.wifi %}
+ no storm-control broadcast level
+ no storm-control multicast level
+ no storm-control unicast level
+{% else %}
  storm-control broadcast level bps 3000000
  storm-control multicast level bps 3000000
 {% endif %}
