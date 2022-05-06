@@ -6,7 +6,6 @@ vlan {{ vlan.vid }}
 {% endfor %}
 
 {% for interface, prop in interfaces.items() %}
-{% if not prop.lag_member %}
 interface {{ interface }}
 
 {% if prop.description %}
@@ -16,11 +15,11 @@ interface {{ interface }}
 {% endif %}
 
 {% if prop.physical_uplink or prop.physical and prop.wifi %}
-  lldp transmit
-  lldp receive
+ lldp transmit
+ lldp receive
 {% elif prop.physical %}
-  no lldp transmit
-  no lldp receive
+ no lldp transmit
+ no lldp receive
 {% endif %}
 
 {% if not prop.enabled %}
@@ -35,12 +34,12 @@ interface {{ interface }}
 {% else %}
  no shutdown
 
-{% if not prop.uplink %}
+{% if not prop.uplink and not prop.physical_uplink %}
  storm-control broadcast level bps 3000000
  storm-control multicast level bps 3000000
 {% endif %}
 
-{% if prop.physical %}
+{% if prop.physical and not prop.physical_uplink %}
 {% if prop.speed_10m %}
  speed 10
 {% elif prop.speed_100m %}
@@ -58,6 +57,7 @@ interface {{ interface }}
 {% endif %}
 {% endif %}
 
+{% if not prop.physical_uplink %}
 {% if prop.trunk_all %}
  switchport
  switchport mode trunk
@@ -82,7 +82,10 @@ interface {{ interface }}
 {% else %}
  no switchport trunk native vlan
 {% endif %}
-
+{% else %}
+ switchport
+ switchport mode trunk
 {% endif %}
+
 {% endif %}
 {% endfor %}
