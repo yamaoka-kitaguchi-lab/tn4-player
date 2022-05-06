@@ -305,28 +305,6 @@ class DevConfig:
         return ip(d["primary_ip"]["address"])
 
 
-  def get_lag_members(self, hostname):
-    lag_members = {}
-    for ifname, prop in self.all_interfaces[hostname].items():
-      _, is_lag_port = self.__regex_interface_name(ifname)
-      is_lag_member_port = prop["lag"] is not None
-      is_upstream_port = DevConfig.TAG_UPLINK in prop["tags"]
-
-      if is_upstream_port:
-        continue
-
-      if is_lag_port:
-        if ifname not in lag_members.keys():
-          lag_members[ifname] = []
-      elif is_lag_member_port:
-        try:
-          lag_members[prop["lag"]["name"]].append(ifname)
-        except KeyError:
-          lag_members[prop["lag"]["name"]] = [ifname]
-
-    return lag_members
-
-
   def get_interfaces(self, hostname):
     interfaces = {}
 
@@ -353,6 +331,10 @@ class DevConfig:
       is_10g_port = DevConfig.TAG_SPEED_1G in prop["tags"]
       is_bpdu_filtered_port = DevConfig.TAG_BPDU_FILTER in prop["tags"]
       is_wifi_port = DevConfig.TAG_WIFI in prop["tags"]
+
+      lag_parent_name = ""
+      if is_lag_member_port:
+        lag_parent_name = prop["lag"]["name"]
 
       if not is_target_iftype or is_protected:
         continue
@@ -403,30 +385,54 @@ class DevConfig:
           addr6.append(addr["address"])
 
       interfaces[ifname] = {
-        "physical":     not is_lag_port,
-        "enabled":      prop["enabled"] or is_upstream_port,
-        "description":  description,
-        "lag_member":   is_lag_member_port,
-        "utp":          is_utp_port,
-        "poe":          is_poe_port,
-        "speed_10m":    is_10m_port,
-        "speed_100m":   is_100m_port,
-        "speed_1g":     is_1g_port,
-        "speed_10g":    is_10g_port,
-        "bpdu_filter":  is_bpdu_filtered_port,
-        "vlan_mode":    vlan_mode,
-        "vids":         vids,
-        "removed_vids": removed_vids_packed,
-        "native_vid":   native_vid,
-        "trunk_all":    is_trunk_all,
-        "uplink":       is_upstream_port,
-        "skip_delete":  is_upstream_port,
-        "wifi":         is_wifi_port,
-        "addresses4":   addr4,
-        "addresses6":   addr6,
+        "physical":        not is_lag_port,
+        "enabled":         prop["enabled"] or is_upstream_port,
+        "description":     description,
+        "lag_member":      is_lag_member_port,
+        "lag_parent":      lag_parent_name,
+        "utp":             is_utp_port,
+        "poe":             is_poe_port,
+        "speed_10m":       is_10m_port,
+        "speed_100m":      is_100m_port,
+        "speed_1g":        is_1g_port,
+        "speed_10g":       is_10g_port,
+        "bpdu_filter":     is_bpdu_filtered_port,
+        "vlan_mode":       vlan_mode,
+        "vids":            vids,
+        "removed_vids":    removed_vids_packed,
+        "native_vid":      native_vid,
+        "trunk_all":       is_trunk_all,
+        "uplink":          is_upstream_port,
+        "physical_uplink": False,  # updated by get_lag_members()
+        "skip_delete":     is_upstream_port,
+        "wifi":            is_wifi_port,
+        "addresses4":      addr4,
+        "addresses6":      addr6,
       }
 
     return interfaces
+
+
+  def get_lag_members(self, hostname, interfaces):
+    lag_members = {}
+
+    for ifname, prop in interfaces.items():
+      _, is_lag_port = self.__regex_interface_name(ifname)
+      is_lag_member_port = prop["lag_member"]
+
+      if is_lag_port:
+        if ifname not in lag_members.keys():
+          lag_members[ifname] = []
+
+      elif is_lag_member_port:
+        parent_name = prop["lag_parent"]
+        prop["physical_uplink"] = interfaces[parent_name]["uplink"]
+        try:
+          lag_members[parent_name].append(ifname)
+        except KeyError:
+          lag_members[parent_name] = [ifname]
+
+    return lag_members
 
 
   ## ToDo: need refactoring but soon to be obsoleted
@@ -592,14 +598,15 @@ def dynamic_inventory():
     except KeyError:
       inventory[role] = {"hosts": [hostname]}
 
+    interfaces = cf.get_device_interfaces(role, hostname)
     inventory["_meta"]["hostvars"][hostname] = {
       "hostname":     hostname,
       "region":       device["region"],
       "manufacturer": cf.get_manufacturer(hostname),
       "vlans":        cf.get_device_vlans(hostname),
       "mgmt_vlan":    cf.get_mgmt_vlan(role, device["region"]),
-      "interfaces":   cf.get_device_interfaces(role, hostname),
-      "lag_members":  cf.get_lag_members(hostname),
+      "interfaces":   interfaces,
+      "lag_members":  cf.get_lag_members(hostname, interfaces),
       "ansible_host": cf.get_ip_address(hostname),
       "datetime":     ts,
     }
@@ -610,6 +617,12 @@ def dynamic_inventory():
 if __name__ == "__main__":
   inventory = dynamic_inventory()
   print(json.dumps(inventory))
+
+  # print(inventory["_meta"]["hostvars"].keys())
+  # hostname = "minami3"
+  # for name, prop in inventory["_meta"]["hostvars"][hostname]["interfaces"].items():
+  #   if prop["physical_uplink"]:
+  #     print(name)
 
   ## for deadman
   #for hostname, props in inventory["_meta"]["hostvars"].items():

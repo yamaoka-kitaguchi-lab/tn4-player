@@ -15,10 +15,10 @@ interface {{ interface }}
  no description
 {% endif %}
 
-{% if prop.uplink or prop.wifi %}
+{% if prop.physical_uplink or prop.physical and prop.wifi %}
   lldp transmit
   lldp receive
-{% else %}
+{% elif prop.physical %}
   no lldp transmit
   no lldp receive
 {% endif %}
