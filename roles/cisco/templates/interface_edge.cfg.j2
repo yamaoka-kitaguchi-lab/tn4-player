@@ -34,7 +34,7 @@ interface {{ interface }}
 {% else %}
  no shutdown
 
-{% if prop.uplink or prop.physical_uplink or prop.physical and prop.wifi %}
+{% if prop.uplink or prop.physical and prop.wifi %}
  no storm-control broadcast level
  no storm-control multicast level
  no storm-control unicast level
