@@ -82,7 +82,8 @@ interface {{ interface }}
 {% else %}
  no switchport trunk native vlan
 {% endif %}
-{% else %}
+
+{% elif prop.physical_uplink %}
  switchport
  switchport mode trunk
 {% endif %}
