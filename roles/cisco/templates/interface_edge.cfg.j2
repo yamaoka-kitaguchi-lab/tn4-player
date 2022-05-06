@@ -38,7 +38,7 @@ interface {{ interface }}
  no storm-control broadcast level
  no storm-control multicast level
  no storm-control unicast level
-{% elif prop.physical and not prop.lag_member %}
+{% elif not prop.lag_member %}
  storm-control broadcast level bps 3000000
  storm-control multicast level bps 3000000
 {% endif %}
