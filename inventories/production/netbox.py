@@ -420,13 +420,13 @@ class DevConfig:
       _, is_lag_port = self.__regex_interface_name(ifname)
       is_lag_member_port = prop["lag_member"]
 
-      if is_lag_port:
-        if ifname not in lag_members.keys():
-          lag_members[ifname] = []
-
-      elif is_lag_member_port:
+      if is_lag_member_port:
         parent_name = prop["lag_parent"]
-        prop["physical_uplink"] = interfaces[parent_name]["uplink"]
+
+        # this condition block will be ignored when the parent is protected
+        if parent_name in interfaces:
+            prop["physical_uplink"] = interfaces[parent_name]["uplink"]
+
         try:
           lag_members[parent_name].append(ifname)
         except KeyError:
