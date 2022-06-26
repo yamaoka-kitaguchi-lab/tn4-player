@@ -12,8 +12,8 @@ from ansible.parsing.vault import VaultLib
 from ansible.parsing.vault import VaultSecret
 from ansible.parsing.vault import AnsibleVaultError
 
-VAULT_FILE = os.path.join(os.path.dirname(__file__), "../inventories/production/group_vars/all/vault.yml")
-VAULT_PASSWORD_FILE = os.path.join(os.path.dirname(__file__), "../.secrets/vault-pass.txt")
+VAULT_FILE = os.path.join(os.path.dirname(__file__), "../../inventories/production/group_vars/all/vault.yml")
+VAULT_PASSWORD_FILE = os.path.join(os.path.dirname(__file__), "../../.secrets/vault-pass.txt")
 
 
 def load_encrypted_secrets():

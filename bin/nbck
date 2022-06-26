@@ -28,7 +28,7 @@ import os
 import sys
 
 CURDIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(CURDIR, "../netbox"))
+sys.path.append(os.path.join(CURDIR, "../lib/netbox"))
 
 from netbox import NetBoxClient, Slug, load_encrypted_secrets
 
