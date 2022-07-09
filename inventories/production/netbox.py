@@ -3,6 +3,7 @@
 
 from pprint import pprint
 from datetime import datetime
+import argparse
 import json
 import os
 import re
@@ -103,6 +104,7 @@ class DevConfig:
   TAG_MCLAG_SLAVE_OOKAYAMA  = "mclag-slave-co"
   TAG_MCLAG_SLAVE_SUZUKAKE  = "mclag-slave-cs"
   TAG_ANSIBLE               = "ansible"
+  TAG_TEST                  = "test"
   TAG_PROTECT               = "protect"
   TAG_UPLINK                = "uplink"
   TAG_POE                   = "poe"
@@ -287,6 +289,7 @@ class DevConfig:
     return [{
       "hostname": d["name"],
       "role":     d["device_role"]["slug"],
+      "tags":     d["tags"],
       "region":   self.get_region(d["site"]["slug"]),
     } for d in self.all_devices]
 
@@ -577,7 +580,7 @@ def timestamp():
   return n.strftime("%Y-%m-%d@%H-%M-%S")
 
 
-def dynamic_inventory():
+def dynamic_inventory(is_test_deploy=False):
   ts = timestamp()
   secrets = __load_encrypted_secrets()
   nb = NetBoxClient(secrets["netbox_url"], secrets["netbox_api_token"])
@@ -593,6 +596,12 @@ def dynamic_inventory():
   for device in devices:
     hostname = device["hostname"]
     role = device["role"]
+    is_test_device = DevConfig.TAG_TEST in device["tags"]
+    is_deploy_target = is_test_deploy and is_test_device or not is_test_deploy and not is_test_device
+
+    if not is_deploy_target:
+      continue
+
     try:
       inventory[role]["hosts"].append(hostname)
     except KeyError:
@@ -615,7 +624,12 @@ def dynamic_inventory():
 
 
 if __name__ == "__main__":
-  inventory = dynamic_inventory()
+  parser = argparse.ArgumentParser(description="Ansible dynamic inventory script.")
+  parser.add_argument("--test-deploy", dest="is_test_deploy", action="store_true", default=False, help="Test.")
+
+  args = parser.parse_args()
+
+  inventory = dynamic_inventory(is_test_deploy=args.is_test_deploy)
   print(json.dumps(inventory))
 
   # print(inventory["_meta"]["hostvars"].keys())
