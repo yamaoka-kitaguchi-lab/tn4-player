@@ -1,12 +1,14 @@
-from tn4.dcim import Sites, Devices, Interfaces
-from tn4.ipam import Vlans, Addresses
-
+from tn4.netbox.sites import Sites
+from tn4.netbox.devices import Devices
+from tn4.netbox.vlans import Vlans
+from tn4.netbox.addresses import Addresses
+from tn4.netbox.interfaces import Interfaces
 
 class Client:
     def __init__(self):
-        self.sites = Site()
+        self.sites = Sites()
         self.devices = Devices()
-        self.interfaces = Interfaces()
         self.vlans = Vlans()
         self.addresses = Addresses()
+        self.interfaces = Interfaces()
 
