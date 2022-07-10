@@ -7,7 +7,7 @@ class Sites(ClientBase):
     def __init__(self):
         super().__init__()
 
-    def get_sites(self, ctx):
+    def fetch_all(self, ctx):
         _, all_sites = self.query(ctx, self.path)
         ctx.sites = all_sites
 

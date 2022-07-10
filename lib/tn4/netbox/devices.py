@@ -8,7 +8,7 @@ class Devices(ClientBase):
     def __init__(self):
         super().__init__()
 
-    def get_devices(self, ctx):
+    def fetch_all(self, ctx):
         all_devices = self.query(ctx, self.path)
 
         for device in all_devices:

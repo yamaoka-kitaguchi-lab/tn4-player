@@ -9,7 +9,7 @@ class Vlans(ClientBase):
         super().__init__()
         self.all_vlans = {}
 
-    def get_vlans(self, ctx):
+    def fetch_all(self, ctx):
         all_vlans = self.query(ctx, path)
 
         for vlan in all_vlans:
