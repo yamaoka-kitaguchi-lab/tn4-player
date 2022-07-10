@@ -585,7 +585,7 @@ def timestamp():
     return n.strftime("%Y-%m-%d@%H-%M-%S")
 
 
-def dynamic_inventory(is_test_deploy=False):
+def dynamic_inventory():
     ts = timestamp()
     secrets = __load_encrypted_secrets()
     nb = NetBoxClient(secrets["netbox_url"], secrets["netbox_api_token"])
@@ -601,11 +601,6 @@ def dynamic_inventory(is_test_deploy=False):
     for device in devices:
         hostname = device["hostname"]
         role = device["role"]
-        is_test_device = DevConfig.TAG_TEST in device["tags"]
-        is_deploy_target = is_test_deploy and is_test_device or not is_test_deploy and not is_test_device
-
-        if not is_deploy_target:
-            continue
 
         try:
             inventory[role]["hosts"].append(hostname)
@@ -614,27 +609,27 @@ def dynamic_inventory(is_test_deploy=False):
 
         interfaces = cf.get_device_interfaces(role, hostname)
         inventory["_meta"]["hostvars"][hostname] = {
-            "hostname":     hostname,
-            "region":       device["region"],
-            "manufacturer": cf.get_manufacturer(hostname),
-            "vlans":        cf.get_device_vlans(hostname),
-            "mgmt_vlan":    cf.get_mgmt_vlan(role, device["region"]),
-            "interfaces":   interfaces,
-            "lag_members":  cf.get_lag_members(hostname, interfaces),
-            "ansible_host": cf.get_ip_address(hostname),
-            "datetime":     ts,
+            "hostname":       hostname,
+            "region":         device["region"],
+            "manufacturer":   cf.get_manufacturer(hostname),
+            "vlans":          cf.get_device_vlans(hostname),
+            "mgmt_vlan":      cf.get_mgmt_vlan(role, device["region"]),
+            "interfaces":     interfaces,
+            "lag_members":    cf.get_lag_members(hostname, interfaces),
+            "is_test_device": DevConfig.TAG_TEST in device["tags"],
+            "ansible_host":   cf.get_ip_address(hostname),
+            "datetime":       ts,
         }
 
     return inventory
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Ansible dynamic inventory script.")
-    parser.add_argument("--test-deploy", dest="is_test_deploy", action="store_true", default=False, help="Test.")
+    #parser = argparse.ArgumentParser(description="Ansible dynamic inventory script.")
+    #parser.add_argument("--test-deploy", dest="is_test_deploy", action="store_true", default=False, help="Test.")
+    #args = parser.parse_args()
 
-    args = parser.parse_args()
-
-    inventory = dynamic_inventory(is_test_deploy=args.is_test_deploy)
+    inventory = dynamic_inventory()
     print(json.dumps(inventory))
 
     # print(inventory["_meta"]["hostvars"].keys())
