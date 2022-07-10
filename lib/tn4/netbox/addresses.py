@@ -12,5 +12,7 @@ class Addresses(ClientBase):
         for address in all_addresses:
             address["tags"] = [tag["slug"] for tag in address["tags"]]
 
+        ctx.addresses = all_addresses
+
         return all_addresses
 
