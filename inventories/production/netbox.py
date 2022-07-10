@@ -87,32 +87,33 @@ class NetBoxClient:
 
 
 class DevConfig:
-    VLAN_GROUP                = "titanet"
-    DEV_ROLE_EDGE             = "edge_sw"
     DEV_ROLE_CORE             = "core_sw"
+    DEV_ROLE_EDGE             = "edge_sw"
     REGION_OOKAYAMA           = "ookayama"
     REGION_SUZUKAKE           = "suzukake"
     REGION_TAMACHI            = "tamachi"
-    TAG_MGMT_EDGE_OOKAYAMA    = "mgmt-vlan-eo"
-    TAG_MGMT_EDGE_SUZUKAKE    = "mgmt-vlan-es"
-    TAG_MGMT_CORE_OOKAYAMA    = "mgmt-vlan-co"
-    TAG_MGMT_CORE_SUZUKAKE    = "mgmt-vlan-cs"
+    TAG_ANSIBLE               = "ansible"
+    TAG_BPDU_FILTER           = "bpdu-filter"
     TAG_MCLAG_MASTER          = "mclag-master-core"
     TAG_MCLAG_MASTER_OOKAYAMA = "mclag-master-co"
     TAG_MCLAG_MASTER_SUZUKAKE = "mclag-master-cs"
     TAG_MCLAG_SLAVE           = "mclag-slave-core"
     TAG_MCLAG_SLAVE_OOKAYAMA  = "mclag-slave-co"
     TAG_MCLAG_SLAVE_SUZUKAKE  = "mclag-slave-cs"
-    TAG_ANSIBLE               = "ansible"
-    TAG_TEST                  = "test"
-    TAG_PROTECT               = "protect"
-    TAG_UPLINK                = "uplink"
+    TAG_MGMT_CORE_OOKAYAMA    = "mgmt-vlan-co"
+    TAG_MGMT_CORE_SUZUKAKE    = "mgmt-vlan-cs"
+    TAG_MGMT_EDGE_OOKAYAMA    = "mgmt-vlan-eo"
+    TAG_MGMT_EDGE_SUZUKAKE    = "mgmt-vlan-es"
     TAG_POE                   = "poe"
-    TAG_BPDU_FILTER           = "bpdu-filter"
-    TAG_SPEED_10M             = "speed-10m"
+    TAG_PROTECT               = "protect"
+    TAG_RSPAN                 = "rspan"
     TAG_SPEED_100M            = "speed-100m"
+    TAG_SPEED_10M             = "speed-10m"
     TAG_SPEED_1G              = "speed-1g"
+    TAG_TEST                  = "test"
+    TAG_UPLINK                = "uplink"
     TAG_WIFI                  = "wifi"
+    VLAN_GROUP                = "titanet"
 
 
     def __init__(self, netbox_cli):
@@ -247,15 +248,19 @@ class DevConfig:
                 is_in_use_vlan = vlan["vid"] == vid
                 is_protected_vlan = "protect" in vlan["tags"]
                 is_irb_vlan = vlan["vid"] in irb_vids
+                is_rspan_vlan = DevConfig.TAG_RSPAN in vlan["tags"]
+
                 if is_in_use_vlan or is_protected_vlan:
                     vlans.append({
                         "name":              vlan["name"],
                         "vid":               vlan["vid"],
                         "irb":               is_irb_vlan,
                         "used":              is_in_use_vlan,
-                        "protected":     is_protected_vlan,
-                        "description": vlan["description"],
+                        "protected":         is_protected_vlan,
+                        "is_rspan":          is_rspan_vlan,
+                        "description":       vlan["description"],
                     })
+
         return vlans
 
 
@@ -388,29 +393,30 @@ class DevConfig:
                     addr6.append(addr["address"])
 
             interfaces[ifname] = {
-                "physical":              not is_lag_port,
-                "enabled":               prop["enabled"] or is_upstream_port,
-                "description":       description,
-                "lag_member":            is_lag_member_port,
-                "lag_parent":            lag_parent_name,
-                "utp":                       is_utp_port,
-                "poe":                       is_poe_port,
-                "speed_10m":             is_10m_port,
-                "speed_100m":            is_100m_port,
-                "speed_1g":              is_1g_port,
-                "speed_10g":             is_10g_port,
-                "bpdu_filter":       is_bpdu_filtered_port,
-                "vlan_mode":             vlan_mode,
-                "vids":                      vids,
-                "removed_vids":      removed_vids_packed,
-                "native_vid":            native_vid,
-                "trunk_all":             is_trunk_all,
-                "uplink":                    is_upstream_port,
+                "physical":        not is_lag_port,
+                "enabled":         prop["enabled"] or is_upstream_port,
+                "description":     description,
+                "lag_member":      is_lag_member_port,
+                "lag_parent":      lag_parent_name,
+                "utp":             is_utp_port,
+                "poe":             is_poe_port,
+                "speed_10m":       is_10m_port,
+                "speed_100m":      is_100m_port,
+                "speed_1g":        is_1g_port,
+                "speed_10g":       is_10g_port,
+                "bpdu_filter":     is_bpdu_filtered_port,
+                "vlan_mode":       vlan_mode,
+                "vids":            vids,
+                "removed_vids":    removed_vids_packed,
+                "native_vid":      native_vid,
+                "trunk_all":       is_trunk_all,
+                "uplink":          is_upstream_port,
                 "physical_uplink": False,  # updated by get_lag_members()
-                "skip_delete":       is_upstream_port,
-                "wifi":                      is_wifi_port,
-                "addresses4":            addr4,
-                "addresses6":            addr6,
+                "skip_delete":     is_upstream_port,
+                "wifi":            is_wifi_port,
+                "is_rspan":        is_rspan_port,
+                "addresses4":      addr4,
+                "addresses6":      addr6,
             }
 
         return interfaces
@@ -609,15 +615,15 @@ def dynamic_inventory(is_test_deploy=False):
 
         interfaces = cf.get_device_interfaces(role, hostname)
         inventory["_meta"]["hostvars"][hostname] = {
-            "hostname":         hostname,
-            "region":               device["region"],
+            "hostname":     hostname,
+            "region":       device["region"],
             "manufacturer": cf.get_manufacturer(hostname),
-            "vlans":                cf.get_device_vlans(hostname),
-            "mgmt_vlan":        cf.get_mgmt_vlan(role, device["region"]),
-            "interfaces":       interfaces,
+            "vlans":        cf.get_device_vlans(hostname),
+            "mgmt_vlan":    cf.get_mgmt_vlan(role, device["region"]),
+            "interfaces":   interfaces,
             "lag_members":  cf.get_lag_members(hostname, interfaces),
             "ansible_host": cf.get_ip_address(hostname),
-            "datetime":         ts,
+            "datetime":     ts,
         }
 
     return inventory
