@@ -414,7 +414,6 @@ class DevConfig:
                 "physical_uplink": False,  # updated by get_lag_members()
                 "skip_delete":     is_upstream_port,
                 "wifi":            is_wifi_port,
-                "is_rspan":        is_rspan_port,
                 "addresses4":      addr4,
                 "addresses6":      addr6,
             }

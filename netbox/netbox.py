@@ -60,6 +60,7 @@ class Slug:
     tag_wifi_mgmt_vlan_ookayama2  = "wlan-mgmt-vlan-o2"
     tag_wifi_mgmt_vlan_suzukake   = "wlan-mgmt-vlan-s"
     tag_wifi                      = "wifi"
+    tag_rspan                     = "rspan"
 
 
 class NetBoxClient:
