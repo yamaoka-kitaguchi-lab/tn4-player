@@ -14,6 +14,10 @@ set vlans "{{ mgmt_vlan.name }}" l3-interface irb.{{ mgmt_vlan.vid }}
 {% if vlan.used %}
 set vlans "{{ vlan.name }}" vlan-id {{ vlan.vid }}
 {% endif %}
+{% if vlan.is_rspan %}
+set vlans "{{ vlan.name }}" vlan-id {{ vlan.vid }}
+set vlans "{{ vlan.name }}" switch-options no-mac-learning
+{% endif %}
 {% endfor %}
 
 {% for parent, childlen in lag_members.items() %}
