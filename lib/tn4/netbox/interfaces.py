@@ -14,7 +14,7 @@ class Interfaces(ClientBase):
 
 
 
-    def get_all_interfaces(self, use_cache=True):
+    def fetch_all(self, use_cache=True):
         allowed_int_types_virtual = ["lag"]  # Ignore virtual type interfaces
         allowed_int_types_ethernet_utp = [
              "1000base-t", "2.5gbase-t", "5gbase-t", "10gbase-t",
@@ -70,6 +70,7 @@ class Interfaces(ClientBase):
 
                 self.all_interfaces.setdefault(dev_name, {})[int_name] = interface
         return self.all_interfaces
+
 
 
     def update_interface(self, device_name, interface_name,
