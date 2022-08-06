@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+  echo "ERROR: $0 <dir>." 1>&2
+  exit 1
+fi
+dir=$1
+
+for edge in $(ls -l "$dir" | sed -n 's/^.* \(.*\)_after.cfg$/\1/p'); do
+  echo ""
+  echo "#### $edge :"
+  diff -uprN "$dir"/"$edge"_before.cfg "$dir"/"$edge"_after.cfg
+done
+
+exit 0
