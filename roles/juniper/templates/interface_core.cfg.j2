@@ -7,7 +7,7 @@ set vlans "{{ vlan.name }}" vlan-id {{ vlan.vid }}
 set vlans "{{ vlan.name }}" l3-interface irb.{{ vlan.vid }}
 {% endif %}
 {% endif %}
-{% if vlan.is_rspan %}
+{% if vlan.rspan %}
 set vlans "{{ vlan.name }}" vlan-id {{ vlan.vid }}
 set vlans "{{ vlan.name }}" switch-options no-mac-learning
 {% endif %}

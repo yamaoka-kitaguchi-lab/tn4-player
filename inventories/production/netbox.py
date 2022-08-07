@@ -106,7 +106,6 @@ class DevConfig:
     TAG_MGMT_EDGE_SUZUKAKE    = "mgmt-vlan-es"
     TAG_POE                   = "poe"
     TAG_PROTECT               = "protect"
-    TAG_RSPAN                 = "rspan"
     TAG_SPEED_100M            = "speed-100m"
     TAG_SPEED_10M             = "speed-10m"
     TAG_SPEED_1G              = "speed-1g"
@@ -234,30 +233,36 @@ class DevConfig:
 
 
     def get_vlans(self, hostname):
-        vlans, vids, irb_vids = [], set(), set()
+        vlans, vids, irb_vids, rspan_vids = [], set(), set(), set()
         for ifname, prop in self.all_interfaces[hostname].items():
             is_irb_port = ifname[:4] == "irb."
+            is_rspan_port = ifname == "rspan"
+
             for vlan in [prop["untagged_vlan"], *prop["tagged_vlans"]]:
-                if vlan is not None:
-                    vids.add(vlan["vid"])
+                if vlan is None:
+                    continue
+
+                vids.add(vlan["vid"])
                 if is_irb_port:
                     irb_vids.add(vlan["vid"])
+                if is_rspan_port:
+                    rspan_vids.add(vlan["vid"])
 
         for vid in vids:
             for vlan in self.all_vlans:
                 is_in_use_vlan = vlan["vid"] == vid
                 is_protected_vlan = "protect" in vlan["tags"]
                 is_irb_vlan = vlan["vid"] in irb_vids
-                is_rspan_vlan = DevConfig.TAG_RSPAN in vlan["tags"]
+                is_rspan_vlan = vlan["vid"] in rspan_vids
 
                 if is_in_use_vlan or is_protected_vlan:
                     vlans.append({
                         "name":              vlan["name"],
                         "vid":               vlan["vid"],
                         "irb":               is_irb_vlan,
+                        "rspan":             is_rspan_vlan,
                         "used":              is_in_use_vlan,
                         "protected":         is_protected_vlan,
-                        "is_rspan":          is_rspan_vlan,
                         "description":       vlan["description"],
                     })
 
