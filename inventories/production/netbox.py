@@ -333,10 +333,10 @@ class DevConfig:
             is_upstream_port = DevConfig.TAG_UPLINK in prop["tags"]
             is_utp_port = prop["type"]["value"] == "1000base-t"
             is_poe_port = DevConfig.TAG_POE in prop["tags"]
-            is_10m_port = DevConfig.TAG_SPEED_10M in prop["tags"]
-            is_100m_port = DevConfig.TAG_SPEED_100M in prop["tags"]
-            is_1g_port = DevConfig.TAG_SPEED_1G in prop["tags"]
-            is_10g_port = DevConfig.TAG_SPEED_1G in prop["tags"]
+            is_10m_port = prop["speed"] == 10 * 1000
+            is_100m_port = prop["speed"] == 100 * 1000
+            is_1g_port = prop["speed"] == 1000 * 1000
+            is_10g_port = prop["speed"] == 10000 * 1000
             is_bpdu_filtered_port = DevConfig.TAG_BPDU_FILTER in prop["tags"]
             is_wifi_port = DevConfig.TAG_WIFI in prop["tags"]
 
