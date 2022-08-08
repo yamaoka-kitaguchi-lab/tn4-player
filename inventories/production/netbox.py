@@ -106,6 +106,7 @@ class DevConfig:
     TAG_MGMT_EDGE_SUZUKAKE    = "mgmt-vlan-es"
     TAG_POE                   = "poe"
     TAG_PROTECT               = "protect"
+    TAG_RSPAN                 = "rspan"
     TAG_SPEED_100M            = "speed-100m"
     TAG_SPEED_10M             = "speed-10m"
     TAG_SPEED_1G              = "speed-1g"
@@ -253,7 +254,7 @@ class DevConfig:
                 is_in_use_vlan = vlan["vid"] == vid
                 is_protected_vlan = "protect" in vlan["tags"]
                 is_irb_vlan = vlan["vid"] in irb_vids
-                is_rspan_vlan = vlan["vid"] in rspan_vids
+                is_rspan_vlan = vlan["vid"] in rspan_vids or DevConfig.TAG_RSPAN in vlan["tags"]
 
                 if is_in_use_vlan or is_protected_vlan:
                     vlans.append({
