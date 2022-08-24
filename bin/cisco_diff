@@ -7,9 +7,9 @@ fi
 dir=$1
 
 for edge in $(ls -l "$dir" | sed -n 's/^.* \(.*\)_after.cfg$/\1/p'); do
-  echo ""
   echo "#### $edge :"
-  diff -uprN "$dir"/"$edge"_before.cfg "$dir"/"$edge"_after.cfg
+  diff -uprN -I "by ansible" "$dir"/"$edge"_before.cfg "$dir"/"$edge"_after.cfg
+  echo ""
 done
 
 exit 0
