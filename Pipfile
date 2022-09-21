@@ -4,23 +4,19 @@ verify_ssl = true
 name       = "pypi"
 
 [packages]
-ansible      = "~=4.1"
-pybatfish    = "*"
-pyyaml       = "*"
-requests     = "*"
-gspread      = "*"
-oauth2client = "*"
-pynetbox     = "*"
-paramiko     = "*"
-ncclient     = "*"
-openpyxl     = "*"
-rich         = "*"
-click        = "*"
+ansible          = "~=6.4.0"
+ansible-pylibssh = "*"
+click            = "*"
+ncclient         = "*"
+#paramiko         = "*"
+pyyaml           = "*"
+requests         = "*"
+rich             = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.10"
+python_version = ">=3.10"
 
 [scripts]
 develop   = 'ansible-playbook -vvvv --check --skip-tags overwrite,nondry site.yml'
