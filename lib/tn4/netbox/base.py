@@ -3,16 +3,16 @@ import requests
 
 
 class Context:
-    endpoint = None  # ex. https://netbox.m.noc.titech.ac.jp:8000/api
-    token = None     # ex. 0123456789abcdef0123456789abcdef01234567
-    sites = None
-    devices = None
-    vlans = None
-    addresses = None
+    endpoint   = None  # ex) https://netbox.m.noc.titech.ac.jp:8000/api
+    token      = None  # ex) 0123456789abcdef0123456789abcdef01234567
+    sites      = None
+    devices    = None
+    vlans      = None
+    addresses  = None
     interfaces = None
 
     def __init__(netbox_url, token):
-        self.endpoint = self.netbox_url.rstrip('/') + '/api'
+        self.endpoint = self.netbox_url.rstrip("/") + "/api"
         self.token = token
 
 
@@ -23,9 +23,9 @@ class ClientBase:
         url = ctx.endpoint + location
 
         headers = {
-            'Authorization': f'Token {ctx.token}',
-            'Content-Type':  'application/json',
-            'Accept':        'application/json; indent=4'
+            "Authorization": f"Token {ctx.token}",
+            "Content-Type":  "application/json",
+            "Accept":        "application/json; indent=4"
         }
 
         if data:
@@ -43,7 +43,7 @@ class ClientBase:
                     raw = requests.post(url, json.dumps(d), headers=headers, verify=True)
 
                 ## Early return
-                ## Any status other than the 200s is considered a failure.
+                ## Any responses other than the 200s are considered failure.
                 code = raw.status_code
                 if 200 <= code < 300:
                     return code, []
@@ -61,10 +61,10 @@ class ClientBase:
                     return code, []
 
                 res = json.loads(raw.text)
-                responses += res['results']
+                responses += res["results"]
 
-                ## If the 'next' field has a URL, the results are not yet aligned.
-                url = res['next']
+                ## If the "next" field has a URL, the results are not yet aligned.
+                url = res["next"]
 
         return code, responses
 
