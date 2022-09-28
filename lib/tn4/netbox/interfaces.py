@@ -110,3 +110,4 @@ class Interfaces(ClientBase):
         if data:
             return self.query(self.path, data, update=True)
         return
+
