@@ -1,7 +1,7 @@
 class Slug:
     class Role:
-        CoreSw = "core_sw"
-        EdgeSw = "edge_sw"
+        CoreSW = "core_sw"
+        EdgeSW = "edge_sw"
 
     class SiteGroup:
         Ishikawadai    = "ishikawadai"

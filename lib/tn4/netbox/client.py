@@ -6,9 +6,9 @@ from tn4.netbox.interfaces import Interfaces
 
 class Client:
     def __init__(self):
-        self.sites = Sites()
-        self.devices = Devices()
-        self.vlans = Vlans()
-        self.addresses = Addresses()
+        self.sites      = Sites()
+        self.devices    = Devices()
+        self.vlans      = Vlans()
+        self.addresses  = Addresses()
         self.interfaces = Interfaces()
 
