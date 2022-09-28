@@ -2,7 +2,7 @@ from tn4.netbox.base import ClientBase
 
 
 class Sites(ClientBase):
-    path = '/dcim/sites/'
+    path = "/dcim/sites/"
 
     def __init__(self):
         super().__init__()

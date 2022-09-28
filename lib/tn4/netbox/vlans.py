@@ -2,11 +2,12 @@ from tn4.netbox.base import ClientBase
 
 
 class Vlans(ClientBase):
-    path = '/ipam/vlans/'
+    path = "/ipam/vlans/"
 
     def __init__(self):
         super().__init__()
         self.all_vlans = {}
+
 
     def fetch_all(self, ctx):
         all_vlans = self.query(ctx, path)

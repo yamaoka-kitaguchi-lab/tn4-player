@@ -42,11 +42,9 @@ class ClientBase:
                 else:
                     raw = requests.post(url, json.dumps(d), headers=headers, verify=True)
 
-                ## Early return
-                ## Any responses other than the 200s are considered failure.
                 code = raw.status_code
                 if 200 <= code < 300:
-                    return code, []
+                    return code, []  # early return when the response is other than 200s code
 
                 responses += json.loads(raw.text)
                 ptr += size

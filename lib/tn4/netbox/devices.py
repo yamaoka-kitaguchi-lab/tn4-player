@@ -8,6 +8,7 @@ class Devices(ClientBase):
     def __init__(self):
         super().__init__()
 
+
     def fetch_all(self, ctx):
         all_devices = self.query(ctx, self.path)
 
@@ -36,12 +37,13 @@ class Devices(ClientBase):
             device["is_vc_member"] = False
             device["vc_chassis_number"] = 0
 
+            ## For stacked edge SWs
             if device["device_role"]["slug"] == Slug.Role.EdgeSW:
                 r = re.match("([\w|-]+) \((\d+)\)", device["name"])  # hostname regex pattern
-                if hostname_re is not None:
-                    device["hostname"] = r.group(1)
+                if r is not None:
+                    device["hostname"] = r.group(1)           # device hostname: "minami3 (1)" -> "minami3"
                     device["is_vc_member"] = True
-                    device["vc_chassis_number"] = r.group(2)
+                    device["vc_chassis_number"] = r.group(2)  # chassis number: "minami3 (1)" -> "1"
 
             self.all_devices[device["name"]] = device
 
