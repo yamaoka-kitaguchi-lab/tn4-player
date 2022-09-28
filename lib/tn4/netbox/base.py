@@ -31,7 +31,7 @@ class ClientBase:
         if data:
             ## NOTE:
             ## To avoid the overload of NetBox,
-            ## large volume editing operations must be splitinto multiple requests.
+            ## large volume editing operations must be split into multiple requests.
 
             ptr, size = 0, 100  # size: widnow size of the request division
             while ptr < len(data):
