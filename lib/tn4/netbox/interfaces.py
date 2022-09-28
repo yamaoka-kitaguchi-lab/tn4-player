@@ -48,10 +48,9 @@ class Interfaces(ClientBase):
             interface["is_to_edge"] = hasrole(interface, Slug.Role.Core) and hastag(interface, Slug.Tag.CoreDownstream)
             interface["is_to_ap"] = hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.Wifi)
 
-
             ## IMPORTANT: Object key definitions
-            ##  - "*_vlanid" is the VLAN object ID used NetBox internally
-            ##  - "*_vid" is the actual VLAN ID (1..4094)
+            ##  - "*_vlanid*" is the VLAN object ID used NetBox internally
+            ##  - "*_vid*" is the actual VLAN ID (1..4094)
 
             all_vlan_ids = []
             all_vids = []
@@ -77,7 +76,6 @@ class Interfaces(ClientBase):
 
             self.all_interfaces.setdefault(dev_name, {})[int_name] = interface
         return self.all_interfaces
-
 
 
     def update(self, device_name, interface_name,
