@@ -1,4 +1,42 @@
 class Slug:
+    class Role:
+        core_sw = "core_sw"
+        edge_sw = "edge_sw"
+
+    class SiteGroup:
+        ishikawadai    = "ishikawadai"
+        midorigaoka    = "midorigaoka"
+        ookayama_east  = "ookayama-e"
+        ookayama_north = "ookayama-n"
+        ookayama_south = "ookayama-s"
+        ookayama_west  = "ookayama-w"
+        tamachi        = "tamachi"
+
+    class Tag:
+        core_downstream           = "downlink"
+        core_master               = "mclag-master-core"
+        core_ookayama_master      = "mclag-master-co"
+        core_ookayama_slave       = "mclag-slave-co"
+        core_slave                = "mclag-slave-core"
+        core_suzukake_master      = "mclag-master-cs"
+        core_suzukake_slave       = "mclag-slave-cs"
+        edge_upstream             = "uplink"
+        mgmt_vlan_border_ookayama = "mgmt-vlan-bo"
+        mgmt_vlan_border_suzukake = "mgmt-vlan-bs"
+        mgmt_vlan_core_ookayama   = "mgmt-vlan-co"
+        mgmt_vlan_core_suzukake   = "mgmt-vlan-cs"
+        mgmt_vlan_edge_ookayama   = "mgmt-vlan-eo"
+        mgmt_vlan_edge_suzukake   = "mgmt-vlan-es"
+        rspan                     = "rspan"
+        vlan_ookayama             = "vlan-o"
+        vlan_suzukake             = "vlan-s"
+        wifi                      = "wifi"
+        wifi_mgmt_vlan_ookayama1  = "wlan-mgmt-vlan-o1"
+        wifi_mgmt_vlan_ookayama2  = "wlan-mgmt-vlan-o2"
+        wifi_mgmt_vlan_suzukake   = "wlan-mgmt-vlan-s"
+
+
+    ## Deprecated slugs - soon to be removed
     role_core_sw = "core_sw"
     role_edge_sw = "edge_sw"
 
