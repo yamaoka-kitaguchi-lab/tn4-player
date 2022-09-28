@@ -19,9 +19,6 @@ class Interfaces(ClientBase):
     ]
     allowed_types = [*allowed_types_virtual, *allowed_types_ethernet]
 
-    hastag = lambda i, t: "tags" in t and t in i["tags"]
-    hasrole = lambda i, r: "device_role" in i and "slug" in i["device_role"] and i["device_role"]["slug"] == r
-
     def __init__(self):
         super().__init__()
 
@@ -30,7 +27,10 @@ class Interfaces(ClientBase):
         if use_cache and self.all_interfaces:
             return self.all_interfaces  # early return
 
-        all_interfaces = self.query("/dcim/interfaces/")
+        hastag = lambda i, t: "tags" in t and t in i["tags"]
+        hasrole = lambda i, r: "device_role" in i and "slug" in i["device_role"] and i["device_role"]["slug"] == r
+
+        all_interfaces = self.query(self.path)
         for interface in all_interfaces:
             interface["tags"] = [tag["slug"] for tag in interface["tags"]]
 
@@ -40,10 +40,10 @@ class Interfaces(ClientBase):
                 for k in ["device_role", "wifi_mgmt_vlanid", "wifi_vlanids", "hostname", "is_vc_member", "vc_chassis_number"]:
                     interface[k] = self.all_devices[dev_name][k]
 
-            interface["is_deploy_target"] = interface["type"]["value"] in allowed_types
+            interface["is_deploy_target"] = interface["type"]["value"] in self.allowed_types
             interface["is_lag_parent"] = interface["type"]["value"] == "lag"
             interface["is_lag_member"] = interface["lag"] is not None
-            interface["is_utp"] = interface["type"]["value"] in allowed_types_ethernet_utp
+            interface["is_utp"] = interface["type"]["value"] in self.allowed_types_ethernet_utp
             interface["is_to_core"] = hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.EdgeUpstream)
             interface["is_to_edge"] = hasrole(interface, Slug.Role.Core) and hastag(interface, Slug.Tag.CoreDownstream)
             interface["is_to_ap"] = hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.Wifi)
@@ -105,5 +105,5 @@ class Interfaces(ClientBase):
 
         data.append(body)
         if data:
-            return self.query("/dcim/interfaces/", data, update=True)
+            return self.query(self.path, data, update=True)
         return
