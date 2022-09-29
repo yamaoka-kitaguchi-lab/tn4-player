@@ -60,7 +60,7 @@ class Interfaces(ClientBase):
                 "is_physical":      interface["type"]["value"] in self.allowed_types_ethernet,
             }
 
-            ## IMPORTANT: Object key definitions
+            ## Object key definitions
             ##  - "*_vlanid*" is the VLAN object ID used NetBox internally
             ##  - "*_vid*" is the actual VLAN ID (1..4094)
 
@@ -74,29 +74,52 @@ class Interfaces(ClientBase):
                 "untagged_vid":    None,
             }
 
-            if interface["tagged_vlans"] is not None:
-                interface |= {
-                    "vlan_mode":       "trunk",
-                    "tagged_vids":     [v["vid"] for v in interface["tagged_vlans"]],
-                    "tagged_vlanids":  [v["id"] for v in interface["tagged_vlans"]],
-                    "tagged_vids":     [v["vid"] for v in interface["tagged_vlans"]],
-                }
-                all_vlan_ids.extend(interface["tagged_vlanids"])
-                all_vids.extend(interface["tagged_vids"])
+            vlan_mode = interface["mode"]["value"].lower()
 
-            if interface["untagged_vlan"] is not None:
+            if vlan_mode == "access" and interface["tagged_vlans"] is not None:
                 interface |= {
                     "vlan_mode":       "access",
                     "untagged_vlanid": interface["untagged_vlan"]["id"],
                     "untagged_vid":    interface["untagged_vlan"]["vid"],
+                    "is_trunk_all":    False,
                 }
                 all_vlan_ids.append(interface["untagged_vlanid"])
                 all_vids.append(interface["untagged_vid"])
 
-            interface["all_vlanids"] = list(set(all_vlan_ids))
-            interface["all_vids"] = list(set(all_vids))
+            elif vlan_mode == "tagged" and interface["tagged_vlans"] is not None:
+                interface |= {
+                    "vlan_mode":       "trunk",  # rephrase to juniper/cisco style
+                    "tagged_vlanids":  [v["id"] for v in interface["tagged_vlans"]],
+                    "tagged_vids":     [v["vid"] for v in interface["tagged_vlans"]],
+                    "is_trunk_all":    False,
+                }
+                all_vlan_ids.extend(interface["tagged_vlanids"])
+                all_vids.extend(interface["tagged_vids"])
+
+                if interface["untagged_vlan"] is not None:
+                    interface["native_vid"] = interface["untagged_vlan"]["vid"]
+                    all_vids.extend(interface["native_vid"])
+
+            elif vlan_mode == "tagged-all":
+                interface |= {
+                    "vlan_mode":       "trunk",
+                    "is_trunk_all":    True,
+                }
+
+            ## ignore conditions other than the above
+            else:
+                interface |= {
+                    "vlan_mode":       None,
+                    "is_trunk_all":    True,
+                }
+
+            interface |= {
+                "all_vlanids": list(set(all_vlan_ids)),
+                "all_vids": list(set(all_vids)),
+            }
 
             self.all_interfaces.setdefault(dev_name, {})[int_name] = interface
+
         return self.all_interfaces
 
 
