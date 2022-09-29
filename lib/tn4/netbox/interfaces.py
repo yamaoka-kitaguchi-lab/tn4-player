@@ -130,6 +130,11 @@ class Interfaces(ClientBase):
                 "all_vids": list(set(all_vids)),
             }
 
+            ## for cisco edge
+            packed_size = 20
+            absent_vids = [vid for vid in range(1, 4094) if vid not in all_vids]
+            interface["absent_vids"] = [absent_vids[i:i+packed_size] for i in range(0, len(removed_vids), packed_size)]
+
             self.all_interfaces.setdefault(dev_name, {})[int_name] = interface
 
         ctx.interfaces = self.all_interfaces
