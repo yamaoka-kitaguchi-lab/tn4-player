@@ -36,17 +36,29 @@ class Interfaces(ClientBase):
 
             dev_name = interface["device"]["name"]
             int_name = interface["name"]
+            keys = ["device_role", "wifi_mgmt_vlanid", "wifi_vlanids", "hostname", "is_vc_member", "vc_chassis_number"]
             if dev_name in self.all_devices:
-                for k in ["device_role", "wifi_mgmt_vlanid", "wifi_vlanids", "hostname", "is_vc_member", "vc_chassis_number"]:
+                for k in keys:
                     interface[k] = self.all_devices[dev_name][k]
 
-            interface["is_deploy_target"] = interface["type"]["value"] in self.allowed_types
-            interface["is_lag_parent"] = interface["type"]["value"] == "lag"
-            interface["is_lag_member"] = interface["lag"] is not None
-            interface["is_utp"] = interface["type"]["value"] in self.allowed_types_ethernet_utp
-            interface["is_to_core"] = hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.EdgeUpstream)
-            interface["is_to_edge"] = hasrole(interface, Slug.Role.Core) and hastag(interface, Slug.Tag.CoreDownstream)
-            interface["is_to_ap"] = hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.Wifi)
+            interface |= {
+                "is_10mbps":        interface["speed"] == 10 * 1000,
+                "is_100mbps":       interface["speed"] == 100 * 1000,
+                "is_1gbps":         interface["speed"] == 1000 * 1000,
+                "is_10gbps":        interface["speed"] == 1000 * 1000,
+                "is_bpdu_filtered": hastag(interface, Slug.Tag.BPDUFilter),
+                "is_deploy_target": interface["type"]["value"] in self.allowed_types,
+                "is_lag_member":    interface["lag"] is not None,
+                "is_lag_parent":    interface["type"]["value"] == "lag",
+                "is_poe":           hastag(interface, Slug.Tag.PoE),
+                "is_protected":     hastag(interface, Slug.Tag.Protect),
+                "is_to_ap":         hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.Wifi),
+                "is_to_core":       hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.EdgeUpstream),
+                "is_to_edge":       hasrole(interface, Slug.Role.Core) and hastag(interface, Slug.Tag.CoreDownstream),
+                "is_upstream":      hastag(interface, Slug.Tag.Upstream),
+                "is_utp":           interface["type"]["value"] in self.allowed_types_ethernet_utp,
+                "is_physical":      interface["type"]["value"] in self.allowed_types_ethernet,
+            }
 
             ## IMPORTANT: Object key definitions
             ##  - "*_vlanid*" is the VLAN object ID used NetBox internally
@@ -54,20 +66,30 @@ class Interfaces(ClientBase):
 
             all_vlan_ids = []
             all_vids = []
-            interface["tagged_vlanids"] = None
-            interface["tagged_vids"] = None
-            interface["untagged_vlanid"] = None
-            interface["untagged_vid"] = None
+
+            interface |= {
+                "tagged_vlanids":  None,
+                "tagged_vids":     None,
+                "untagged_vlanid": None,
+                "untagged_vid":    None,
+            }
 
             if interface["tagged_vlans"] is not None:
-                interface["tagged_vlanids"] = [v["id"] for v in interface["tagged_vlans"]]
-                interface["tagged_vids"] = [v["vid"] for v in interface["tagged_vlans"]]
+                interface |= {
+                    "vlan_mode":       "trunk",
+                    "tagged_vids":     [v["vid"] for v in interface["tagged_vlans"]],
+                    "tagged_vlanids":  [v["id"] for v in interface["tagged_vlans"]],
+                    "tagged_vids":     [v["vid"] for v in interface["tagged_vlans"]],
+                }
                 all_vlan_ids.extend(interface["tagged_vlanids"])
                 all_vids.extend(interface["tagged_vids"])
 
             if interface["untagged_vlan"] is not None:
-                interface["untagged_vlanid"] = interface["untagged_vlan"]["id"]
-                interface["untagged_vid"] = interface["untagged_vlan"]["vid"]
+                interface |= {
+                    "vlan_mode":       "access",
+                    "untagged_vlanid": interface["untagged_vlan"]["id"],
+                    "untagged_vid":    interface["untagged_vlan"]["vid"],
+                }
                 all_vlan_ids.append(interface["untagged_vlanid"])
                 all_vids.append(interface["untagged_vid"])
 

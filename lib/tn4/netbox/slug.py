@@ -13,6 +13,7 @@ class Slug:
         Tamachi        = "tamachi"
 
     class Tag:
+        BPDUFilter             = "bpdu"
         CoreDownstream         = "downlink"
         CoreMaster             = "mclag-master-core"
         CoreOokayamaMaster     = "mclag-master-co"
@@ -28,6 +29,7 @@ class Slug:
         MgmtVlanEdgeOokayama   = "mgmt-vlan-eo"
         MgmtVlanEdgeSuzukake   = "mgmt-vlan-es"
         Rspan                  = "rspan"
+        PoE                    = "poe"
         VlanOokayama           = "vlan-o"
         VlanSuzukake           = "vlan-s"
         Wifi                   = "wifi"
