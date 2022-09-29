@@ -23,7 +23,14 @@ class Interfaces(ClientBase):
         super().__init__()
 
 
-    def fetch_all(self, use_cache=True):
+    def resolve_vlan_name(self, vid, ctx):
+        for vlan in ctx.vlans:
+            if vlan["vid"] == vid:
+                return vlan["name"]
+        return None
+
+
+    def fetch_all(self, ctx, use_cache=True):
         if use_cache and self.all_interfaces:
             return self.all_interfaces  # early return
 
@@ -86,6 +93,11 @@ class Interfaces(ClientBase):
                 all_vlan_ids.append(interface["untagged_vlanid"])
                 all_vids.append(interface["untagged_vid"])
 
+                ## use vlan name for interface description if it is empty
+                vlan_name = self.resolve_vlan_name(interface["untagged_vlan"]["vid"], ctx)
+                if interface["description"] == "" and vlan_name is not None:
+                    interface["description"] = vlan_name
+
             elif vlan_mode == "tagged" and interface["tagged_vlans"] is not None:
                 interface |= {
                     "vlan_mode":       "trunk",  # rephrase to juniper/cisco style
@@ -120,6 +132,7 @@ class Interfaces(ClientBase):
 
             self.all_interfaces.setdefault(dev_name, {})[int_name] = interface
 
+        ctx.interfaces = self.all_interfaces
         return self.all_interfaces
 
 

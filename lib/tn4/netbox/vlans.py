@@ -17,6 +17,5 @@ class Vlans(ClientBase):
             self.all_vlans[str(vlan["id"])] = vlan
 
         ctx.vlans = self.all_vlans
-
         return self.all_vlans
 
