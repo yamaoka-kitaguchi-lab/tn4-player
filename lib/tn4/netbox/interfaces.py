@@ -42,6 +42,13 @@ class Interfaces(ClientBase):
 
 
     def fetch_all(self, ctx, use_cache=True):
+        return {
+            "interfaces":  self.fetch_interfaces(ctx, use_cache=use_cache),
+            "lag_members": self.fetch_lag_members(ctx, use_cache=use_cache),
+        }
+
+
+    def fetch_interfaces(self, ctx, use_cache=True):
         if use_cache and self.all_interfaces:
             return self.all_interfaces  # early return
 
@@ -159,6 +166,13 @@ class Interfaces(ClientBase):
 
         ctx.interfaces = self.all_interfaces
         return self.all_interfaces
+
+
+    def fetch_lag_members(self, ctx, use_cache=use_cache):
+        if use_cache and self.all_lag_members:
+            return self.all_lag_members  # early return
+
+
 
 
     def update(self, device_name, interface_name,
