@@ -72,7 +72,7 @@ class Interfaces(ClientBase):
                 "is_10mbps":        interface["speed"] == 10 * 1000,
                 "is_100mbps":       interface["speed"] == 100 * 1000,
                 "is_1gbps":         interface["speed"] == 1000 * 1000,
-                "is_10gbps":        interface["speed"] == 1000 * 1000,
+                "is_10gbps":        interface["speed"] == 10000 * 1000,
                 "is_bpdu_filtered": hastag(interface, Slug.Tag.BPDUFilter),
                 "is_deploy_target": interface["type"]["value"] in self.allowed_types,
                 "is_lag_member":    interface["lag"] is not None,
