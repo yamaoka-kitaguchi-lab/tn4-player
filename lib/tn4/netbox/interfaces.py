@@ -59,7 +59,7 @@ class Interfaces(ClientBase):
                 for k in keys:
                     interface[k] = self.all_devices[dev_name][k]
 
-            is_upstream = hastag(interface, Slug.Tag.Upstream),
+            is_upstream = hastag(interface, Slug.Tag.Upstream)
 
             interface |= {
                 "is_10mbps":        interface["speed"] == 10 * 1000,
@@ -78,7 +78,7 @@ class Interfaces(ClientBase):
                 "is_upstream":      is_upstream,
                 "is_utp":           interface["type"]["value"] in self.allowed_types_ethernet_utp,
                 "is_physical":      interface["type"]["value"] in self.allowed_types_ethernet,
-                "is_enabled":       interface["enabled"] or is_upstream
+                "is_enabled":       interface["enabled"] or is_upstream,
             }
 
             ## Object key definitions
@@ -126,7 +126,7 @@ class Interfaces(ClientBase):
                     interface["native_vid"] = interface["untagged_vlan"]["vid"]
                     all_vids.extend(interface["native_vid"])
 
-            elif vlan_mode == "tagged-all":
+            elif vlan_mode == "tagged-all" or is_upstream:
                 interface |= {
                     "vlan_mode":       "trunk",
                     "is_trunk_all":    True,
