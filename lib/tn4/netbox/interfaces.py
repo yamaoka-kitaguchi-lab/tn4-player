@@ -23,11 +23,22 @@ class Interfaces(ClientBase):
         super().__init__()
 
 
-    def resolve_vlan_name(self, vid, ctx):
+    def lookup_vlan_name(self, vid, ctx):
         for vlan in ctx.vlans:
             if vlan["vid"] == vid:
                 return vlan["name"]
         return None
+
+
+    def lookup_interface_address(self, ifid, ctx):
+        addr4, addr6 = [], []
+        for addr in ctx.addresses:
+            if addr["assigned_object_id"] == ifid:
+                if addr["family"]["label"] == "IPv4":
+                    addr4.append(addr["address"])
+                if addr["family"]["label"] == "IPv6":
+                    addr6.append(addr["address"])
+        return addr4, addr6
 
 
     def fetch_all(self, ctx, use_cache=True):
@@ -48,6 +59,8 @@ class Interfaces(ClientBase):
                 for k in keys:
                     interface[k] = self.all_devices[dev_name][k]
 
+            is_upstream = hastag(interface, Slug.Tag.Upstream),
+
             interface |= {
                 "is_10mbps":        interface["speed"] == 10 * 1000,
                 "is_100mbps":       interface["speed"] == 100 * 1000,
@@ -62,9 +75,10 @@ class Interfaces(ClientBase):
                 "is_to_ap":         hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.Wifi),
                 "is_to_core":       hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.EdgeUpstream),
                 "is_to_edge":       hasrole(interface, Slug.Role.Core) and hastag(interface, Slug.Tag.CoreDownstream),
-                "is_upstream":      hastag(interface, Slug.Tag.Upstream),
+                "is_upstream":      is_upstream,
                 "is_utp":           interface["type"]["value"] in self.allowed_types_ethernet_utp,
                 "is_physical":      interface["type"]["value"] in self.allowed_types_ethernet,
+                "is_enabled":       interface["enabled"] or is_upstream
             }
 
             ## Object key definitions
@@ -94,7 +108,7 @@ class Interfaces(ClientBase):
                 all_vids.append(interface["untagged_vid"])
 
                 ## use vlan name for interface description if it is empty
-                vlan_name = self.resolve_vlan_name(interface["untagged_vlan"]["vid"], ctx)
+                vlan_name = self.lookup_vlan_name(interface["untagged_vlan"]["vid"], ctx)
                 if interface["description"] == "" and vlan_name is not None:
                     interface["description"] = vlan_name
 
@@ -134,6 +148,12 @@ class Interfaces(ClientBase):
             packed_size = 20
             absent_vids = [vid for vid in range(1, 4094) if vid not in all_vids]
             interface["absent_vids"] = [absent_vids[i:i+packed_size] for i in range(0, len(removed_vids), packed_size)]
+
+            addr4, addr6 = self.lookup_interface_address(interface["id"], ctx)
+            interface |= {
+                "addresses4": addr4,
+                "addresses6": addr6,
+            }
 
             self.all_interfaces.setdefault(dev_name, {})[int_name] = interface
 
