@@ -24,14 +24,15 @@ class Devices(ClientBase):
         for device in all_devices:
             device["tags"] = [tag["slug"] for tag in device["tags"]]
             dev_site = device["site"]["slug"]
-            dev_sitegp = ctx.sites[dev_site]["group"]["slug"]
 
             wifi_o1_area = [ Slug.SiteGroup.OokayamaNorth, Slug.SiteGroup.OokayamaWest,
                              Slug.SiteGroup.Midorigaoka, Slug.SiteGroup.Tamachi ]
             wifi_o2_area = [ Slug.SiteGroup.OokayamaEast, Slug.SiteGroup.OokayamaSouth,
                              Slug.SiteGroup.Ishikawadai ]
 
-            if dev_site in self.all_sites:
+            if dev_site in ctx.sites:
+                dev_sitegp = ctx.sites[dev_site]["group"]["slug"]
+
                 if dev_sitegp in wifi_o1_area:
                     device["wifi_mgmt_vlanid"] = self.wifi_mgmt_vlanid_o1
                     device["wifi_vlanids"]     = self.wifi_vlanids_o

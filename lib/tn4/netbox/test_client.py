@@ -17,10 +17,11 @@ class TestClient(unittest.TestCase):
         )
         cli = Client()
         cls.nbdata = {}
-        cls.nbdata |= cli.devices.fetch_all(cls.ctx, use_cache=False)
+        cls.nbdata |= cli.sites.fetch_all(cls.ctx, use_cache=True)
+        cls.nbdata |= cli.devices.fetch_all(cls.ctx, use_cache=True)     # depending on sites
         cls.nbdata |= cli.vlans.fetch_all(cls.ctx, use_cache=True)
         cls.nbdata |= cli.addresses.fetch_all(cls.ctx, use_cache=True)
-        cls.nbdata |= cli.interfaces.fetch_all(cls.ctx, use_cache=True)
+        cls.nbdata |= cli.interfaces.fetch_all(cls.ctx, use_cache=True)  # depending on devices, vlans, addresses
 
         pprint(cls.nbdata["interfaces"].keys())
 
