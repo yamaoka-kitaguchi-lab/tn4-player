@@ -20,12 +20,12 @@ class Addresses(ClientBase):
         if all_addresses is None:
             all_addresses, _ = self.query(ctx, self.path)
 
-        self.all_addresses = {}
+        self.all_addresses = []
         for address in all_addresses:
-            print(address)
             address["tags"] = [tag["slug"] for tag in address["tags"]]
+            self.all_addresses.append(address)
 
-        ctx.addresses = all_addresses
+        ctx.addresses = self.all_addresses
         return self.all_addresses
 
 

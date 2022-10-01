@@ -19,9 +19,7 @@ class TestClient(unittest.TestCase):
         cls.nbdata = {}
         cls.nbdata |= cli.vlans.fetch_all(cls.ctx, use_cache=True)
         cls.nbdata |= cli.addresses.fetch_all(cls.ctx, use_cache=True)
-        #cls.nbdata |= cli.interfaces.fetch_interfaces(cls.ctx, use_cache=True)
-
-        pprint(cls.nbdata)
+        cls.nbdata |= cli.interfaces.fetch_interfaces(cls.ctx, use_cache=True)
 
 
 if __name__ == "__main__":
