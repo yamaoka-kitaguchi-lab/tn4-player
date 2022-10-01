@@ -21,6 +21,8 @@ class TestClient(unittest.TestCase):
         cls.nbdata |= cli.addresses.fetch_all(cls.ctx, use_cache=True)
         cls.nbdata |= cli.interfaces.fetch_all(cls.ctx, use_cache=True)
 
+        pprint(cls.nbdata["interfaces"])
+
 
 if __name__ == "__main__":
     t = TestClient()

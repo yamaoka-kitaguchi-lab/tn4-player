@@ -97,7 +97,9 @@ class Interfaces(ClientBase):
                 "untagged_vid":    None,
             }
 
-            vlan_mode = interface["mode"]["value"].lower()
+            vlan_mode = interface["mode"]
+            if vlan_mode is dict:
+                vlan_mode = vlan_mode["value"].lower()  # or vlan_mode is 'None' going to the else-block
 
             if vlan_mode == "access" and interface["tagged_vlans"] is not None:
                 interface |= {
