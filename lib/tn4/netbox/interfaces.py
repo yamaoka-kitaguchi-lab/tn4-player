@@ -146,7 +146,7 @@ class Interfaces(ClientBase):
 
             interface |= {
                 "all_vlanids": list(set(all_vlan_ids)),
-                "all_vids": list(set(all_vids)),
+                "all_vids":    list(set(all_vids)),
             }
 
             ## for cisco edge
