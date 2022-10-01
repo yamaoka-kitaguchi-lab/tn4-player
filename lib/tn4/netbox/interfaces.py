@@ -60,10 +60,10 @@ class Interfaces(ClientBase):
 
             dev_name = interface["device"]["name"]
             int_name = interface["name"]
-            keys = ["device_role", "wifi_mgmt_vlanid", "wifi_vlanids", "hostname", "is_vc_member", "vc_chassis_number"]
-            if dev_name in self.all_devices:
-                for k in keys:
-                    interface[k] = self.all_devices[dev_name][k]
+            #keys = ["device_role", "wifi_mgmt_vlanid", "wifi_vlanids", "hostname", "is_vc_member", "vc_chassis_number"]
+            #if dev_name in self.all_devices:
+            #    for k in keys:
+            #        interface[k] = self.all_devices[dev_name][k]
 
             is_upstream = hastag(interface, Slug.Tag.Upstream)
 
@@ -80,7 +80,7 @@ class Interfaces(ClientBase):
                 "is_protected":     hastag(interface, Slug.Tag.Protect),
                 "is_to_ap":         hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.Wifi),
                 "is_to_core":       hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.EdgeUpstream),
-                "is_to_edge":       hasrole(interface, Slug.Role.Core) and hastag(interface, Slug.Tag.CoreDownstream),
+                "is_to_edge":       hasrole(interface, Slug.Role.CoreSW) and hastag(interface, Slug.Tag.CoreDownstream),
                 "is_upstream":      is_upstream,
                 "is_utp":           interface["type"]["value"] in self.allowed_types_ethernet_utp,
                 "is_physical":      interface["type"]["value"] in self.allowed_types_ethernet,

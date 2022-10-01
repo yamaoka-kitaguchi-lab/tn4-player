@@ -13,6 +13,7 @@ class Slug:
         Tamachi        = "tamachi"
 
     class Tag:
+        Ansible                = "ansible"
         BPDUFilter             = "bpdu"
         CoreDownstream         = "downlink"
         CoreMaster             = "mclag-master-core"
@@ -28,8 +29,10 @@ class Slug:
         MgmtVlanCoreSuzukake   = "mgmt-vlan-cs"
         MgmtVlanEdgeOokayama   = "mgmt-vlan-eo"
         MgmtVlanEdgeSuzukake   = "mgmt-vlan-es"
-        Rspan                  = "rspan"
         PoE                    = "poe"
+        Protect                = "protect"
+        Rspan                  = "rspan"
+        Upstream               = "uplink"
         VlanOokayama           = "vlan-o"
         VlanSuzukake           = "vlan-s"
         Wifi                   = "wifi"
