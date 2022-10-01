@@ -3,7 +3,7 @@ import requests
 
 
 class Context:
-    endpoint   = None  # ex) https://netbox.m.noc.titech.ac.jp:8000/api
+    endpoint   = None  # ex) https://netbox.m.noc.titech.ac.jp:8000
     token      = None  # ex) 0123456789abcdef0123456789abcdef01234567
     sites      = None
     devices    = None
