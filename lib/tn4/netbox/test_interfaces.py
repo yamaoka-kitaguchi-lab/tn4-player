@@ -16,7 +16,7 @@ class TestInterfaces(unittest.TestCase):
             "0123456789abcdef0123456789abcdef01234567"  # NetBox API Token
         )
         i = Interfaces()
-        cls.interfaces = i.fetch_interfaces(cls.ctx, use_cache=False)
+        cls.interfaces = i.fetch_interfaces(cls.ctx, use_cache=True)
 
     def test_hoge(self):
         pass
