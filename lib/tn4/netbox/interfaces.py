@@ -25,9 +25,8 @@ class Interfaces(ClientBase):
 
 
     def lookup_vlan_name(self, vid, ctx):
-        for vlan in ctx.vlans:
-            if vlan["vid"] == vid:
-                return vlan["name"]
+        if vid in ctx.vlans:
+            return ctx.vlans[vid]["name"]
         return None
 
 
