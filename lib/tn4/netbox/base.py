@@ -87,10 +87,11 @@ class ClientBase:
 
     def load(self, location):
         _, _, cache_path = self.lookup_cache_file(location)
-        with open(cache_path) as fd:
-            try:
-                json.load(fd)
-            except Exception as e:
-                return False, {}
-            else:
-                return True, {}
+        responses = {}
+        try:
+            with open(cache_path) as fd:
+                responses = json.load(fd)
+        except Exception as e:
+            return False, {}
+        else:
+            return True, responses

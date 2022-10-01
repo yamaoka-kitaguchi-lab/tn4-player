@@ -42,19 +42,12 @@ class Interfaces(ClientBase):
         return addr4, addr6
 
 
-    def fetch_all(self, ctx, use_cache=False):
-        return {
-            "interfaces":  self.fetch_interfaces(ctx, use_cache=use_cache),
-            "lag_members": self.fetch_lag_members(ctx),  # following fetch_interfaces()
-        }
-
-
     def fetch_interfaces(self, ctx, use_cache=False):
         if use_cache:
             if self.all_interfaces is not None:
                 return self.all_interfaces
 
-            ok, self.all_interfaces = ClientBase.load(self.path)
+            ok, self.all_interfaces = self.load(self.path)
             if ok:
                 return self.all_interfaces
 
@@ -183,6 +176,11 @@ class Interfaces(ClientBase):
 
 
 
+    def fetch_all(self, ctx, use_cache=False):
+        return {
+            "interfaces":  self.fetch_interfaces(ctx, use_cache=use_cache),
+            "lag_members": self.fetch_lag_members(ctx),  # following fetch_interfaces()
+        }
 
 
     def update(self, device_name, interface_name,
