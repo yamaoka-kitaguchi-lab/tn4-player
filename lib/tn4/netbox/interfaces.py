@@ -43,18 +43,18 @@ class Interfaces(ClientBase):
 
 
     def fetch_interfaces(self, ctx, use_cache=False):
-        if use_cache:
-            if self.all_interfaces is not None:
-                return self.all_interfaces
-
-            ok, self.all_interfaces = self.load(self.path)
-            if ok:
-                return self.all_interfaces
-
+        all_interfaces = None
         hastag = lambda i, t: "tags" in t and t in i["tags"]
         hasrole = lambda i, r: "device_role" in i and "slug" in i["device_role"] and i["device_role"]["slug"] == r
 
-        all_interfaces = self.query(ctx, self.path)
+        if use_cache:
+            if self.all_interfaces is not None:
+                return self.all_interfaces
+            all_interfaces, _ = self.load(self.path)
+
+        if all_interfaces is None:
+            all_interfaces, _ = self.query(ctx, self.path)
+
         for interface in all_interfaces:
             interface["tags"] = [tag["slug"] for tag in interface["tags"]]
 

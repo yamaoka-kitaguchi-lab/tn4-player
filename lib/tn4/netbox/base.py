@@ -35,7 +35,7 @@ class ClientBase:
 
                 code = raw.status_code
                 if not 200 <= code < 300:
-                    return code, []  # early return
+                    return [], code  # early return
 
                 res = json.loads(raw.text)
                 responses += res["results"]
@@ -60,12 +60,12 @@ class ClientBase:
 
                 code = raw.status_code
                 if not 200 <= code < 300:
-                    return code, []  # early return
+                    return [], code  # early return
 
                 responses += json.loads(raw.text)
                 ptr += size
 
-        return code, responses
+        return responses, code
 
 
     @staticmethod
@@ -87,11 +87,10 @@ class ClientBase:
 
     def load(self, location):
         _, _, cache_path = self.lookup_cache_file(location)
-        responses = {}
+        responses, ok = None, True
         try:
             with open(cache_path) as fd:
                 responses = json.load(fd)
         except Exception as e:
-            return False, {}
-        else:
-            return True, responses
+            ok = False
+        return responses, ok
