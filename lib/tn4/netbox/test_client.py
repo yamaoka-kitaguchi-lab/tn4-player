@@ -4,10 +4,10 @@ import sys
 sys.path.append('lib')
 
 from tn4.netbox.base import Context
-from tn4.netbox.interfaces import Interfaces
+from tn4.netbox.client import Client
 
 
-class TestInterfaces(unittest.TestCase):
+class TestClient(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -15,15 +15,11 @@ class TestInterfaces(unittest.TestCase):
             "http://localhost:18000",                   # NetBox URL
             "0123456789abcdef0123456789abcdef01234567"  # NetBox API Token
         )
-        i = Interfaces()
-        cls.interfaces = i.fetch_interfaces(cls.ctx, use_cache=True)
-
-    def test_hoge(self):
-        pass
+        cli = Client()
+        cls.interfaces = cli.interfaces.fetch_interfaces(cls.ctx, use_cache=True)
 
 
 if __name__ == "__main__":
-    t = TestInterfaces()
+    t = TestClient()
     t.setUpClass()
-    #pprint(t.interfaces)
 
