@@ -17,11 +17,12 @@ class TestClient(unittest.TestCase):
         )
         cli = Client()
         cls.nbdata = {}
+        cls.nbdata |= cli.devices.fetch_all(cls.ctx, use_cache=True)
         cls.nbdata |= cli.vlans.fetch_all(cls.ctx, use_cache=True)
         cls.nbdata |= cli.addresses.fetch_all(cls.ctx, use_cache=True)
         cls.nbdata |= cli.interfaces.fetch_all(cls.ctx, use_cache=True)
 
-        pprint(cls.nbdata["interfaces"])
+        pprint(cls.nbdata["interfaces"].keys())
 
 
 if __name__ == "__main__":

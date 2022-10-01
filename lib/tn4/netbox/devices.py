@@ -7,10 +7,19 @@ class Devices(ClientBase):
 
     def __init__(self):
         super().__init__()
+        self.all_devices = None
 
 
-    def fetch_all(self, ctx):
-        all_devices = self.query(ctx, self.path)
+    def fetch_devices(self, ctx, use_cache=False):
+        all_devices = None
+
+        if use_cache:
+            if self.all_devices is not None:
+                return self.all_devices
+            all_devices, _ = self.load(self.path)
+
+        if all_devices is None:
+            all_devices, _ = self.query(ctx, self.path)
 
         for device in all_devices:
             device["tags"] = [tag["slug"] for tag in device["tags"]]
@@ -48,3 +57,10 @@ class Devices(ClientBase):
             self.all_devices[device["name"]] = device
 
         return self.all_devices
+
+
+    def fetch_all(self, ctx, use_cache=False):
+        return {
+            "devices": self.fetch_devices(ctx, use_cache=use_cache)
+        }
+
