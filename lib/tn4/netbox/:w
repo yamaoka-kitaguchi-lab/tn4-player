@@ -41,10 +41,6 @@ class Interfaces(ClientBase):
         return addr4, addr6
 
 
-    ## Return interface list as a dict obj
-    ##  - primary key:    device name (eg. minami3)
-    ##  - secondary key:  interface name (eg. ge-0/0/0)
-    ##  - value:          NetBox interface object
     def fetch_interfaces(self, ctx, use_cache=False):
         all_interfaces = None
         hastag = lambda i, t: "tags" in t and t in i["tags"]
@@ -86,7 +82,6 @@ class Interfaces(ClientBase):
                 "is_utp":           interface["type"]["value"] in self.allowed_types_ethernet_utp,
                 "is_physical":      interface["type"]["value"] in self.allowed_types_ethernet,
                 "is_enabled":       interface["enabled"] or is_upstream,
-                "is_phy_uplink":    False,  # updated in fetch_lag_members()
                 "lag_parent_name":  None,
             }
 
@@ -176,24 +171,15 @@ class Interfaces(ClientBase):
 
 
     ## Return LAG interface list as a dict obj
-    ##  - primary key:    device name (eg. minami3)
-    ##  - secondary key:  parent interface (eg. ae1)
-    ##  - value:          list of child interfaces (eg. [et-0/1/0, et-0/1/1])
+    ##  - key:   parent interface (eg. ae1)
+    ##  - value: list of child interfaces (eg. [et-0/1/0, et-0/1/1])
     def fetch_lag_members(self, ctx):
-        lag_members = {}
-
         if self.all_interfaces is None:
             self.fetch_interfaces()
 
-        for dev_name, interfaces in self.all_interfaces.items():
-            for interface in interfaces.values():
-                if not interface["is_lag_member"]:
-                    continue
-                p_name = interface["lag_parent_name"]
-                interface["is_phy_uplink"] = interfaces[p_name]["is_upstream"]
-            lag_members.setdefault(dev_name, {}).setdefault(p_name, []).append(interface["name"])
+        for interface in self.all_interfaces:
 
-        return lag_members
+
 
 
     def fetch_all(self, ctx, use_cache=False):
