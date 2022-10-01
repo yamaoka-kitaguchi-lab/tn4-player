@@ -21,6 +21,7 @@ class Interfaces(ClientBase):
 
     def __init__(self):
         super().__init__()
+        self.all_interfaces = None
 
 
     def lookup_vlan_name(self, vid, ctx):
@@ -44,12 +45,12 @@ class Interfaces(ClientBase):
     def fetch_all(self, ctx, use_cache=True):
         return {
             "interfaces":  self.fetch_interfaces(ctx, use_cache=use_cache),
-            "lag_members": self.fetch_lag_members(ctx, use_cache=use_cache),
+            "lag_members": self.fetch_lag_members(ctx, use_cache=use_cache),  # following fetch_interfaces()
         }
 
 
     def fetch_interfaces(self, ctx, use_cache=True):
-        if use_cache and self.all_interfaces:
+        if use_cache and self.all_interfaces is not None:
             return self.all_interfaces  # early return
 
         hastag = lambda i, t: "tags" in t and t in i["tags"]
@@ -168,9 +169,13 @@ class Interfaces(ClientBase):
         return self.all_interfaces
 
 
-    def fetch_lag_members(self, ctx, use_cache=use_cache):
-        if use_cache and self.all_lag_members:
-            return self.all_lag_members  # early return
+    ## Return LAG interface list as a dict obj
+    ##  - key:   parent interface (eg. ae1)
+    ##  - value: list of child interfaces (eg. [et-0/1/0, et-0/1/1])
+    def fetch_lag_members(self, ctx):
+        if self.all_interfaces is None:
+            self.fetch_interfaces()
+
 
 
 
