@@ -11,16 +11,19 @@ class TestInterfaces(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        self.ctx = Context(
+        cls.ctx = Context(
             "http://localhost:18000",                   # NetBox URL
             "0123456789abcdef0123456789abcdef01234567"  # NetBox API Token
         )
-        self.interfaces = Interfaces.fetch_interfaces(self.ctx)
+        i = Interfaces()
+        cls.interfaces = i.fetch_interfaces(cls.ctx)
 
-    def test_netbox_query(self):
-        pprint(self.interfaces)
+    def test_hoge(self):
+        pass
 
 
 if __name__ == "__main__":
-    unittest.main()
+    t = TestInterfaces()
+    t.setUpClass()
+    pprint(t.interfaces)
 

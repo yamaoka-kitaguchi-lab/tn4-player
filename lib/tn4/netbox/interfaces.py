@@ -56,7 +56,7 @@ class Interfaces(ClientBase):
         hastag = lambda i, t: "tags" in t and t in i["tags"]
         hasrole = lambda i, r: "device_role" in i and "slug" in i["device_role"] and i["device_role"]["slug"] == r
 
-        all_interfaces = self.query(self.path)
+        all_interfaces = self.query(ctx, self.path)
         for interface in all_interfaces:
             interface["tags"] = [tag["slug"] for tag in interface["tags"]]
 

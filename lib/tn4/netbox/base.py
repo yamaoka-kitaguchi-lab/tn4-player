@@ -28,11 +28,24 @@ class ClientBase:
             "Accept":        "application/json; indent=4"
         }
 
-        if data:
-            ## NOTE:
-            ## To avoid the overload of NetBox,
-            ## large volume editing operations must be split into multiple requests.
+        if data is None:
+            while url:
+                raw = requests.get(url, headers=headers, verify=True)
 
+                code = raw.status_code
+                if not 200 <= code < 300:
+                    return code, []  # early return
+
+                res = json.loads(raw.text)
+                responses += res["results"]
+
+                ## If the "next" field has a URL, the results are not yet aligned.
+                url = res["next"]
+
+        ## NOTE:
+        ## To avoid the overload of NetBox,
+        ## large volume editing operations must be split into multiple requests.
+        else:
             ptr, size = 0, 100  # size: widnow size of the request division
             while ptr < len(data):
                 d = data[ptr:ptr+size]
@@ -43,26 +56,11 @@ class ClientBase:
                     raw = requests.post(url, json.dumps(d), headers=headers, verify=True)
 
                 code = raw.status_code
-                if 200 <= code < 300:
-                    return code, []  # early return when the response is other than 200s code
+                if not 200 <= code < 300:
+                    return code, []  # early return
 
                 responses += json.loads(raw.text)
                 ptr += size
-
-        else:
-            while url:
-                raw = requests.get(url, headers=headers, verify=True)
-
-                ## Early return
-                code = raw.status_code
-                if 200 <= code < 300:
-                    return code, []
-
-                res = json.loads(raw.text)
-                responses += res["results"]
-
-                ## If the "next" field has a URL, the results are not yet aligned.
-                url = res["next"]
 
         return code, responses
 
