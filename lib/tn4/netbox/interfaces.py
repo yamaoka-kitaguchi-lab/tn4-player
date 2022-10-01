@@ -60,10 +60,6 @@ class Interfaces(ClientBase):
 
             dev_name = interface["device"]["name"]
             int_name = interface["name"]
-            #keys = ["device_role", "wifi_mgmt_vlanid", "wifi_vlanids", "hostname", "is_vc_member", "vc_chassis_number"]
-            #if dev_name in self.all_devices:
-            #    for k in keys:
-            #        interface[k] = self.all_devices[dev_name][k]
 
             is_upstream = hastag(interface, Slug.Tag.Upstream)
 
@@ -153,7 +149,7 @@ class Interfaces(ClientBase):
             ## for cisco edge
             packed_size = 20
             absent_vids = [vid for vid in range(1, 4094) if vid not in all_vids]
-            interface["absent_vids"] = [absent_vids[i:i+packed_size] for i in range(0, len(removed_vids), packed_size)]
+            interface["absent_vids"] = [absent_vids[i:i+packed_size] for i in range(0, len(absent_vids), packed_size)]
 
             addr4, addr6 = self.lookup_interface_address(interface["id"], ctx)
             interface |= {
