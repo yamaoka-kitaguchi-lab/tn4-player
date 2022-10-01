@@ -4,16 +4,33 @@ from tn4.netbox.base import ClientBase
 class Addresses(ClientBase):
     path = "/ipam/ip-addresses/"
 
-    def __init___(self):
-        super().__init___()
+    def __init__(self):
+        super().__init__()
+        self.all_addresses = None
 
 
-    def get_addresses(self, ctx):
-        all_addresses = self.query(ctx, path)
+    def fetch_addresses(self, ctx, use_cache=False):
+        all_addresses = None
+
+        if use_cache:
+            if self.all_addresses is not None:
+                return self.all_addresses
+            all_addresses, _ = self.load(self.path)
+
+        if all_addresses is None:
+            all_addresses, _ = self.query(ctx, self.path)
+
+        self.all_addresses = {}
         for address in all_addresses:
+            print(address)
             address["tags"] = [tag["slug"] for tag in address["tags"]]
 
         ctx.addresses = all_addresses
+        return self.all_addresses
 
-        return all_addresses
+
+    def fetch_all(self, ctx, use_cache=False):
+        return {
+            "addresses": self.fetch_addresses(ctx, use_cache=use_cache),
+        }
 

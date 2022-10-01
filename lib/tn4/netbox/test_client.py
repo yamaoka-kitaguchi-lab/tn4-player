@@ -16,7 +16,12 @@ class TestClient(unittest.TestCase):
             "0123456789abcdef0123456789abcdef01234567"  # NetBox API Token
         )
         cli = Client()
-        cls.interfaces = cli.interfaces.fetch_interfaces(cls.ctx, use_cache=True)
+        cls.nbdata = {}
+        cls.nbdata |= cli.vlans.fetch_all(cls.ctx, use_cache=True)
+        cls.nbdata |= cli.addresses.fetch_all(cls.ctx, use_cache=True)
+        #cls.nbdata |= cli.interfaces.fetch_interfaces(cls.ctx, use_cache=True)
+
+        pprint(cls.nbdata)
 
 
 if __name__ == "__main__":

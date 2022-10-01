@@ -55,6 +55,7 @@ class Interfaces(ClientBase):
         if all_interfaces is None:
             all_interfaces, _ = self.query(ctx, self.path)
 
+        self.all_interfaces = {}
         for interface in all_interfaces:
             interface["tags"] = [tag["slug"] for tag in interface["tags"]]
 
@@ -179,7 +180,7 @@ class Interfaces(ClientBase):
     def fetch_all(self, ctx, use_cache=False):
         return {
             "interfaces":  self.fetch_interfaces(ctx, use_cache=use_cache),
-            "lag_members": self.fetch_lag_members(ctx),  # following fetch_interfaces()
+            #"lag_members": self.fetch_lag_members(ctx),  # following fetch_interfaces()
         }
 
 
