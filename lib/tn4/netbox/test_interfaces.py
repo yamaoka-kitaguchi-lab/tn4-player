@@ -25,5 +25,5 @@ class TestInterfaces(unittest.TestCase):
 if __name__ == "__main__":
     t = TestInterfaces()
     t.setUpClass()
-    pprint(t.interfaces)
+    #pprint(t.interfaces)
 

@@ -1,3 +1,4 @@
+import os
 import json
 import requests
 
@@ -42,6 +43,8 @@ class ClientBase:
                 ## If the "next" field has a URL, the results are not yet aligned.
                 url = res["next"]
 
+            self.dumps(location, responses)
+
         ## NOTE:
         ## To avoid the overload of NetBox,
         ## large volume editing operations must be split into multiple requests.
@@ -63,4 +66,16 @@ class ClientBase:
                 ptr += size
 
         return code, responses
+
+
+    def dumps(self, location, responses):
+        if len(responses) == 0: return  # early return
+
+        ## If the response is from /dcim/interfaces/ then it is be exported as dcim-interfaces.cache
+        cache_name = "-".join([i for i in location.split("/") if i != ""]) + ".cache"
+        cache_dir = os.path.expanduser("~") + "/.cache/tn4-player"
+
+        os.makedirs(cache_dir, exist_ok=True)
+        with open(cache_dir + "/" + cache_name, "w") as fd:
+            json.dump(responses, fd, indent=4, sort_keys=True, ensure_ascii=False)
 

@@ -42,14 +42,14 @@ class Interfaces(ClientBase):
         return addr4, addr6
 
 
-    def fetch_all(self, ctx, use_cache=True):
+    def fetch_all(self, ctx, use_cache=False):
         return {
             "interfaces":  self.fetch_interfaces(ctx, use_cache=use_cache),
-            "lag_members": self.fetch_lag_members(ctx, use_cache=use_cache),  # following fetch_interfaces()
+            "lag_members": self.fetch_lag_members(ctx),  # following fetch_interfaces()
         }
 
 
-    def fetch_interfaces(self, ctx, use_cache=True):
+    def fetch_interfaces(self, ctx, use_cache=False):
         if use_cache and self.all_interfaces is not None:
             return self.all_interfaces  # early return
 
