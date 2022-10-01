@@ -43,7 +43,7 @@ class ClientBase:
                 ## If the "next" field has a URL, the results are not yet aligned.
                 url = res["next"]
 
-            self.dumps(location, responses)
+            self.dump(location, responses)
 
         ## NOTE:
         ## To avoid the overload of NetBox,
@@ -68,14 +68,29 @@ class ClientBase:
         return code, responses
 
 
-    def dumps(self, location, responses):
-        if len(responses) == 0: return  # early return
-
+    @staticmethod
+    def lookup_cache_file(location):
         ## If the response is from /dcim/interfaces/ then it is be exported as dcim-interfaces.cache
         cache_name = "-".join([i for i in location.split("/") if i != ""]) + ".cache"
         cache_dir = os.path.expanduser("~") + "/.cache/tn4-player"
+        return cache_name, cache_dir, cache_dir + "/" + cache_name
 
+
+    def dump(self, location, responses):
+        if len(responses) == 0: return  # early return
+
+        _, cache_dir, cache_path = self.lookup_cache_file(location)
         os.makedirs(cache_dir, exist_ok=True)
-        with open(cache_dir + "/" + cache_name, "w") as fd:
+        with open(cache_path, "w") as fd:
             json.dump(responses, fd, indent=4, sort_keys=True, ensure_ascii=False)
 
+
+    def load(self, location):
+        _, _, cache_path = self.lookup_cache_file(location)
+        with open(cache_path) as fd:
+            try:
+                json.load(fd)
+            except Exception as e:
+                return False, {}
+            else:
+                return True, {}
