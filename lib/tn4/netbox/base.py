@@ -12,7 +12,7 @@ class Context:
     interfaces = None
 
     def __init__(self, netbox_url, token):
-        self.endpoint = self.netbox_url.rstrip("/") + "/api"
+        self.endpoint = netbox_url.rstrip("/") + "/api"
         self.token = token
 
 

@@ -1,7 +1,7 @@
 from pprint import pprint
 import unittest
 import sys
-sys.path.append('./lib')
+sys.path.append('lib')
 
 from tn4.netbox.base import Context
 from tn4.netbox.interfaces import Interfaces
