@@ -28,7 +28,7 @@ class Sites(ClientBase):
         return self.all_sites
 
 
-    def fetch_all(self, ctx, use_cache=False):
+    def fetch_as_inventory(self, ctx, use_cache=False):
         return {
             "sites": self.fetch_sites(ctx, use_cache=use_cache)
         }

@@ -42,7 +42,7 @@ class Interfaces(ClientBase):
 
 
     ## Return interface list as a dict obj
-    ##  - primary key:    device name (eg. minami3)
+    ##  - primary key:    hostname, not device name (eg. 'minami3', not 'minami3 (1)')
     ##  - secondary key:  interface name (eg. ge-0/0/0)
     ##  - value:          NetBox interface object
     def fetch_interfaces(self, ctx, use_cache=False):
@@ -176,7 +176,7 @@ class Interfaces(ClientBase):
 
 
     ## Return LAG interface list as a dict obj
-    ##  - primary key:    device name (eg. minami3)
+    ##  - primary key:    hostname, not device name (eg. minami3)
     ##  - secondary key:  parent interface (eg. ae1)
     ##  - value:          list of child interfaces (eg. [et-0/1/0, et-0/1/1])
     def fetch_lag_members(self, ctx):
@@ -185,7 +185,7 @@ class Interfaces(ClientBase):
         if self.all_interfaces is None:
             self.fetch_interfaces()
 
-        for dev_name, interfaces in self.all_interfaces.items():
+        for hostname, interfaces in self.all_interfaces.items():
             for interface in interfaces.values():
                 if not interface["is_lag_member"]:
                     continue
@@ -196,15 +196,40 @@ class Interfaces(ClientBase):
                 interface["is_protected"] = interfaces[p_name]["is_protected"] = is_protected  # Sync all children with their parent
                 interface["is_phy_uplink"] = interfaces[p_name]["is_upstream"]
 
-                lag_members.setdefault(dev_name, {}).setdefault(p_name, []).append(interface["name"])
+                lag_members.setdefault(hostname, {}).setdefault(p_name, []).append(interface["name"])
 
         return lag_members
 
 
+    ## Return VLAN list as a dict obj
+    ##  - key:   hostname, not device name (eg. minami3)
+    ##  - value: list of vid (1..4094)
+    def fetch_vlans(self, ctx):
+        vlans = {}
+
+        if self.all_interfaces is None:
+            self.fetch_interfaces()
+
+        for hostname, interfaces in self.all_interfaces.items():
+            v = []
+            for interface in interfaces.values():
+                v.extend(interface["all_vlanids"])
+            vlans[hostname] = list(set(v))
+
+
+
     def fetch_as_inventory(self, ctx, use_cache=False):
+        interfaces = self.fetch_interfaces(ctx, use_cache=use_cache)
+        lag_members = self.fetch_lag_members(ctx)  # following fetch_interfaces()
+
         return {
-            "interfaces":  self.fetch_interfaces(ctx, use_cache=use_cache),
-            "lag_members": self.fetch_lag_members(ctx),  # following fetch_interfaces()
+            hostname: {
+                "interfaces":     interfaces[hostname],   # key: interface name, value: interface object
+                "lag_members":    lag_members[hostname],  # key: parent name, value: list of members' name
+                "vlans":          vlans[hostname],        #
+                "wifi_mgmt_vlan": vlans[hostname],        #
+            }
+            for hostname in interfaces.keys()
         }
 
 
