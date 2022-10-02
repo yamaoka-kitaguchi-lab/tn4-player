@@ -63,7 +63,7 @@ class Interfaces(ClientBase):
             interface["tags"] = [tag["slug"] for tag in interface["tags"]]
 
             dev_name = interface["device"]["name"]
-            dev_hostname = ctx.devices[dev_name]["hostname"]
+            hostname = ctx.devices[dev_name]["hostname"]
             inf_name = interface["name"]
 
             is_upstream = hastag(interface, Slug.Tag.Upstream)
@@ -169,7 +169,7 @@ class Interfaces(ClientBase):
                 "addresses6": addr6,
             }
 
-            self.all_interfaces.setdefault(dev_hostname, {})[inf_name] = interface
+            self.all_interfaces.setdefault(hostname, {})[inf_name] = interface
 
         ctx.interfaces = self.all_interfaces
         return self.all_interfaces
