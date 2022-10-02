@@ -283,8 +283,8 @@ class Interfaces(ClientBase):
             all_used_vlanids[hostname] = list(set(v))
 
         for hostname, used_vlanids in all_used_vlanids.items():
-            region = regions["region"]
-            role = roles["role"]
+            region = regions[hostname]
+            role = roles[hostname]
 
             for vlanid, vlan in ctx.vlans.items():
                 is_in_use = vlanid in used_vlanids
