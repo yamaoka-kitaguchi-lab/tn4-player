@@ -249,18 +249,16 @@ class Interfaces(ClientBase):
         mgmt_vlans = {}
 
         mgmt_vlan_tags = {
-            Slug.Region.Ookayama: {
-                Slug.Role.CoreSW: Slug.Tag.MgmtVlanCoreOokayama,
-                Slug.Role.EdgeSW: Slug.Tag.MgmtVlanEdgeOokayama,
+            Slug.Role.CoreSW: {
+                Slug.Region.Ookayama: Slug.Tag.MgmtVlanCoreOokayama,
+                Slug.Region.Suzukake: Slug.Tag.MgmtVlanCoreSuzukake,
+                Slug.Region.Tamachi:  Slug.Tag.MgmtVlanCoreTamachi,
             },
-            Slug.Region.Suzukake: {
-                Slug.Role.CoreSW: Slug.Tag.MgmtVlanCoreSuzukake,
-                Slug.Role.EdgeSW: Slug.Tag.MgmtVlanEdgeSuzukake,
+            Slug.Role.EdgeSW: {
+                Slug.Region.Ookayama: Slug.Tag.MgmtVlanEdgeOokayama,
+                Slug.Region.Suzukake: Slug.Tag.MgmtVlanEdgeSuzukake,
+                Slug.Region.Tamachi:  Slug.Tag.MgmtVlanEdgeTamachi,
             },
-            Slug.Region.Tamachi: {
-                Slug.Role.CoreSW: Slug.Tag.MgmtVlanCoreOokayama,
-                Slug.Role.EdgeSW: Slug.Tag.MgmtVlanEdgeOokayama,
-            }
         }
 
         if self.all_interfaces is None:
@@ -294,7 +292,7 @@ class Interfaces(ClientBase):
                     "is_in_use":    is_in_use,
                 }
 
-                if role in mgmt_vlan_tags.keys() and mgmt_vlan_tags[region][role] in vlan["tags"]:
+                if role in mgmt_vlan_tags.keys() and mgmt_vlan_tags[role][region] in vlan["tags"]:
                     mgmt_vlans[hostname] = vlan
 
                 if is_in_use:
