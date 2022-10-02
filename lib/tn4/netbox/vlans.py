@@ -29,7 +29,7 @@ class Vlans(ClientBase):
         for vlan in all_vlans:
             vlan["tags"] = [tag["slug"] for tag in vlan["tags"]]
             vlan["is_protected"] = Slug.Tag.Protect in vlan["tags"]
-            self.all_vlans.setdefault(groupid, {})[vlan["id"]] = vlan
+            self.all_vlans[vlan["id"]] = vlan
 
         ctx.vlans = self.all_vlans
         return self.all_vlans

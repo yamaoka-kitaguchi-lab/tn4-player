@@ -42,20 +42,22 @@ class Devices(ClientBase):
                 else:
                     device["wifi_area_group"] = "S"
 
-            mgmt_ip = device["primary_ip"]["address"]
+            mgmt_ip = device["primary_ip"]
             if mgmt_ip is not None:
-                mgmt_ip = mgmt_ip.split("/")[0]
+                mgmt_ip = mgmt_ip["address"].split("/")[0]
 
             device |= {
                 "hostname":          device["name"],
                 "region":            ctx.sites[device["site"]["slug"]]["region"]["slug"],
+                "role":              device["device_role"]["slug"],
                 "is_test_device":    Slug.Tag.Test in device["tags"],
+                "mgmt_ip":           mgmt_ip,
                 "is_vc_member":      False,
                 "vc_chassis_number": 0,
             }
 
             ## For stacked edge SWs
-            if device["device_role"]["slug"] == Slug.Role.EdgeSW:
+            if device["role"] == Slug.Role.EdgeSW:
                 r = re.match("([\w|-]+) \((\d+)\)", device["name"])  # hostname regex pattern
                 if r is not None:
                     device |= {
@@ -74,7 +76,7 @@ class Devices(ClientBase):
         devices = self.fetch_devices(ctx, use_cache=use_cache)
         return {
             "_hostnames": devices.keys(),
-            "_roles":     [ d["device_role"] for d in devices.values() ],
+            "_roles":     [ d["role"] for d in devices.values() ],
             **{
                 hostname: {
                     "manufacturer":    device["device_type"]["manufacturer"]["slug"],  # manufacturer slug

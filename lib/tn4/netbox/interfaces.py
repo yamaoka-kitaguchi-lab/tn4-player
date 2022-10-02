@@ -82,7 +82,7 @@ class Interfaces(ClientBase):
     def fetch_interfaces(self, ctx, use_cache=False):
         all_interfaces = None
         hastag = lambda i, t: "tags" in t and t in i["tags"]
-        hasrole = lambda i, r: "device_role" in i and "slug" in i["device_role"] and i["device_role"]["slug"] == r
+        hasrole = lambda i, r: ctx.devices[i["device"]["name"]]["role"] == r
 
         if use_cache:
             if self.all_interfaces is not None:
@@ -123,6 +123,8 @@ class Interfaces(ClientBase):
                 "is_enabled":       interface["enabled"] or is_upstream,
                 "is_phy_uplink":    False,  # updated in fetch_lag_members()
                 "lag_parent_name":  None,
+                "role":             ctx.devices[interface["device"]["name"]]["role"],
+                "region":           ctx.devices[interface["device"]["name"]]["region"],
             }
 
             if interface["is_lag_member"]:
@@ -241,6 +243,8 @@ class Interfaces(ClientBase):
     ##  - value: list of vlan object
     def fetch_vlans(self, ctx):
         all_used_vlanids = {}
+        regions = {}
+        roles = {}
         used_vlans = {}
         mgmt_vlans = {}
 
@@ -267,18 +271,23 @@ class Interfaces(ClientBase):
 
             for interface in interfaces.values():
                 v.extend(interface["all_vlanids"])
+
                 if interface["is_irb"]:
-                    irb_vids.append(v["vid"])
+                    irb_vids.extend(interface["all_vids"])
                 if interface["is_rspan"]:
-                    rspan_vids.append(v["vid"])
+                    rspan_vids.extend(interface["all_vids"])
+
+                regions[hostname] = interface["region"]
+                roles[hostname] = interface["role"]
+
             all_used_vlanids[hostname] = list(set(v))
 
         for hostname, used_vlanids in all_used_vlanids.items():
-            region = ctx.devices[hostname]["region"]["slug"]
-            role = ctx.devices[hostname]["device_role"]["slug"]
+            region = regions["region"]
+            role = roles["role"]
 
             for vlanid, vlan in ctx.vlans.items():
-                is_in_use = not vlanid in used_vlanids:
+                is_in_use = vlanid in used_vlanids
                 vlan |= {
                     "is_for_irb":   vlan["vid"] in irb_vids,
                     "is_for_rspan": vlan["vid"] in rspan_vids,
