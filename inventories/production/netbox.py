@@ -3,6 +3,7 @@
 from argparse import ArgumentParser
 import os
 import sys
+import json
 
 CURDIR              = os.path.dirname(__file__)
 LIBRARY_PATH        = os.path.join(CURDIR, "../../lib")
@@ -22,45 +23,44 @@ def timestamp():
 
 
 def dynamic_inventory(use_cache=False):
-    #ts = timestamp()
-    #secrets = load_encrypted_secrets(VAULT_FILE, VAULT_PASSWORD_FILE)
-    #ctx = Context(endpoint=secrets["netbox_url"], token=secrets["netbox_api_token"])
-    #cli = Client()
-    #nbdata = cli.fetch_all(ctx, use_cache=use_cache)
+    ts = timestamp()
+    secrets = load_encrypted_secrets(VAULT_FILE, VAULT_PASSWORD_FILE)
+    ctx = Context(endpoint=secrets["netbox_url"], token=secrets["netbox_api_token"])
+    cli = Client()
+    nbdata = cli.fetch_all(ctx, use_cache=use_cache)
 
-    #inventory = {
-    #    **{
-    #        role: {
-    #            "hosts": [ h for h in nbdata["_hostnames"] if nbdata[h]["role"] == role ]
-    #        }
-    #        for role in nbdata["_roles"]
-    #    },
-    #    "_meta": {
-    #        "hostvars": {
-    #            hostname: {
-    #                "hostname":       hostname,
-    #                "region":         nbdata[hostname]["region"],
-    #                "manufacturer":   nbdata[hostname]["manufacturer"],
-    #                "interfaces":     nbdata[hostname]["interfaces"],
-    #                "lag_members":    nbdata[hostname]["lag_members"],
-    #                "vlans":          nbdata[hostname]["vlans"],
-    #                "mgmt_vlan":      nbdata[hostname]["mgmt_vlan"],
-    #                "is_test_device": nbdata[hostname]["is_test_device"],
-    #                "ansible_host":   nbdata[hostname]["mgmt_ip_address"],
-    #                "datetime":       ts,
-    #            }
-    #            for hostname in nbdata["_hostnames"]
-    #        }
-    #    }
-    #}
+    inventory = {
+        **{
+            role: {
+                "hosts": [ h for h in nbdata["_hostnames"] if nbdata[h]["role"] == role ]
+            }
+            for role in nbdata["_roles"]
+        },
+        "_meta": {
+            "hostvars": {
+                hostname: {
+                    "hostname":       hostname,
+                    "region":         nbdata[hostname]["region"],
+                    "manufacturer":   nbdata[hostname]["manufacturer"],
+                    "interfaces":     nbdata[hostname]["interfaces"],
+                    "lag_members":    nbdata[hostname]["lag_members"],
+                    "vlans":          nbdata[hostname]["vlans"],
+                    "mgmt_vlan":      nbdata[hostname]["mgmt_vlan"],
+                    "is_test_device": nbdata[hostname]["is_test_device"],
+                    "ansible_host":   nbdata[hostname]["mgmt_ip_address"],
+                    "datetime":       ts,
+                }
+                for hostname in nbdata["_hostnames"]
+            }
+        }
+    }
 
-    #return inventory
-    return {}
+    return inventory
 
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Ansible - Dynamic Inventory Script")
-    parser.add_argument("--use-cache", "Use NB cache if $HOME/.cache/tn4-player/*.cache avaibale")
+    parser.add_argument("--use-cache", action="store_true", help="Use NB cache if $HOME/.cache/tn4-player/*.cache avaibale")
     args = parser.parse_args()
 
     inventory = dynamic_inventory(use_cache=args.use_cache)
