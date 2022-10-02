@@ -1,7 +1,7 @@
+import re
+
 from tn4.netbox.base import ClientBase
 from tn4.netbox.slug import Slug
-
-import re
 
 
 class Devices(ClientBase):
@@ -50,6 +50,7 @@ class Devices(ClientBase):
                 "hostname":          device["name"],
                 "region":            ctx.sites[device["site"]["slug"]]["region"]["slug"],
                 "role":              device["device_role"]["slug"],
+                "is_ansible_target": Slug.Tag.Ansible in device["tags"],
                 "is_test_device":    Slug.Tag.Test in device["tags"],
                 "mgmt_ip":           mgmt_ip,
                 "is_vc_member":      False,
@@ -84,7 +85,7 @@ class Devices(ClientBase):
                     "is_test_device":  device["is_test_device"],                       # whethre or not having 'Test' tag
                     "mgmt_ip_address": device["mgmt_ip"],                              # device ip address without mask, or 'None'
                 }
-                for hostname, device in devices.items()
+                for hostname, device in devices.items() if device["is_ansible_target"]
             }
         }
 

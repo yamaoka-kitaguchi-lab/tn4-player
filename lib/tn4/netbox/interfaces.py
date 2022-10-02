@@ -102,29 +102,30 @@ class Interfaces(ClientBase):
             is_upstream = hastag(interface, Slug.Tag.Upstream)
 
             interface |= {
-                "is_10mbps":        interface["speed"] == 10 * 1000,
-                "is_100mbps":       interface["speed"] == 100 * 1000,
-                "is_1gbps":         interface["speed"] == 1000 * 1000,
-                "is_10gbps":        interface["speed"] == 10000 * 1000,
-                "is_bpdu_filtered": hastag(interface, Slug.Tag.BPDUFilter),
-                "is_deploy_target": interface["type"]["value"] in self.allowed_types,
-                "is_lag_member":    interface["lag"] is not None,
-                "is_lag_parent":    interface["type"]["value"] == "lag",
-                "is_poe":           hastag(interface, Slug.Tag.PoE),
-                "is_protected":     hastag(interface, Slug.Tag.Protect),
-                "is_to_ap":         hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.Wifi),
-                "is_to_core":       hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.EdgeUpstream),
-                "is_to_edge":       hasrole(interface, Slug.Role.CoreSW) and hastag(interface, Slug.Tag.CoreDownstream),
-                "is_upstream":      is_upstream,
-                "is_utp":           interface["type"]["value"] in self.allowed_types_ethernet_utp,
-                "is_physical":      interface["type"]["value"] in self.allowed_types_ethernet,
-                "is_irb":           interface["name"][:4] == "irb.",
-                "is_rspan":         interface["name"] == "rspan",
-                "is_enabled":       interface["enabled"] or is_upstream,
-                "is_phy_uplink":    False,  # updated in fetch_lag_members()
-                "lag_parent_name":  None,
-                "role":             ctx.devices[interface["device"]["name"]]["role"],
-                "region":           ctx.devices[interface["device"]["name"]]["region"],
+                "is_ansible_target": ctx.devices[dev_name]["is_ansible_target"],
+                "is_10mbps":         interface["speed"] == 10 * 1000,
+                "is_100mbps":        interface["speed"] == 100 * 1000,
+                "is_1gbps":          interface["speed"] == 1000 * 1000,
+                "is_10gbps":         interface["speed"] == 10000 * 1000,
+                "is_bpdu_filtered":  hastag(interface, Slug.Tag.BPDUFilter),
+                "is_deploy_target":  interface["type"]["value"] in self.allowed_types,
+                "is_lag_member":     interface["lag"] is not None,
+                "is_lag_parent":     interface["type"]["value"] == "lag",
+                "is_poe":            hastag(interface, Slug.Tag.PoE),
+                "is_protected":      hastag(interface, Slug.Tag.Protect),
+                "is_to_ap":          hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.Wifi),
+                "is_to_core":        hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.EdgeUpstream),
+                "is_to_edge":        hasrole(interface, Slug.Role.CoreSW) and hastag(interface, Slug.Tag.CoreDownstream),
+                "is_upstream":       is_upstream,
+                "is_utp":            interface["type"]["value"] in self.allowed_types_ethernet_utp,
+                "is_physical":       interface["type"]["value"] in self.allowed_types_ethernet,
+                "is_irb":            interface["name"][:4] == "irb.",
+                "is_rspan":          interface["name"] == "rspan",
+                "is_enabled":        interface["enabled"] or is_upstream,
+                "is_phy_uplink":     False,  # updated in fetch_lag_members()
+                "lag_parent_name":   None,
+                "role":              ctx.devices[interface["device"]["name"]]["role"],
+                "region":            ctx.devices[interface["device"]["name"]]["region"],
             }
 
             if interface["is_lag_member"]:
@@ -251,13 +252,13 @@ class Interfaces(ClientBase):
         mgmt_vlan_tags = {
             Slug.Role.CoreSW: {
                 Slug.Region.Ookayama: Slug.Tag.MgmtVlanCoreOokayama,
+                Slug.Region.Tamachi:  Slug.Tag.MgmtVlanCoreOokayama,
                 Slug.Region.Suzukake: Slug.Tag.MgmtVlanCoreSuzukake,
-                Slug.Region.Tamachi:  Slug.Tag.MgmtVlanCoreTamachi,
             },
             Slug.Role.EdgeSW: {
                 Slug.Region.Ookayama: Slug.Tag.MgmtVlanEdgeOokayama,
+                Slug.Region.Tamachi:  Slug.Tag.MgmtVlanEdgeOokayama,
                 Slug.Region.Suzukake: Slug.Tag.MgmtVlanEdgeSuzukake,
-                Slug.Region.Tamachi:  Slug.Tag.MgmtVlanEdgeTamachi,
             },
         }
 
@@ -286,13 +287,16 @@ class Interfaces(ClientBase):
 
             for vlanid, vlan in ctx.vlans.items():
                 is_in_use = vlanid in used_vlanids
+                is_switch = role in mgmt_vlan_tags.keys()
+                is_for_mgmt = is_switch and mgmt_vlan_tags[role][region] in vlan["tags"]
+
                 vlan |= {
                     "is_for_irb":   vlan["vid"] in irb_vids,
                     "is_for_rspan": vlan["vid"] in rspan_vids,
                     "is_in_use":    is_in_use,
                 }
 
-                if role in mgmt_vlan_tags.keys() and mgmt_vlan_tags[role][region] in vlan["tags"]:
+                if is_for_mgmt:
                     mgmt_vlans[hostname] = vlan
 
                 if is_in_use:
@@ -308,10 +312,10 @@ class Interfaces(ClientBase):
 
         return {
             hostname: {
-                "interfaces":     interfaces[hostname],   # key: interface name, value: interface object
-                "lag_members":    lag_members[hostname],  # key: parent name, value: list of members' name
-                "vlans":          used_vlans[hostname],   # list of extended VLAN object
-                "mgmt_vlans":     mgmt_vlans[hostname],   # a VLAN object
+                "interfaces":  interfaces[hostname],   # key: interface name, value: interface object
+                "lag_members": lag_members[hostname],  # key: parent name, value: list of members' name
+                "vlans":       used_vlans[hostname],   # list of extended VLAN object
+                "mgmt_vlans":  mgmt_vlans[hostname],   # a VLAN object
             }
             for hostname in interfaces.keys()
         }
