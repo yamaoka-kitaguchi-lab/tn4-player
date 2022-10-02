@@ -310,6 +310,11 @@ class Interfaces(ClientBase):
         lag_members = self.fetch_lag_members(ctx)  # following fetch_interfaces()
         used_vlans, mgmt_vlans = self.fetch_vlans(ctx)
 
+        ansible_targets = []
+        for device in ctx.devices.values():
+            if device["is_ansible_target"]:
+                ansible_targets.append(device["hostname"])
+
         return {
             hostname: {
                 "interfaces":  interfaces[hostname],   # key: interface name, value: interface object
@@ -317,6 +322,6 @@ class Interfaces(ClientBase):
                 "vlans":       used_vlans[hostname],   # list of extended VLAN object
                 "mgmt_vlans":  mgmt_vlans[hostname],   # a VLAN object
             }
-            for hostname in interfaces.keys()
+            for hostname in interfaces.keys() if hostname in ansible_targets
         }
 
