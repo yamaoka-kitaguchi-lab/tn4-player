@@ -36,11 +36,11 @@ class Devices(ClientBase):
             if dev_site in ctx.sites:
                 dev_sitegp = ctx.sites[dev_site]["group"]["slug"]
                 if dev_sitegp in wifi_o1_area:
-                    device["wifi_group"] = "O1"
+                    device["wifi_area_group"] = "O1"
                 elif dev_sitegp in wifi_o2_area:
-                    device["wifi_group"] = "O2"
+                    device["wifi_area_group"] = "O2"
                 else:
-                    device["wifi_group"] = "S"
+                    device["wifi_area_group"] = "S"
 
             mgmt_ip = device["primary_ip"]["address"]
             if mgmt_ip is not None:

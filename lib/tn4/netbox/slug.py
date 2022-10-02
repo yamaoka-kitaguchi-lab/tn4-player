@@ -3,6 +3,11 @@ class Slug:
         CoreSW = "core_sw"
         EdgeSW = "edge_sw"
 
+    class Region:
+        Ookayama = "ookayama"
+        Suzukake = "suzukake"
+        Tamachi  = "tamachi"
+
     class SiteGroup:
         Ishikawadai    = "ishikawadai"
         Midorigaoka    = "midorigaoka"

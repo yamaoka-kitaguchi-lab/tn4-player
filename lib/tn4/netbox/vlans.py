@@ -53,7 +53,5 @@ class Vlans(ClientBase):
 
 
     def fetch_as_inventory(self, ctx, use_cache=False):
-        return {
-            "vlans": self.fetch_titech_vlans(ctx, use_cache=use_cache)
-        }
+        self.fetch_titech_vlans(ctx, use_cache=use_cache)
 

@@ -208,6 +208,22 @@ class Interfaces(ClientBase):
     def fetch_vlans(self, ctx):
         all_used_vlanids = {}
         used_vlans = {}
+        mgmt_vlans = {}
+
+        mgmt_vlan_tags = {
+            Slug.Region.Ookayama: {
+                Slug.Role.CoreSW: Slug.Tag.MgmtVlanCoreOokayama,
+                Slug.Role.EdgeSW: Slug.Tag.MgmtVlanEdgeOokayama,
+            },
+            Slug.Region.Suzukake: {
+                Slug.Role.CoreSW: Slug.Tag.MgmtVlanCoreSuzukake,
+                Slug.Role.EdgeSW: Slug.Tag.MgmtVlanEdgeSuzukake,
+            },
+            Slug.Region.Tamachi: {
+                Slug.Role.CoreSW: Slug.Tag.MgmtVlanCoreOokayama,
+                Slug.Role.EdgeSW: Slug.Tag.MgmtVlanEdgeOokayama,
+            }
+        }
 
         if self.all_interfaces is None:
             self.fetch_interfaces()
@@ -224,29 +240,37 @@ class Interfaces(ClientBase):
             all_used_vlanids[hostname] = list(set(v))
 
         for hostname, used_vlanids in all_used_vlanids.items():
+            region = ctx.devices[hostname]["region"]["slug"]
+            role = ctx.devices[hostname]["device_role"]["slug"]
+
             for vlanid, vlan in ctx.vlans.items():
-                if not vlanid in used_vlanids:
-                    continue
+                is_in_use = not vlanid in used_vlanids:
                 vlan |= {
                     "is_for_irb":   vlan["vid"] in irb_vids,
                     "is_for_rspan": vlan["vid"] in rspan_vids,
                     "is_in_use":    is_in_use,
                 }
-                used_vlans.setdefault(hostname, []).append(vlan)
 
-        return used_vlans
+                if mgmt_vlan_tags[region][role] in vlan["tags"]:
+                    used_vlans[hostname] = vlan
+
+                if is_in_use:
+                    used_vlans.setdefault(hostname, []).append(vlan)
+
+        return used_vlans, mgmt_vlans
 
 
     def fetch_as_inventory(self, ctx, use_cache=False):
         interfaces = self.fetch_interfaces(ctx, use_cache=use_cache)
         lag_members = self.fetch_lag_members(ctx)  # following fetch_interfaces()
+        used_vlans, mgmt_vlans = self.fetch_vlans(ctx)
 
         return {
             hostname: {
                 "interfaces":     interfaces[hostname],   # key: interface name, value: interface object
                 "lag_members":    lag_members[hostname],  # key: parent name, value: list of members' name
-                "vlans":          vlans[hostname],        #
-                "wifi_mgmt_vlan": vlans[hostname],        #
+                "vlans":          vlans[hostname],        # list of extended VLAN object
+                "mgmt_vlans":     mgmt_vlans[hostname],   # a VLAN object
             }
             for hostname in interfaces.keys()
         }
