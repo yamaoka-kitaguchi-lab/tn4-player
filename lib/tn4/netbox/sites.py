@@ -29,7 +29,5 @@ class Sites(ClientBase):
 
 
     def fetch_as_inventory(self, ctx, use_cache=False):
-        return {
-            "sites": self.fetch_sites(ctx, use_cache=use_cache)
-        }
+        self.fetch_sites(ctx, use_cache=use_cache)
 
