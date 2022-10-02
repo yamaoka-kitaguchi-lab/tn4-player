@@ -60,7 +60,7 @@ def dynamic_inventory(use_cache=False):
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Ansible - Dynamic Inventory Script")
-    parser.add_argument("--use-cache", action="store_true", help="Use NB cache if $HOME/.cache/tn4-player/*.cache avaibale")
+    parser.add_argument("--use-cache", action="store_true", help="Use NetBox cache if $HOME/.cache/tn4-player/*.cache available")
     args = parser.parse_args()
 
     inventory = dynamic_inventory(use_cache=args.use_cache)
