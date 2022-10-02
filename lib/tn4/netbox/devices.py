@@ -42,8 +42,14 @@ class Devices(ClientBase):
                 else:
                     device["wifi_group"] = "S"
 
+            mgmt_ip = device["primary_ip"]["address"]
+            if mgmt_ip is not None:
+                mgmt_ip = mgmt_ip.split("/")[0]
+
             device |= {
                 "hostname":          device["name"],
+                "region":            ctx.sites[device["site"]["slug"]]["region"]["slug"],
+                "is_test_device":    Slug.Tag.Test in device["tags"],
                 "is_vc_member":      False,
                 "vc_chassis_number": 0,
             }
@@ -64,8 +70,19 @@ class Devices(ClientBase):
         return self.all_devices
 
 
-    def fetch_all(self, ctx, use_cache=False):
+    def fetch_as_inventory(self, ctx, use_cache=False):
+        devices = self.fetch_devices(ctx, use_cache=use_cache)
         return {
-            "devices": self.fetch_devices(ctx, use_cache=use_cache)
+            "_hostnames": devices.keys(),
+            "_roles":     [ d["device_role"] for d in devices.values() ],
+            **{
+                hostname: {
+                    "manufacturer":    device["device_type"]["manufacturer"]["slug"],  # manufacturer slug
+                    "region":          device["region"],                               # region slug
+                    "is_test_device":  device["is_test_device"],                       # whethre or not having 'Test' tag
+                    "mgmt_ip_address": device["mgmt_ip"],                              # device ip address without mask, or 'None'
+                }
+                for hostname, device in devices.items()
+            }
         }
 

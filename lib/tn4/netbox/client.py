@@ -14,12 +14,12 @@ class Client:
         self.interfaces = Interfaces()
 
 
-    def fetch(self, ctx, use_cache=False):
+    def fetch_as_inventory(self, ctx, use_cache=False):
         nbdata = {}
-        nbdata |= self.sites.fetch_all(ctx, use_cache=use_cache)
-        nbdata |= self.vlans.fetch_all(ctx, use_cache=use_cache)
-        nbdata |= self.addresses.fetch_all(ctx, use_cache=use_cache)
-        nbdata |= self.devices.fetch_all(ctx, use_cache=use_cache)     # depending on sites
-        nbdata |= self.interfaces.fetch_all(ctx, use_cache=use_cache)  # depending on devices, vlans, and addresses
+        nbdata |= self.sites.fetch_as_inventory(ctx, use_cache=use_cache)
+        nbdata |= self.vlans.fetch_as_inventory(ctx, use_cache=use_cache)
+        nbdata |= self.addresses.fetch_as_inventory(ctx, use_cache=use_cache)
+        nbdata |= self.devices.fetch_as_inventory(ctx, use_cache=use_cache)     # depending on sites
+        nbdata |= self.interfaces.fetch_as_inventory(ctx, use_cache=use_cache)  # depending on devices, vlans, and addresses
 
         return nbdata

@@ -201,7 +201,7 @@ class Interfaces(ClientBase):
         return lag_members
 
 
-    def fetch_all(self, ctx, use_cache=False):
+    def fetch_as_inventory(self, ctx, use_cache=False):
         return {
             "interfaces":  self.fetch_interfaces(ctx, use_cache=use_cache),
             "lag_members": self.fetch_lag_members(ctx),  # following fetch_interfaces()

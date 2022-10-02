@@ -29,7 +29,7 @@ class Addresses(ClientBase):
         return self.all_addresses
 
 
-    def fetch_all(self, ctx, use_cache=False):
+    def fetch_as_inventory(self, ctx, use_cache=False):
         return {
             "addresses": self.fetch_addresses(ctx, use_cache=use_cache),
         }

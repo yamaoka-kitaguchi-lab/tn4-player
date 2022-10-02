@@ -27,7 +27,7 @@ def dynamic_inventory(use_cache=False):
     secrets = load_encrypted_secrets(VAULT_FILE, VAULT_PASSWORD_FILE)
     ctx = Context(endpoint=secrets["netbox_url"], token=secrets["netbox_api_token"])
     cli = Client()
-    nbdata = cli.fetch_all(ctx, use_cache=use_cache)
+    nbdata = cli.fetch_as_inventory(ctx, use_cache=use_cache)
 
     inventory = {
         **{
