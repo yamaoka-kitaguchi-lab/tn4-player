@@ -23,9 +23,23 @@ class TestClient(unittest.TestCase):
         cls.nbdata |= cli.addresses.fetch_all(cls.ctx, use_cache=True)
         cls.nbdata |= cli.interfaces.fetch_all(cls.ctx, use_cache=True)  # depending on devices, vlans, addresses
 
-        pprint(cls.nbdata["lag_members"])
+        #pprint(cls.nbdata["lag_members"])
         #pprint(cls.nbdata["interfaces"].keys())
-        #pprint(cls.nbdata["interfaces"]["minami3"])
+        cls.pprint_interface(cls.nbdata["interfaces"]["minami3"], names=["et-1/2/1"])
+
+
+    @staticmethod
+    def pprint_interface(interfaces, names=None):
+        keys = ["all_vids", "all_vlans", "untagged_vid", "untagged_vlan", "tagged_vids", "tagged_vlans", "absent_vids"]
+        for interface in interfaces.values():
+            for key in keys:
+                interface[key] = None
+
+        if names is not None:
+            for name in names:
+                pprint(interfaces[name])
+        else:
+            pprint(interfaces)
 
 
 if __name__ == "__main__":
