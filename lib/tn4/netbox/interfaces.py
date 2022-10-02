@@ -294,7 +294,7 @@ class Interfaces(ClientBase):
                     "is_in_use":    is_in_use,
                 }
 
-                if mgmt_vlan_tags[region][role] in vlan["tags"]:
+                if role in mgmt_vlan_tags.keys() and mgmt_vlan_tags[region][role] in vlan["tags"]:
                     used_vlans[hostname] = vlan
 
                 if is_in_use:
@@ -312,7 +312,7 @@ class Interfaces(ClientBase):
             hostname: {
                 "interfaces":     interfaces[hostname],   # key: interface name, value: interface object
                 "lag_members":    lag_members[hostname],  # key: parent name, value: list of members' name
-                "vlans":          vlans[hostname],        # list of extended VLAN object
+                "vlans":          used_vlans[hostname],   # list of extended VLAN object
                 "mgmt_vlans":     mgmt_vlans[hostname],   # a VLAN object
             }
             for hostname in interfaces.keys()
