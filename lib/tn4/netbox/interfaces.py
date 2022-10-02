@@ -64,7 +64,6 @@ class Interfaces(ClientBase):
 
             dev_name = interface["device"]["name"]
             hostname = ctx.devices[dev_name]["hostname"]
-            inf_name = interface["name"]
 
             is_upstream = hastag(interface, Slug.Tag.Upstream)
 
@@ -85,6 +84,8 @@ class Interfaces(ClientBase):
                 "is_upstream":      is_upstream,
                 "is_utp":           interface["type"]["value"] in self.allowed_types_ethernet_utp,
                 "is_physical":      interface["type"]["value"] in self.allowed_types_ethernet,
+                "is_irb":           interface["name"][:4] == "irb.",
+                "is_rspan":         interface["name"] == "rspan",
                 "is_enabled":       interface["enabled"] or is_upstream,
                 "is_phy_uplink":    False,  # updated in fetch_lag_members()
                 "lag_parent_name":  None,
@@ -169,7 +170,7 @@ class Interfaces(ClientBase):
                 "addresses6": addr6,
             }
 
-            self.all_interfaces.setdefault(hostname, {})[inf_name] = interface
+            self.all_interfaces.setdefault(hostname, {})[interface["name"]] = interface
 
         ctx.interfaces = self.all_interfaces
         return self.all_interfaces
@@ -205,16 +206,26 @@ class Interfaces(ClientBase):
     ##  - key:   hostname, not device name (eg. minami3)
     ##  - value: list of vid (1..4094)
     def fetch_vlans(self, ctx):
-        vlans = {}
+        used_vlanids = {}
+        used_vids = {}
 
         if self.all_interfaces is None:
             self.fetch_interfaces()
 
         for hostname, interfaces in self.all_interfaces.items():
-            v = []
+            v, irb_vids, rspan_vids = [], [], []
+
             for interface in interfaces.values():
                 v.extend(interface["all_vlanids"])
-            vlans[hostname] = list(set(v))
+                if interface["is_irb"]:
+                    irb_vids.append(v["vid"])
+                if interface["is_rspan"]:
+                    rspan_vids.append(v["vid"])
+            used_vlanids[hostname] = list(set(v))
+
+        for hostname, vlanids in used_vlanids.items():
+            for vlanid in vlanids:
+                vlan = ctx.vlans[vlanid]
 
 
 

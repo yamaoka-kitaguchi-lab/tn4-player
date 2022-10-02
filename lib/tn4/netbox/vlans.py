@@ -1,4 +1,5 @@
 from tn4.netbox.base import ClientBase
+from tn4.netbox.slug import Slug
 
 
 class Vlans(ClientBase):
@@ -27,6 +28,7 @@ class Vlans(ClientBase):
         self.all_vlans = {}
         for vlan in all_vlans:
             vlan["tags"] = [tag["slug"] for tag in vlan["tags"]]
+            vlan["is_protected"] = Slug.Tag.Protect in vlan["tags"]
             self.all_vlans.setdefault(groupid, {})[vlan["id"]] = vlan
 
         ctx.vlans = self.all_vlans
