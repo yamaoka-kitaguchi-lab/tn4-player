@@ -308,6 +308,8 @@ class Interfaces(ClientBase):
         lag_members = self.fetch_lag_members(ctx)  # following fetch_interfaces()
         used_vlans, mgmt_vlans = self.fetch_vlans(ctx)
 
+        print(used_vlans.keys())
+
         return {
             hostname: {
                 "interfaces":     interfaces[hostname],   # key: interface name, value: interface object
