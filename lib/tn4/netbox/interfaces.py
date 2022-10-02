@@ -204,10 +204,10 @@ class Interfaces(ClientBase):
 
     ## Return VLAN list as a dict obj
     ##  - key:   hostname, not device name (eg. minami3)
-    ##  - value: list of vid (1..4094)
+    ##  - value: list of vlan object
     def fetch_vlans(self, ctx):
-        used_vlanids = {}
-        used_vids = {}
+        all_used_vlanids = {}
+        used_vlans = {}
 
         if self.all_interfaces is None:
             self.fetch_interfaces()
@@ -221,12 +221,20 @@ class Interfaces(ClientBase):
                     irb_vids.append(v["vid"])
                 if interface["is_rspan"]:
                     rspan_vids.append(v["vid"])
-            used_vlanids[hostname] = list(set(v))
+            all_used_vlanids[hostname] = list(set(v))
 
-        for hostname, vlanids in used_vlanids.items():
-            for vlanid in vlanids:
-                vlan = ctx.vlans[vlanid]
+        for hostname, used_vlanids in all_used_vlanids.items():
+            for vlanid, vlan in ctx.vlans.items():
+                if not vlanid in used_vlanids:
+                    continue
+                vlan |= {
+                    "is_for_irb":   vlan["vid"] in irb_vids,
+                    "is_for_rspan": vlan["vid"] in rspan_vids,
+                    "is_in_use":    is_in_use,
+                }
+                used_vlans.setdefault(hostname, []).append(vlan)
 
+        return used_vlans
 
 
     def fetch_as_inventory(self, ctx, use_cache=False):
