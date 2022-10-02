@@ -15,7 +15,7 @@ sys.path.append(LIBRARY_PATH)
 
 from tn4.netbox.base import Context
 from tn4.netbox.client import Client
-from tn4.utils import load_encrypted_secrets
+from tn4.helper.utils import load_encrypted_secrets
 
 
 def timestamp():
