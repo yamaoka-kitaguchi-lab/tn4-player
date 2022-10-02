@@ -23,9 +23,9 @@ class TestClient(unittest.TestCase):
         cls.nbdata |= cli.addresses.fetch_all(cls.ctx, use_cache=True)
         cls.nbdata |= cli.interfaces.fetch_all(cls.ctx, use_cache=True)  # depending on devices, vlans, addresses
 
-        #pprint(cls.nbdata["lag_members"])
+        pprint(cls.nbdata["lag_members"])
         #pprint(cls.nbdata["interfaces"].keys())
-        cls.pprint_interface(cls.nbdata["interfaces"]["minami3"], names=["et-1/2/1"])
+        #cls.pprint_interface(cls.nbdata["interfaces"]["minami3"], names=["et-1/2/1"])
 
 
     @staticmethod

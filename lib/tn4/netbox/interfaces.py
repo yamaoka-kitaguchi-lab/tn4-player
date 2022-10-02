@@ -191,7 +191,7 @@ class Interfaces(ClientBase):
                     continue
                 p_name = interface["lag_parent_name"]
                 interface["is_phy_uplink"] = interfaces[p_name]["is_upstream"]
-            lag_members.setdefault(dev_name, {}).setdefault(p_name, []).append(interface["name"])
+                lag_members.setdefault(dev_name, {}).setdefault(p_name, []).append(interface["name"])
 
         return lag_members
 
