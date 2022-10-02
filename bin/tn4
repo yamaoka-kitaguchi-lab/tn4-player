@@ -38,8 +38,8 @@ if __name__ == "__main__":
     shutdown_parser.add_argument("--dryrun", action="store_true", help="simulate a command without actually provisioning it")
 
     nbck_parser = subparsers.add_parser("nbck", description="maintain netbox to keep integrity and consistency", help="repair netbox")
-    shutdown_parser.add_argument("--force", action="store_true", help="ignore all warnings and skip confirmation")
-    shutdown_parser.add_argument("--dryrun", action="store_true", help="")
+    nbck_parser.add_argument("--force", action="store_true", help="ignore all warnings and skip confirmation")
+    nbck_parser.add_argument("--dryrun", action="store_true", help="simulate a command without  provisioning it")
 
     args = parser.parse_args()
 
