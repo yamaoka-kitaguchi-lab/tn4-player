@@ -224,6 +224,8 @@ class Interfaces(ClientBase):
             self.fetch_interfaces()
 
         for hostname, interfaces in self.all_interfaces.items():
+            lag_members[hostname] = {}
+
             for interface in interfaces.values():
                 if not interface["is_lag_member"]:
                     continue
@@ -234,7 +236,7 @@ class Interfaces(ClientBase):
                 interface["is_protected"] = interfaces[p_name]["is_protected"] = is_protected  # Sync all children with their parent
                 interface["is_phy_uplink"] = interfaces[p_name]["is_upstream"]
 
-                lag_members.setdefault(hostname, {}).setdefault(p_name, []).append(interface["name"])
+                lag_members[hostname].setdefault(p_name, []).append(interface["name"])
 
         return lag_members
 
