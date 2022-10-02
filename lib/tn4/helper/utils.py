@@ -15,3 +15,8 @@ def load_encrypted_secrets(vault_file, vault_password_file):
         except AnsibleVaultError as e:
             raise Exception(f"Failed to decrypt the vault. Check your password and try again. {e}")
 
+
+def extract_target_hosts(inventory, include_hosts=[], exclude_hosts=[], include_areas=[], exclude_areas=[]):
+    return
+
+

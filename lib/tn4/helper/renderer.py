@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from pprint import pprint
 import jinja2
 import os
@@ -11,6 +9,21 @@ DYNAMIC_INVENTORY = os.path.join(CURDIR, "../inventories/production")
 sys.path.append(DYNAMIC_INVENTORY)
 
 from netbox import dynamic_inventory
+
+
+class Renderer:
+    def __init__(self):
+        self.tpl_paths = []
+
+
+    def load(self):
+        pass
+
+
+    def render(self):
+        if len(self.tpl_paths) == 0:
+            raise Exception(f"No template loaded")
+
 
 
 def load_inventories():

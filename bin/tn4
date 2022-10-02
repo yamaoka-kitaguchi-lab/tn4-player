@@ -17,6 +17,12 @@ Author:  MIYA, Taichi <miya@net.ict.e.titech.ac.jp>
 
 from argparse import ArgumentParser
 
+CURDIR       = os.path.dirname(__file__)
+LIBRARY_PATH = os.path.join(CURDIR, "../lib")
+
+sys.path.append(LIBRARY_PATH)
+
+
 
 if __name__ == "__main__":
     parser = ArgumentParser()
