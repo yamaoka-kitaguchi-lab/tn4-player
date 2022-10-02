@@ -41,6 +41,40 @@ class Interfaces(ClientBase):
         return addr4, addr6
 
 
+    def update(self, device_name, interface_name,
+                         description=None, enabled=None, mode=None, untagged_vlanid=None, tagged_vlanids=None, tags=None):
+        data = []
+        body = {
+            "id": self.all_interfaces[device_name][interface_name]["id"]
+        }
+
+        if description is not None:
+            body["description"] = description
+
+        if enabled is not None:
+            body["enabled"] = enabled
+
+        if tags is not None:
+            body["tags"] = [{"slug": tag} for tag in tags]
+
+        if mode is not None:
+            if mode.lower() == "access":
+                body["mode"] = "access"
+            if mode.lower() in ["tagged", "trunk"]:
+                body["mode"] = "tagged"
+
+        if untagged_vlanid is not None:
+            body["untagged_vlan"] = int(untagged_vlanid)
+
+        if tagged_vlanids is not None:
+            body["tagged_vlans"] = list(map(int, tagged_vlanids))
+
+        data.append(body)
+        if data:
+            return self.query(self.path, data, update=True)
+        return
+
+
     ## Return interface list as a dict obj
     ##  - primary key:    hostname, not device name (eg. 'minami3', not 'minami3 (1)')
     ##  - secondary key:  interface name (eg. ge-0/0/0)
@@ -274,38 +308,4 @@ class Interfaces(ClientBase):
             }
             for hostname in interfaces.keys()
         }
-
-
-    def update(self, device_name, interface_name,
-                         description=None, enabled=None, mode=None, untagged_vlanid=None, tagged_vlanids=None, tags=None):
-        data = []
-        body = {
-            "id": self.all_interfaces[device_name][interface_name]["id"]
-        }
-
-        if description is not None:
-            body["description"] = description
-
-        if enabled is not None:
-            body["enabled"] = enabled
-
-        if tags is not None:
-            body["tags"] = [{"slug": tag} for tag in tags]
-
-        if mode is not None:
-            if mode.lower() == "access":
-                body["mode"] = "access"
-            if mode.lower() in ["tagged", "trunk"]:
-                body["mode"] = "tagged"
-
-        if untagged_vlanid is not None:
-            body["untagged_vlan"] = int(untagged_vlanid)
-
-        if tagged_vlanids is not None:
-            body["tagged_vlans"] = list(map(int, tagged_vlanids))
-
-        data.append(body)
-        if data:
-            return self.query(self.path, data, update=True)
-        return
 
