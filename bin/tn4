@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+"""
+
+tn4 - Titanet4 as Code
+
+tn4 is a command-line utility to repair NetBox and deploy Titanet4 with Ansible.
+
+  - Deploy Titanet4 incojuction with NetBox
+  - Maintain NetBox for integrity and consistency
+
+Since:   October 2022
+Source:  https://github.com/yamaoka-kitaguchi-lab/tn4-player
+Author:  MIYA, Taichi <miya@net.ict.e.titech.ac.jp>
+
+"""
+
+from argparse import ArgumentParser
+
+
+if __name__ == "__main__":
+    parser = ArgumentParser()
+    subparsers = parser.add_subparsers(title="commands")
+
+    deploy_parser = subparsers.add_parser("deploy", description="provision titanet4 with netbox and ansible", help="provision titanet4")
+    deploy_parser.add_argument("--hosts", type=str, help="limit the provisioning targets to specified hosts (commna separated)")
+    deploy_parser.add_argument("--no-hosts", type=str, help="exclude specified hosts from provisioning targets (comma separated)")
+    deploy_parser.add_argument("--area", type=str, help="limit the provisioning targets to specified regions (commna separated)")
+    deploy_parser.add_argument("--no-area", type=str, help="exclude specified areas from provisioning targets (commna separated)")
+    deploy_parser.add_argument("--dryrun", action="store_true", help="simulate a command without actually provisioning it")
+
+    shutdown_parser = subparsers.add_parser("shutdown", description="trigger system halt in preparation of the campus-wide blackout", help="shuwdown titanet4")
+    shutdown_parser.add_argument("--hosts", type=str, help="limit the provisioning targets to specified hosts (commna separated)")
+    shutdown_parser.add_argument("--no-hosts", type=str, help="exclude specified hosts from provisioning targets (comma separated)")
+    shutdown_parser.add_argument("--area", type=str, help="limit the provisioning targets to specified regions (commna separated)")
+    shutdown_parser.add_argument("--no-area", type=str, help="exclude specified areas from provisioning targets (commna separated)")
+    shutdown_parser.add_argument("--reboot", action="store_true", help="request reboot instead of system halt")
+    shutdown_parser.add_argument("--dryrun", action="store_true", help="simulate a command without actually provisioning it")
+
+    nbck_parser = subparsers.add_parser("nbck", description="maintain netbox to keep integrity and consistency", help="repair netbox")
+    shutdown_parser.add_argument("--force", action="store_true", help="ignore all warnings and skip confirmation")
+    shutdown_parser.add_argument("--dryrun", action="store_true", help="")
+
+    args = parser.parse_args()
+

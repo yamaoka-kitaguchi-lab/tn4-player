@@ -295,11 +295,12 @@ class Interfaces(ClientBase):
                 }
 
                 if role in mgmt_vlan_tags.keys() and mgmt_vlan_tags[region][role] in vlan["tags"]:
-                    used_vlans[hostname] = vlan
+                    mgmt_vlans[hostname] = vlan
 
                 if is_in_use:
                     used_vlans.setdefault(hostname, []).append(vlan)
 
+        print(used_vlans.keys())
         return used_vlans, mgmt_vlans
 
 
@@ -307,8 +308,6 @@ class Interfaces(ClientBase):
         interfaces = self.fetch_interfaces(ctx, use_cache=use_cache)
         lag_members = self.fetch_lag_members(ctx)  # following fetch_interfaces()
         used_vlans, mgmt_vlans = self.fetch_vlans(ctx)
-
-        print(used_vlans.keys())
 
         return {
             hostname: {
