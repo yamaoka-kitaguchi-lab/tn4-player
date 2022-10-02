@@ -189,8 +189,13 @@ class Interfaces(ClientBase):
             for interface in interfaces.values():
                 if not interface["is_lag_member"]:
                     continue
+
                 p_name = interface["lag_parent_name"]
+                is_protected = interface["is_protected"] | interfaces[p_name]["is_protected"]  # Does any interface has 'Protect' tag?
+
+                interface["is_protected"] = interfaces[p_name]["is_protected"] = is_protected
                 interface["is_phy_uplink"] = interfaces[p_name]["is_upstream"]
+
                 lag_members.setdefault(dev_name, {}).setdefault(p_name, []).append(interface["name"])
 
         return lag_members
