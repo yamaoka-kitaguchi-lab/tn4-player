@@ -10,10 +10,9 @@ class Vlans(ClientBase):
         self.all_vlans = None
 
 
-    ## Return all VLANs as a nested dict object
-    ##  - primary key:   VLAN Group ID (NetBox internal ID)
-    ##  - secondary key: VID (1..4094)
-    ##  - value:         VLAN object
+    ## Return all VLANs as a dict object
+    ##  - key:   VLAN object ID (NetBox internal ID)
+    ##  - value: VLAN object
     def fetch_vlans(self, ctx, use_cache=False):
         all_vlans = None
 
@@ -28,9 +27,7 @@ class Vlans(ClientBase):
         self.all_vlans = {}
         for vlan in all_vlans:
             vlan["tags"] = [tag["slug"] for tag in vlan["tags"]]
-            groupid = str(vlan["group"]["id"])
-            vid = str(vlan["vid"])
-            self.all_vlans.setdefault(groupid, {})[vid] = vlan
+            self.all_vlans.setdefault(groupid, {})[vlan["id"]] = vlan
 
         ctx.vlans = self.all_vlans
         return self.all_vlans
@@ -40,8 +37,17 @@ class Vlans(ClientBase):
     ##  - key:   VID (1..4094)
     ##  - value: VLAN object
     def fetch_titech_vlans(self, ctx, use_cache=False):
+        if self.all_vlans is None:
+            self.fetch_vlans(ctx, use_cache=use_cache)
+
         groupid = str(self.titech_vlan_group_id)
-        return self.fetch_vlans(ctx, use_cache=use_cache)[groupid]
+        titech_vlans = {}
+
+        for vlan in self.all_vlans.values():
+            if vlan["group"]["id"] != self.titech_vlan_group_id:
+                titech_vlans[vlan["vid"]] = vlan
+
+        return titech_vlans
 
 
     def fetch_as_inventory(self, ctx, use_cache=False):

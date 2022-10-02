@@ -24,9 +24,9 @@ class Interfaces(ClientBase):
         self.all_interfaces = None
 
 
-    def lookup_vlan_name(self, vid, ctx):
-        if vid in ctx.vlans:
-            return ctx.vlans[vid]["name"]
+    def lookup_vlan_name(self, vlanid, ctx):
+        if vlanid in ctx.vlans.keys():
+            return ctx.vlans[vlanid]["name"]
         return None
 
 
@@ -122,7 +122,7 @@ class Interfaces(ClientBase):
                 all_vids.append(interface["untagged_vid"])
 
                 ## use vlan name for interface description if it is empty
-                vlan_name = self.lookup_vlan_name(interface["untagged_vlan"]["vid"], ctx)
+                vlan_name = self.lookup_vlan_name(interface["untagged_vlan"]["id"], ctx)
                 if interface["description"] == "" and vlan_name is not None:
                     interface["description"] = vlan_name
 
