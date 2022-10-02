@@ -14,12 +14,22 @@ class Client:
         self.interfaces = Interfaces()
 
 
-    def fetch_as_inventory(self, ctx, use_cache=False):
-        nbdata = {}
-        nbdata |= self.sites.fetch_as_inventory(ctx, use_cache=use_cache)
-        nbdata |= self.vlans.fetch_as_inventory(ctx, use_cache=use_cache)
-        nbdata |= self.addresses.fetch_as_inventory(ctx, use_cache=use_cache)
-        nbdata |= self.devices.fetch_as_inventory(ctx, use_cache=use_cache)     # depending on sites
-        nbdata |= self.interfaces.fetch_as_inventory(ctx, use_cache=use_cache)  # depending on devices, vlans, and addresses
+    @staticmethod
+    def merge_inventory(*inventories):
+        merged = inventories[0]
+        for inventory in inventories[1:]:
+            for hostname in inventory.keys():
+                merged[hostname] |= inventory[hostname]
+        return merged
 
-        return nbdata
+
+    def fetch_as_inventory(self, ctx, use_cache=False):
+        self.sites.fetch_as_inventory(ctx, use_cache=use_cache)
+        self.vlans.fetch_as_inventory(ctx, use_cache=use_cache)
+        self.addresses.fetch_as_inventory(ctx, use_cache=use_cache)
+
+        return self.merge_inventory(
+            self.devices.fetch_as_inventory(ctx, use_cache=use_cache),     # depending on sites
+            self.interfaces.fetch_as_inventory(ctx, use_cache=use_cache),  # depending on devices, vlans, and addresses
+        )
+

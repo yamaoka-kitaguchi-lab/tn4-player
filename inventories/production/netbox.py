@@ -45,7 +45,7 @@ def dynamic_inventory(use_cache=False):
                     "interfaces":     nbdata[hostname]["interfaces"],
                     "lag_members":    nbdata[hostname]["lag_members"],
                     "vlans":          nbdata[hostname]["vlans"],
-                    "mgmt_vlan":      nbdata[hostname]["mgmt_vlan"],
+                    "mgmt_vlans":     nbdata[hostname]["mgmt_vlans"],
                     "is_test_device": nbdata[hostname]["is_test_device"],
                     "ansible_host":   nbdata[hostname]["mgmt_ip_address"],
                     "datetime":       ts,
