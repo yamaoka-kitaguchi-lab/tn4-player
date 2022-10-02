@@ -145,10 +145,10 @@ class Interfaces(ClientBase):
             }
 
             vlan_mode = interface["mode"]
-            if vlan_mode is dict:
+            if vlan_mode is not None:
                 vlan_mode = vlan_mode["value"].lower()  # or vlan_mode is 'None' going to the else-block
 
-            if vlan_mode == "access" and interface["tagged_vlans"] is not None:
+            if vlan_mode == "access" and interface["untagged_vlan"] is not None:
                 interface |= {
                     "vlan_mode":       "access",
                     "untagged_vlanid": interface["untagged_vlan"]["id"],
@@ -175,7 +175,7 @@ class Interfaces(ClientBase):
 
                 if interface["untagged_vlan"] is not None:
                     interface["native_vid"] = interface["untagged_vlan"]["vid"]
-                    all_vids.extend(interface["native_vid"])
+                    all_vids.append(interface["native_vid"])
 
             elif vlan_mode == "tagged-all" or is_upstream:
                 interface |= {
@@ -300,7 +300,6 @@ class Interfaces(ClientBase):
                 if is_in_use:
                     used_vlans.setdefault(hostname, []).append(vlan)
 
-        print(used_vlans.keys())
         return used_vlans, mgmt_vlans
 
 
