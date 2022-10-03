@@ -12,8 +12,8 @@ from netbox import dynamic_inventory
 
 
 class CommandBase:
-    def fetch_inventory(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[]):
-        inventory = dynamic_inventory()
+    def fetch_inventory(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[], use_cache=False):
+        inventory = dynamic_inventory(use_cache=use_cache)
 
         hostnames = []
         includes, excludes = [], []
@@ -41,3 +41,4 @@ class CommandBase:
             includes = inventory["_meta"]["hostvars"].keys()
 
         hostnames = list(set(includes) - set(excludes))
+
