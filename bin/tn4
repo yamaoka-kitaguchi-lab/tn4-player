@@ -86,7 +86,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     code = None
-    match args["command"]:
+    match args.command:
         case "config" | "co":
             code = Config(args).exec(stdout=True)
         case "deploy":
