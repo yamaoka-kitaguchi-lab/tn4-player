@@ -41,6 +41,7 @@ def dynamic_inventory(use_cache=False):
             "hostvars": {
                 hostname: {
                     "hostname":       hostname,
+                    "role":           nbdata[hostname]["role"],
                     "region":         nbdata[hostname]["region"],
                     "manufacturer":   nbdata[hostname]["manufacturer"],
                     "interfaces":     nbdata[hostname]["interfaces"],
