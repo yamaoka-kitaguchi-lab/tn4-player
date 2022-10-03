@@ -13,7 +13,6 @@ A command-line utility to repair NetBox and deploy Titanet4 with Ansible.
 
 Since:   October 2022
 Source:  https://github.com/yamaoka-kitaguchi-lab/tn4-player
-Author:  MIYA, Taichi <miya@net.ict.e.titech.ac.jp>
 
 """
 
@@ -79,4 +78,6 @@ if __name__ == "__main__":
     parser4.add_argument("--dryrun", action="store_true", help="simulate a command without  provisioning it")
 
     args = parser.parse_args()
+
+    print(args)
 
