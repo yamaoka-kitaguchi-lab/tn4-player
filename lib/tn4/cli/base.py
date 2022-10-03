@@ -40,5 +40,20 @@ class CommandBase:
         if len(includes) == 0:
             includes = inventory["_meta"]["hostvars"].keys()
 
-        hostnames = list(set(includes) - set(excludes))
+        target_hosts = list(set(includes) - set(excludes))
+
+        self.inventory = {
+            **{
+                role: {
+                    "hosts": [ h for h in hosts if h in target_hosts ]
+                }
+                for role, hosts in role_to_hosts.items()
+            },
+            "_meta": {
+                "hostvars": {
+                    host: **inventory["_meta"]["hostvars"][host]
+                    for host in target_hosts
+                }
+            }
+        }
 
