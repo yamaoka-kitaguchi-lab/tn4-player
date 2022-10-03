@@ -33,7 +33,8 @@ if __name__ == "__main__":
 
     parser1 = subparsers.add_parser("config",
                                     description="tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files",
-                                    help="Rendering Jinja2 templates and exporting them as *.cfg files")
+                                    help="Rendering Jinja2 templates and exporting them as *.cfg files",
+                                    aliases=["co"])
     parser1.add_argument("--hosts", type=str, help="limit the rendering targets to specified hosts (comma separated)")
     parser1.add_argument("--no-hosts", type=str, help="exclude specified hosts from rendering targets (comma separated)")
     parser1.add_argument("--area", type=str, help="limit the rendering targets to specified regions (comma separated)")
@@ -70,7 +71,8 @@ if __name__ == "__main__":
 
     parser4 = subparsers.add_parser("netbox",
                                     description="tn4 netbox - Scanning and repairing NetBox integrity and providing CLI-based operation",
-                                    help="Scanning and repairing NetBox integrity and providing CLI-based operation")
+                                    help="Scanning and repairing NetBox integrity and providing CLI-based operation",
+                                    aliases=["nb"])
     parser4.add_argument("--check", action="store_true", help="")
     parser4.add_argument("--repair", action="store_true", help="")
     parser4.add_argument("-v", "--versbose", action="store_true", help="")
