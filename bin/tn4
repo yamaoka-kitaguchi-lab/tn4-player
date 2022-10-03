@@ -25,11 +25,15 @@ LIBRARY_PATH = os.path.join(CURDIR, "../lib")
 
 sys.path.append(LIBRARY_PATH)
 
+from tn4.cli.config import Config
+from tn4.cli.deploy import Deploy
+from tn4.cli.shutdown import Shutdown
+from tn4.cli.netbox import NetBox
 
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    subparsers = parser.add_subparsers(title="commands")
+    subparsers = parser.add_subparsers(title="commands", dest="command")
 
     parser1 = subparsers.add_parser("config",
                                     description="tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files",
@@ -81,5 +85,19 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print(args)
+    code = None
+    match args["command"]:
+        case "config" | "co":
+            code = Config(args).exec(stdout=True)
+        case "deploy":
+            code = Deploy(args).exec(stdout=True)
+        case "shutdown":
+            code = Shutdown(args).exec(stdout=True)
+        case "netbox":
+            code = NetBox(args).exec(stdout=True)
+
+    if code == 1:
+        parser.print_help()
+
+    sys.exit(code)
 
