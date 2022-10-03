@@ -51,7 +51,7 @@ class CommandBase:
             },
             "_meta": {
                 "hostvars": {
-                    host: **inventory["_meta"]["hostvars"][host]
+                    host: inventory["_meta"]["hostvars"][host]
                     for host in target_hosts
                 }
             }
