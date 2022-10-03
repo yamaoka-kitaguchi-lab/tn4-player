@@ -23,7 +23,7 @@ class CommandBase:
             role_to_hosts.setdefault(hostvar["role"], []).append(hostname)
 
         includes.extend(hosts)
-        excludes.extend(hosts)
+        excludes.extend(no_hosts)
 
         for area in areas:
             includes.extend(region_to_hosts[area])

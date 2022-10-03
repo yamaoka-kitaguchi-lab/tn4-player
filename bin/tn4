@@ -31,6 +31,12 @@ from tn4.cli.shutdown import Shutdown
 from tn4.cli.netbox import NetBox
 
 
+def csv_to_list(csv):
+    if csv is None:
+        return []
+    return csv.split(",")
+
+
 if __name__ == "__main__":
     parser = ArgumentParser()
     subparsers = parser.add_subparsers(title="commands", dest="command")
@@ -88,6 +94,15 @@ if __name__ == "__main__":
     parser4.add_argument("--use-cache", action="store_true", help="use cache if available")
 
     args = parser.parse_args()
+
+    match args.command:
+        case "config" | "deploy" | "shutdown" | "co":
+            args.hosts = csv_to_list(args.hosts)
+            args.no_hosts = csv_to_list(args.no_hosts)
+            args.areas = csv_to_list(args.areas)
+            args.no_areas = csv_to_list(args.no_areas)
+            args.roles = csv_to_list(args.roles)
+            args.no_roles = csv_to_list(args.no_roles)
 
     code = None
     match args.command:
