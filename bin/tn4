@@ -45,15 +45,18 @@ if __name__ == "__main__":
                                     description="tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files",
                                     help="Rendering Jinja2 templates and exporting them as *.cfg files",
                                     aliases=["co"])
-    parser1.add_argument("--hosts", type=str, help="limit the rendering targets to specified hosts")
-    parser1.add_argument("--no-hosts", type=str, help="exclude specified hosts from rendering targets")
-    parser1.add_argument("--areas", type=str, help="limit the rendering targets to specified areas")
-    parser1.add_argument("--no-areas", type=str, help="exclude specified areas from rendering targets")
-    parser1.add_argument("--roles", type=str, help="limit the rendering targets to specified roles")
-    parser1.add_argument("--no-roles", type=str, help="exclude specified roles from rendering targets")
+    parser1.add_argument("--hosts",       type=str, help="limit the hosts")
+    parser1.add_argument("--no-hosts",    type=str, help="exclude rule for --hosts")
+    parser1.add_argument("--areas",       type=str, help="limit the hosts with specified regions or site groups (eg. ookayama-n,suzukake)")
+    parser1.add_argument("--no-areas",    type=str, help="exclude rule for --areas")
+    parser1.add_argument("--roles",       type=str, help="limit the hosts with specified device roles (eg. edge_sw)")
+    parser1.add_argument("--no-roles",    type=str, help="exclude rule for --roles")
+    parser1.add_argument("--vendors",     type=str, help="limit the hosts with specified manufacturers (eg. juniper)")
+    parser1.add_argument("--no-vendors",  type=str, help="exclude rule for --vendors")
+    parser1.add_argument("--tags",        type=str, help="limit the hosts with specified device tags (eg. test)")
+    parser1.add_argument("--no-tags",     type=str, help="exclude rule for --tags")
     parser1.add_argument("-f", "--force", action="store_true", help="ignore all warnings and skip confirmation")
-    parser1.add_argument("--dryrun", action="store_true", help="simulate a command without actually rendering it")
-    parser1.add_argument("--use-cache", action="store_true", help="use cache if available")
+    parser1.add_argument("--use-cache",   action="store_true", help="skip NetBox fetching and use local cache if available")
 
     parser2 = subparsers.add_parser("deploy",
                                     description="tn4 deploy - Provisioning Titanet4 with Ansible fetching inventory from NetBox",
@@ -65,8 +68,8 @@ if __name__ == "__main__":
     parser2.add_argument("--roles", type=str, help="limit the provisioning targets to specified roles")
     parser2.add_argument("--no-roles", type=str, help="exclude specified roles from provisioning targets")
     parser2.add_argument("-f", "--force", action="store_true", help="ignore all warnings and skip confirmation")
-    parser2.add_argument("--dryrun", action="store_true", help="simulate a command without actually provisioning it")
-    parser2.add_argument("--use-cache", action="store_true", help="use cache if available")
+    parser2.add_argument("--dry-run",     action="store_true", help="simulate a command without actually provisioning it")
+    parser2.add_argument("--use-cache",   action="store_true", help="skip NetBox fetching and use local cache if available")
 
     parser3 = subparsers.add_parser("shutdown",
                                     description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
