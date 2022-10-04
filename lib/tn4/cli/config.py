@@ -27,6 +27,7 @@ class Config(CommandBase):
             rt = round(time.time() - start_at, 1)
             self.console.log(f"[yellow]Building Titanet4 inventory finished in {rt} sec")
 
-        print(len(self.inventory["_meta"]["hostvars"].keys()))
-        print(self.inventory["_meta"]["hostvars"].keys())
+        hosts = self.inventory["_meta"]["hostvars"].keys()
+        self.console.log(f"[yellow]Found {len(hosts)} hosts")
+        self.console.log(f"[yellow dim]{', '.join(hosts)}")
 
