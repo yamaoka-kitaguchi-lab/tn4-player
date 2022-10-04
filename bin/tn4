@@ -40,7 +40,8 @@ def csv_to_list(csv):
 def dir_path(string):
     if os.path.isdir(string):
         return string
-    raise Exception("No such direcotry")
+    print(f"No such directory: {string}")
+    sys.exit(254)
 
 
 if __name__ == "__main__":
