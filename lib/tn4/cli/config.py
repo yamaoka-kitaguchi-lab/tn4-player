@@ -18,6 +18,11 @@ class Config(CommandBase):
         ]
         self.inventory_json = f"{self.outdir}/inventory.json"
 
+
+    def render():
+        pass
+
+
     def exec(self):
         m = "Fetching the latest inventory from NetBox, this may take a while..."
         if self.flg_use_cache:
