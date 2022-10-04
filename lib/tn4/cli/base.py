@@ -1,8 +1,6 @@
-from pprint import pprint
-import jinja2
+from rich.console import Console
 import os
 import sys
-import time
 
 CURDIR             = os.path.dirname(__file__)
 ANSIBLE_PRODUCTION = os.path.join(CURDIR, "../../../inventories/production")
@@ -13,6 +11,9 @@ from netbox import dynamic_inventory
 
 
 class CommandBase:
+    console = Console(log_time_format="%Y-%m-%dT%H:%M:%S")
+
+
     def fetch_inventory(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[],
                         vendors=[], no_vendors=[], tags=[], no_tags=[], use_cache=False):
         inventory = dynamic_inventory(use_cache=use_cache)
