@@ -42,6 +42,6 @@ class Config(CommandBase):
             with self.console.status(f"[yellow]Exporting raw inventory..."):
                 with open(self.inventory_json, "w") as fd:
                     json.dump(self.inventory, fd, indent=4, sort_keys=True, ensure_ascii=False)
-                self.console.log(f"[yellow]Exporting inventory finished [dim]at {self.inventory_json}")
+                self.console.log(f"[yellow]Exporting inventory finished at {self.inventory_json}")
             return 0
 
