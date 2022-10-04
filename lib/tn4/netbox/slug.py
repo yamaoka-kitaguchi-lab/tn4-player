@@ -1,4 +1,8 @@
 class Slug:
+    class Manufacturer:
+        Cisco = "cisco"
+        Juniper = "juniper"
+
     class Role:
         CoreSW = "core_sw"
         EdgeSW = "edge_sw"

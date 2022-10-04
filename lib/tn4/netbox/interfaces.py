@@ -197,15 +197,17 @@ class Interfaces(ClientBase):
             }
 
             ## for cisco edge
-            packed_size = 20
-            absent_vids = [vid for vid in range(1, 4094) if vid not in all_vids]
-            interface["absent_vids"] = [absent_vids[i:i+packed_size] for i in range(0, len(absent_vids), packed_size)]
+            manufacturer = ctx.devices[interface["device"]["name"]]["device_type"]["manufacturer"]["slug"]
+            if manufacturer == Slug.Manufacturer.Cisco:
+                packed_size = 20
+                absent_vids = [vid for vid in range(1, 4094) if vid not in all_vids]
+                interface["absent_vids"] = [absent_vids[i:i+packed_size] for i in range(0, len(absent_vids), packed_size)]
 
-            addr4, addr6 = self.lookup_interface_address(interface["id"], ctx)
-            interface |= {
-                "addresses4": addr4,
-                "addresses6": addr6,
-            }
+                addr4, addr6 = self.lookup_interface_address(interface["id"], ctx)
+                interface |= {
+                    "addresses4": addr4,
+                    "addresses6": addr6,
+                }
 
             self.all_interfaces.setdefault(hostname, {})[interface["name"]] = interface
 
