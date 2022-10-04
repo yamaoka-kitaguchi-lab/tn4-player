@@ -16,12 +16,16 @@ class Config(CommandBase):
         ]
 
 
-    def exec(self, stdout=False):
-        start_at = time.time()
+    def exec(self):
+        m = "Fetching the latest inventory from NetBox, this may take a while..."
+        if self.flg_use_cache:
+            m = "Loading the cache and rebuilding inventory, this usually takes less than few seconds..."
 
-        with self.console.status("Loading, this may take a while..."):
+        with self.console.status(f"[yellow]{m}"):
+            start_at = time.time()
             self.fetch_inventory(*self.fetch_inventory_opt)
-            self.console.log("Loaded inventory")
+            rt = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Building Titanet4 inventory finished in {rt} sec")
 
         print(len(self.inventory["_meta"]["hostvars"].keys()))
         print(self.inventory["_meta"]["hostvars"].keys())
