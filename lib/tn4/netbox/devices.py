@@ -52,6 +52,7 @@ class Devices(ClientBase):
             device |= {
                 "hostname":          device["name"],
                 "region":            ctx.sites[device["site"]["slug"]]["region"]["slug"],
+                "sitegp":            ctx.sites[device["site"]["slug"]]["group"]["slug"],
                 "role":              device["device_role"]["slug"],
                 "is_ansible_target": has_ansible_tag and is_active,
                 "is_test_device":    Slug.Tag.Test in device["tags"],
@@ -86,6 +87,7 @@ class Devices(ClientBase):
                     "manufacturer":    device["device_type"]["manufacturer"]["slug"],  # manufacturer slug
                     "role":            device["role"],                                 # role slug
                     "region":          device["region"],                               # region slug
+                    "sitegp":          device["sitegp"],                               # site group slug
                     "is_test_device":  device["is_test_device"],                       # whethre or not having 'Test' tag
                     "mgmt_ip_address": device["mgmt_ip"],                              # device ip address without mask, or 'None'
                 }

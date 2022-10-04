@@ -17,25 +17,26 @@ class CommandBase:
 
         hostnames = []
         includes, excludes = [], []
-        region_to_hosts, role_to_hosts = {}, {}
+        area_to_hosts, role_to_hosts = {}, {}
         for hostname, hostvar in inventory["_meta"]["hostvars"].items():
-            region_to_hosts.setdefault(hostvar["region"], []).append(hostname)
+            area_to_hosts.setdefault(hostvar["region"], []).append(hostname)
+            area_to_hosts.setdefault(hostvar["sitegp"], []).append(hostname)
             role_to_hosts.setdefault(hostvar["role"], []).append(hostname)
 
         includes.extend(hosts)
         excludes.extend(no_hosts)
 
         for area in areas:
-            includes.extend(region_to_hosts[area])
+            includes.extend(area_to_hosts[area])
 
         for no_area in no_areas:
-            excludes.extend(region_to_hosts[no_area])
+            excludes.extend(area_to_hosts[no_area])
 
         for role in roles:
-            includes.extend(region_to_hosts[role])
+            includes.extend(role_to_hosts[role])
 
         for no_role in no_roles:
-            excludes.extend(region_to_hosts[no_role])
+            excludes.extend(role_to_hosts[no_role])
 
         if len(includes) == 0:
             includes = inventory["_meta"]["hostvars"].keys()

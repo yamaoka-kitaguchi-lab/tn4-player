@@ -43,6 +43,7 @@ def dynamic_inventory(use_cache=False):
                     "hostname":       hostname,
                     "role":           nbdata[hostname]["role"],
                     "region":         nbdata[hostname]["region"],
+                    "sitegp":         nbdata[hostname]["sitegp"],
                     "manufacturer":   nbdata[hostname]["manufacturer"],
                     "interfaces":     nbdata[hostname]["interfaces"],
                     "lag_members":    nbdata[hostname]["lag_members"],
