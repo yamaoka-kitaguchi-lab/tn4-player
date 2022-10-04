@@ -106,6 +106,10 @@ if __name__ == "__main__":
             args.no_areas = csv_to_list(args.no_areas)
             args.roles = csv_to_list(args.roles)
             args.no_roles = csv_to_list(args.no_roles)
+            args.vendors = csv_to_list(args.vendors)
+            args.no_vendors = csv_to_list(args.no_vendors)
+            args.tags = csv_to_list(args.tags)
+            args.no_tags = csv_to_list(args.no_tags)
 
     code = None
     match args.command:
