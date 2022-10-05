@@ -14,6 +14,25 @@ from netbox import dynamic_inventory
 class CommandBase:
     console = Console(log_time_format="%Y-%m-%dT%H:%M:%S")
 
+    template_paths = {
+        Slug.Manufacturer.Cisco: {
+            Slug.Role.EdgeSW: [
+                f"{ANSIBLE_ROLES}/cisco/templates/interface_edge.cfg.j2",
+                #f"{ANSIBLE_ROLES}/cisco/templates/overwrite.cfg.j2",
+            ]
+        },
+        Slug.Manufacturer.Juniper: {
+            Slug.Role.EdgeSW: [
+                f"{ANSIBLE_ROLES}/juniper/templates/interface_edge.cfg.j2",
+                #f"{ANSIBLE_ROLES}/juniper/templates/overwrite.cfg.j2"
+            ],
+            Slug.Role.CoreSW: [
+                f"{ANSIBLE_ROLES}/juniper/templates/interface_core.cfg.j2",
+                #f"{ANSIBLE_ROLES}/juniper/templates/overwrite.cfg.j2"
+            ]
+        }
+    }
+
 
     def fetch_inventory(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[],
                         vendors=[], no_vendors=[], tags=[], no_tags=[], use_cache=False):
