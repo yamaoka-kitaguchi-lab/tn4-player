@@ -28,7 +28,9 @@ class Devices(ClientBase):
         if all_devices is None:
             all_devices, _ = self.query(ctx, self.path)
 
+        device_ips = {}
         self.all_devices = {}
+
         for device in all_devices:
             device["tags"] = [tag["slug"] for tag in device["tags"]]
             dev_site = device["site"]["slug"]
@@ -42,13 +44,6 @@ class Devices(ClientBase):
                 else:
                     device["wifi_area_group"] = "S"
 
-            if "mgmt_ip" not in device:
-                device["mgmt_ip"] = None
-
-            ## Update if and only if primary_ip is not 'None', or stacked device's IP would be lost
-            if device["primary_ip"] is not None:
-                device["mgmt_ip"] = device["primary_ip"]["address"].split("/")[0]
-
             has_ansible_tag = Slug.Tag.Ansible in device["tags"]
             is_active = device["status"]["value"] == "active"
 
@@ -61,6 +56,7 @@ class Devices(ClientBase):
                 "is_test_device":    Slug.Tag.Test in device["tags"],
                 "is_vc_member":      False,
                 "vc_chassis_number": 0,
+                "mgmt_ip":           None,
             }
 
             ## For stacked edge SWs
@@ -73,7 +69,14 @@ class Devices(ClientBase):
                         "vc_chassis_number": r.group(2),  # chassis number: "minami3 (1)" -> "1"
                     }
 
+            if device["primary_ip"] is not None:
+                device_ips[device["hostname"]] = device["primary_ip"]["address"].split("/")[0]
+
             self.all_devices[device["name"]] = device
+
+        for device in self.all_devices.values():
+            if device["hostname"] in device_ips:
+                device["mgmt_ip"] = device_ips[device["hostname"]]
 
         ctx.devices = self.all_devices
         return self.all_devices
