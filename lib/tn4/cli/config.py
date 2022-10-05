@@ -45,8 +45,9 @@ class Config(CommandBase):
                 try:
                     raw = template.render(hostvar)
                 except Exception as e:
-                    self.console.log(f"[red]An exception occurred while rendering {host}. Skipped.", file=sys.stderr)
-                    self.console.log(f"[red dim]{e}", file=sys.stderr)
+                    ip = hostvar["ansible_host"]
+                    self.console.log(f"[red bold]An exception occurred while rendering {host} ({ip}). Skipped.")
+                    self.console.log(f"[red bold dim]{e}")
                 else:
                     self.configs[host] = ignore_empty_lines(raw)
 
