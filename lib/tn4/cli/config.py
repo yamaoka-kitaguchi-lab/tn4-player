@@ -1,4 +1,4 @@
-import jinja2
+from jinja2 import FileSystemLoader, Environment
 import os
 import sys
 import json
@@ -8,6 +8,17 @@ from tn4.cli.base import CommandBase
 
 
 class Config(CommandBase):
+    template_paths = {
+        Slug.Manufacturer.Cisco: {
+            Slug.Role.EdgeSW: [ f"{ANSIBLE_ROLES}/cisco/templates/interface_edge.cfg.j2" ]
+        },
+        Slug.Manufacturer.Juniper: {
+            Slug.Role.EdgeSW: [ f"{ANSIBLE_ROLES}/juniper/templates/interface_edge.cfg.j2" ],
+            Slug.Role.CoreSW: [ f"{ANSIBLE_ROLES}/juniper/templates/interface_core.cfg.j2" ]
+        }
+    }
+
+
     def __init__(self, args):
         self.flg_use_cache  = args.use_cache
         self.flg_inventory  = args.inventory
@@ -19,8 +30,33 @@ class Config(CommandBase):
         ]
 
 
-    def render():
-        pass
+    def load_templates(self, trim_blocks):
+        self.templates = {}
+
+        for manufacturer in self.template_paths.keys():
+            for role, paths in self.template_paths[manufacturer].items():
+                for path in paths:
+                    l = FileSystemLoader(os.path.dirname(path))
+                    e = Environment(loader=l, trim_blocks=trim_blocks)
+                    t = e.get_template(os.path.basename(path))
+                    self.templates.setdefault(manufacturer, {}).setdefault(role, []).append(t)
+
+
+    def render(self, trim_blocks=False):
+        self.load_templates(trim_blocks)
+        self.configs = {}
+        ignore_empty_lines = lambda s: "\n".join([l for l in s.split("\n") if l != ""])
+
+        for host, hostvar in self.inventory["_meta"]["hostvars"].items():
+            template = self.templates[hostvar["manufacturer"]][hostvar["role"]]
+
+            try:
+                raw = template.render(hostvar)
+            except Exception as e:
+                self.console.log(f"[red]An exception occurred while rendering {host}. Skipped.", file=sys.stderr)
+                self.console.log(f"[red dim]{e}", file=sys.stderr)
+            else:
+                self.configs[host] = ignore_empty_lines(raw)
 
 
     def exec(self):

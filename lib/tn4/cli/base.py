@@ -2,9 +2,10 @@ from rich.console import Console
 import os
 import sys
 
-CURDIR             = os.path.dirname(__file__)
-ANSIBLE_PRODUCTION = os.path.join(CURDIR, "../../../inventories/production")
-sys.path.append(ANSIBLE_PRODUCTION)
+CURDIR              = os.path.dirname(__file__)
+ANSIBLE_INVENTORIES = os.path.join(CURDIR, "../../../inventories/production")
+ANSIBLE_ROLES       = os.path.join(CURDIR, "../../../roles")
+sys.path.append(ANSIBLE_INVENTORIES)
 
 from tn4.netbox.slug import Slug
 from netbox import dynamic_inventory
