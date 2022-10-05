@@ -10,11 +10,20 @@ from tn4.cli.base import CommandBase
 class Config(CommandBase):
     template_paths = {
         Slug.Manufacturer.Cisco: {
-            Slug.Role.EdgeSW: [ f"{ANSIBLE_ROLES}/cisco/templates/interface_edge.cfg.j2" ]
+            Slug.Role.EdgeSW: [
+                f"{ANSIBLE_ROLES}/cisco/templates/interface_edge.cfg.j2",
+                #f"{ANSIBLE_ROLES}/cisco/templates/overwrite.cfg.j2",
+            ]
         },
         Slug.Manufacturer.Juniper: {
-            Slug.Role.EdgeSW: [ f"{ANSIBLE_ROLES}/juniper/templates/interface_edge.cfg.j2" ],
-            Slug.Role.CoreSW: [ f"{ANSIBLE_ROLES}/juniper/templates/interface_core.cfg.j2" ]
+            Slug.Role.EdgeSW: [
+                f"{ANSIBLE_ROLES}/juniper/templates/interface_edge.cfg.j2",
+                #f"{ANSIBLE_ROLES}/juniper/templates/overwrite.cfg.j2"
+            ],
+            Slug.Role.CoreSW: [
+                f"{ANSIBLE_ROLES}/juniper/templates/interface_core.cfg.j2",
+                #f"{ANSIBLE_ROLES}/juniper/templates/overwrite.cfg.j2"
+            ]
         }
     }
 
