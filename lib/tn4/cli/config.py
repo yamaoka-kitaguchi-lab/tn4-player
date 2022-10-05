@@ -20,13 +20,13 @@ class Config(CommandBase):
         ]
 
 
-    def load_templates(self, trim_blocks, custom_template_path=None):
+    def load_templates(self, trim_blocks):
         self.templates = {}
 
         for manufacturer in self.template_paths.keys():
             for role, paths in self.template_paths[manufacturer].items():
-                if custom_template_path is not None:
-                    paths = [ custom_template_path ]
+                if self.custom_template_path is not None:
+                    paths = [ self.custom_template_path ]
 
                 for path in paths:
                     l = FileSystemLoader(os.path.dirname(path))
@@ -35,21 +35,20 @@ class Config(CommandBase):
                     self.templates.setdefault(manufacturer, {}).setdefault(role, []).append(t)
 
 
-    def render(self, trim_blocks=None, custom_template_path=None):
-        self.load_templates(trim_blocks, custom_template_path=custom_template_path)
+    def render(self, trim_blocks=False):
+        self.load_templates(trim_blocks)
         self.configs = {}
         ignore_empty_lines = lambda s: "\n".join([l for l in s.split("\n") if l != ""])
 
         for host, hostvar in self.inventory["_meta"]["hostvars"].items():
-            template = self.templates[hostvar["manufacturer"]][hostvar["role"]]
-
-            try:
-                raw = template.render(hostvar)
-            except Exception as e:
-                self.console.log(f"[red]An exception occurred while rendering {host}. Skipped.", file=sys.stderr)
-                self.console.log(f"[red dim]{e}", file=sys.stderr)
-            else:
-                self.configs[host] = ignore_empty_lines(raw)
+            for template in self.templates[hostvar["manufacturer"]][hostvar["role"]]:
+                try:
+                    raw = template.render(hostvar)
+                except Exception as e:
+                    self.console.log(f"[red]An exception occurred while rendering {host}. Skipped.", file=sys.stderr)
+                    self.console.log(f"[red dim]{e}", file=sys.stderr)
+                else:
+                    self.configs[host] = ignore_empty_lines(raw)
 
 
     def exec(self):
@@ -73,4 +72,6 @@ class Config(CommandBase):
                     json.dump(self.inventory, fd, indent=4, sort_keys=True, ensure_ascii=False)
                 self.console.log(f"[yellow]Exporting inventory finished at {self.inventory_json}")
             return 0
+
+        self.render()
 
