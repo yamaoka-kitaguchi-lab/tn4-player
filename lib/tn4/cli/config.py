@@ -9,14 +9,14 @@ from tn4.cli.base import CommandBase
 
 class Config(CommandBase):
     def __init__(self, args):
-        self.flg_use_cache = args.use_cache
-        self.flg_inventory = args.inventory
-        self.outdir = args.DIR_PATH
+        self.flg_use_cache  = args.use_cache
+        self.flg_inventory  = args.inventory
+        self.outdir         = args.DIR_PATH
+        self.inventory_json = f"{self.outdir}/inventory.json"
         self.fetch_inventory_opt = [
             args.hosts, args.no_hosts, args.areas, args.no_areas, args.roles, args.no_roles,
             args.vendors, args.no_vendors, args.tags, args.no_tags, args.use_cache
         ]
-        self.inventory_json = f"{self.outdir}/inventory.json"
 
 
     def render():
