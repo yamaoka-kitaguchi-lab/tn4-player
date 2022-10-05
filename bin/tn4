@@ -69,7 +69,7 @@ if __name__ == "__main__":
     parser1.add_argument("--no-vendors",  type=str, help="exclude rule for --vendors")
     parser1.add_argument("--tags",        type=str, help="limit the hosts with specified device tags (eg. test)")
     parser1.add_argument("--no-tags",     type=str, help="exclude rule for --tags")
-    parser1.add_argument("-j", "--template", type=jinja_path, help="jinja2 template path")
+    parser1.add_argument("--template", type=jinja_path, help="jinja2 template path")
     parser1.add_argument("-i", "--inventory", action="store_true", help="export the raw inventory json instead of rendered configs")
     parser1.add_argument("-x", "--use-cache", action="store_true", help="skip NetBox fetching and use local cache if available")
     parser1.add_argument("DIR_PATH", type=dir_path, help="path of the output directory")
