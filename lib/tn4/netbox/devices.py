@@ -92,7 +92,7 @@ class Devices(ClientBase):
                     "sitegp":          device["sitegp"],                               # site group slug
                     "device_tags":     device["tags"],                                 # device tag slug
                     "is_test_device":  device["is_test_device"],                       # whethre or not having 'Test' tag
-                    "mgmt_ip_address": device["mgmt_ip"],                              # device ip address without mask, or 'None'
+                    "ansible_host":    device["mgmt_ip"],                              # device ip address without mask, or 'None'
                 }
                 for device in devices.values() if device["is_ansible_target"]
             }
