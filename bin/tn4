@@ -82,7 +82,7 @@ if __name__ == "__main__":
                                     description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
                                     help="Shutting down Titanet4 in preparation for the campus-wide blackout")
     parser3.add_argument("--reboot", action="store_true", help="request reboot instead of system halt")
-    parser1.add_argument("-f", "--force",     action="store_true", help="ignore all warnings and skip confirmation")
+    parser3.add_argument("-f", "--force",     action="store_true", help="ignore all warnings and skip confirmation")
 
     parser4 = subparsers.add_parser("netbox",
                                     description="tn4 netbox - Scanning and repairing NetBox integrity and providing CLI-based operation",
