@@ -120,6 +120,8 @@ if __name__ == "__main__":
             code = Shutdown(args).exec()
         case "netbox":
             code = NetBox(args).exec()
+        case default:
+            code = 1
 
     if code == 1:
         parser.print_help()
