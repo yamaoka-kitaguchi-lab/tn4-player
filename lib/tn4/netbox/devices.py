@@ -42,9 +42,12 @@ class Devices(ClientBase):
                 else:
                     device["wifi_area_group"] = "S"
 
-            mgmt_ip = device["primary_ip"]
-            if mgmt_ip is not None:
-                mgmt_ip = mgmt_ip["address"].split("/")[0]
+            if "mgmt_ip" not in device:
+                device["mgmt_ip"] = None
+
+            ## Update if and only if primary_ip is not 'None', or stacked device's IP would be lost
+            if device["primary_ip"] is not None:
+                device["mgmt_ip"] = device["primary_ip"]["address"].split("/")[0]
 
             has_ansible_tag = Slug.Tag.Ansible in device["tags"]
             is_active = device["status"]["value"] == "active"
@@ -56,7 +59,6 @@ class Devices(ClientBase):
                 "role":              device["device_role"]["slug"],
                 "is_ansible_target": has_ansible_tag and is_active,
                 "is_test_device":    Slug.Tag.Test in device["tags"],
-                "mgmt_ip":           mgmt_ip,
                 "is_vc_member":      False,
                 "vc_chassis_number": 0,
             }
