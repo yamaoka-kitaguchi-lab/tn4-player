@@ -29,9 +29,10 @@ class Config(CommandBase):
 
 
     def __init__(self, args):
-        self.flg_use_cache  = args.use_cache
-        self.flg_inventory  = args.inventory
-        self.outdir         = args.DIR_PATH
+        self.flg_use_cache        = args.use_cache
+        self.flg_inventory        = args.inventory
+        self.outdir               = args.DIR_PATH
+        self.custom_template_path = args.template
         self.inventory_json = f"{self.outdir}/inventory.json"
         self.fetch_inventory_opt = [
             args.hosts, args.no_hosts, args.areas, args.no_areas, args.roles, args.no_roles,
@@ -39,11 +40,14 @@ class Config(CommandBase):
         ]
 
 
-    def load_templates(self, trim_blocks):
+    def load_templates(self, trim_blocks, custom_template_path=None):
         self.templates = {}
 
         for manufacturer in self.template_paths.keys():
             for role, paths in self.template_paths[manufacturer].items():
+                if custom_template_path is not None:
+                    paths = [ custom_template_path ]
+
                 for path in paths:
                     l = FileSystemLoader(os.path.dirname(path))
                     e = Environment(loader=l, trim_blocks=trim_blocks)
@@ -51,8 +55,8 @@ class Config(CommandBase):
                     self.templates.setdefault(manufacturer, {}).setdefault(role, []).append(t)
 
 
-    def render(self, trim_blocks=False):
-        self.load_templates(trim_blocks)
+    def render(self, trim_blocks=None, custom_template_path=None):
+        self.load_templates(trim_blocks, custom_template_path=custom_template_path)
         self.configs = {}
         ignore_empty_lines = lambda s: "\n".join([l for l in s.split("\n") if l != ""])
 
