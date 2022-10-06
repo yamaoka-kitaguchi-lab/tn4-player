@@ -310,8 +310,8 @@ class Interfaces(ClientBase):
 
 
     def fetch_as_inventory(self, ctx, use_cache=False):
-        interfaces = self.fetch_interfaces(ctx, use_cache=use_cache)
-        lag_members = self.fetch_lag_members(ctx)  # following fetch_interfaces()
+        all_interfaces = self.fetch_interfaces(ctx, use_cache=use_cache)
+        all_lag_members = self.fetch_lag_members(ctx)  # following fetch_interfaces()
         used_vlans, mgmt_vlans = self.fetch_vlans(ctx)
 
         ansible_targets = []
@@ -319,12 +319,26 @@ class Interfaces(ClientBase):
             if device["is_ansible_target"]:
                 ansible_targets.append(device["hostname"])
 
+        target_interfaces = {}
+        for hostname, interfaces in all_interfaces.items():
+            for name, interface in interfaces.items():
+                if interface["is_protected"]:
+                    continue
+                target_interfaces.setdefault(hostname, {})[name] = interface
+
+        target_lag_members = {}
+        for hostname, lag_members in all_lag_members.items():
+            for parent, children in lag_members.items():
+                if all_interfaces[parent]["is_protected"]:
+                    continue
+                target_lag_members.setdefault(hostname, {})[parent] = children
+
         return {
             hostname: {
-                "interfaces":  interfaces[hostname],   # key: interface name, value: interface object
-                "lag_members": lag_members[hostname],  # key: parent name, value: list of members' name
-                "vlans":       used_vlans[hostname],   # list of extended VLAN object
-                "mgmt_vlan":   mgmt_vlans[hostname],   # a VLAN object
+                "interfaces":  target_interfaces[hostname],   # key: interface name, value: interface object
+                "lag_members": target_lag_members[hostname],  # key: parent name, value: list of members' name
+                "vlans":       used_vlans[hostname],          # list of extended VLAN object
+                "mgmt_vlan":   mgmt_vlans[hostname],          # a VLAN object
             }
             for hostname in interfaces.keys() if hostname in ansible_targets
         }

@@ -44,7 +44,7 @@ def dynamic_inventory(use_cache=False):
                     **{
                         key:    nbdata[hostname][key]
                         for key in [
-                            "ansible_host"
+                            "ansible_host",
                             "device_tags",
                             "interfaces",
                             "is_test_device",
