@@ -40,15 +40,24 @@ def dynamic_inventory(use_cache=False):
         "_meta": {
             "hostvars": {
                 hostname: {
-                    "hostname":       hostname,
+                    "hostname": hostname,
                     **{
-                        key:          nbdata[hostname][key]
+                        key:    nbdata[hostname][key]
                         for key in [
-                            "role", "region", "sitegp", "manufacturer", "device_tags", "interfaces",
-                            "lag_members", "vlans", "mgmt_vlan", "is_test_device", "ansible_host"
+                            "ansible_host"
+                            "device_tags",
+                            "interfaces",
+                            "is_test_device",
+                            "lag_members",
+                            "manufacturer",
+                            "mgmt_vlan",
+                            "region",
+                            "role",
+                            "sitegp",
+                            "vlans",
                         ]
                     },
-                    "datetime":       ts,
+                    "datetime": ts,
                 }
                 for hostname in nbdata["_hostnames"]
             }
