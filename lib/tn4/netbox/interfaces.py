@@ -324,7 +324,7 @@ class Interfaces(ClientBase):
                 "interfaces":  interfaces[hostname],   # key: interface name, value: interface object
                 "lag_members": lag_members[hostname],  # key: parent name, value: list of members' name
                 "vlans":       used_vlans[hostname],   # list of extended VLAN object
-                "mgmt_vlans":  mgmt_vlans[hostname],   # a VLAN object
+                "mgmt_vlan":   mgmt_vlans[hostname],   # a VLAN object
             }
             for hostname in interfaces.keys() if hostname in ansible_targets
         }
