@@ -76,3 +76,8 @@ class Config(CommandBase):
 
         self.render()
 
+        for host in self.configs:
+            cfg = f"{self.outdir}/{host}.cfg"
+            with open(cfg, "w") as fd:
+                fd.write(self.configs[host])
+
