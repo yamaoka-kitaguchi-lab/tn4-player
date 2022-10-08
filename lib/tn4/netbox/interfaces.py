@@ -188,7 +188,7 @@ class Interfaces(ClientBase):
             else:
                 interface |= {
                     "vlan_mode":       None,
-                    "is_trunk_all":    True,
+                    "is_trunk_all":    False,
                 }
 
             interface |= {
