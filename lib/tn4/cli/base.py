@@ -43,7 +43,7 @@ class CommandBase:
         if use_cache:
             m = "Loading local cache and rebuilding inventory, this usually takes less than few seconds..."
 
-        with self.console.status(f"[yellow]{m}"):
+        with self.console.status(f"[green]{m}"):
             start_at = time.time()
             nb.cli.sites.fetch_as_inventory(nb.ctx, use_cache=use_cache)
             et = round(time.time() - start_at, 1)

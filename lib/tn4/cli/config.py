@@ -61,17 +61,17 @@ class Config(CommandBase):
         self.console.log(f"[yellow dim]{', '.join(hosts)}")
 
         if self.flg_inventory:
-            with self.console.status(f"[yellow]Exporting raw inventory..."):
+            with self.console.status(f"[green]Exporting raw inventory..."):
                 with open(self.inventory_json, "w") as fd:
                     json.dump(self.inventory, fd, indent=4, sort_keys=True, ensure_ascii=False)
                 self.console.log(f"[yellow]Exporting inventory finished at {self.inventory_json}")
             return 0
 
-        with self.console.status(f"[yellow]Rendering configs..."):
+        with self.console.status(f"[green]Rendering configs..."):
             self.render()
             self.console.log(f"[yellow]Rendering configs finished")
 
-        with self.console.status(f"[yellow]Exporting rendered configs..."):
+        with self.console.status(f"[green]Exporting rendered configs..."):
             for host in self.configs:
                 cfg = f"{self.outdir}/{host}.cfg"
                 with open(cfg, "w") as fd:
