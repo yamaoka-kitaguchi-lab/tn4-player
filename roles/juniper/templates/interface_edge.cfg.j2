@@ -1,6 +1,6 @@
 delete vlans
 {% for interface_name, interface in interfaces.items() %}
-{% if interface.is_physical %}
+{% if not interface.is_upstream and not interface.is_irb %}
 delete interfaces {{ interface_name }}
 delete poe interface {{ interface_name }}
 {% endif %}
@@ -29,6 +29,7 @@ set protocols lldp interface all disable
 
 {% for interface_name, interface in interfaces.items() if not interface.is_irb %}
 set interfaces {{ interface_name }} {{ "enable" if interface.is_enabled else "disable" }}
+{% if interface.is_enabled or not interface.is_enabled %}
 {% if interface.description %}
 set interfaces {{ interface_name }} description "{{ interface.description }}"
 {% endif %}
@@ -75,5 +76,6 @@ set interfaces {{ interface_name }} unit 0 family ethernet-switching vlan member
 {% endif %}
 {% if interface.native_vid %}
 set interfaces {{ interface_name }} native-vlan-id {{ interface.native_vid }}
+{% endif %}
 {% endif %}
 {% endfor %}
