@@ -171,20 +171,23 @@ class Interfaces(ClientBase):
                     if interface["description"] == "" and vlan_name is not None:
                         interface["description"] = vlan_name
 
-            elif vlan_mode == "tagged" and len(interface["tagged_vlans"]) > 0:
-                interface |= {
-                    "vlan_mode":       "trunk",  # rephrase to juniper/cisco style
-                    "tagged_vlanids":  [v["id"] for v in interface["tagged_vlans"]],
-                    "tagged_vids":     [v["vid"] for v in interface["tagged_vlans"]],
-                    "is_trunk_all":    False,
-                }
-                all_vlanids.extend(interface["tagged_vlanids"])
-                all_vids.extend(interface["tagged_vids"])
+            #elif vlan_mode == "tagged" and len(interface["tagged_vlans"]) > 0:
+            elif vlan_mode == "tagged":
+                interface["vlan_mode"] = "trunk"
+                if len(interface["tagged_vlans"]) > 0:
+                    interface |= {
+                        "vlan_mode":       "trunk",  # rephrase to juniper/cisco style
+                        "tagged_vlanids":  [v["id"] for v in interface["tagged_vlans"]],
+                        "tagged_vids":     [v["vid"] for v in interface["tagged_vlans"]],
+                        "is_trunk_all":    False,
+                    }
+                    all_vlanids.extend(interface["tagged_vlanids"])
+                    all_vids.extend(interface["tagged_vids"])
 
-                if interface["untagged_vlan"] is not None:
-                    interface["native_vid"] = interface["untagged_vlan"]["vid"]
-                    all_vlanids.append(interface["untagged_vlan"]["id"])
-                    all_vids.append(interface["untagged_vlan"]["vid"])
+                    if interface["untagged_vlan"] is not None:
+                        interface["native_vid"] = interface["untagged_vlan"]["vid"]
+                        all_vlanids.append(interface["untagged_vlan"]["id"])
+                        all_vids.append(interface["untagged_vlan"]["vid"])
 
             elif vlan_mode == "tagged-all" or is_upstream:
                 interface |= {
