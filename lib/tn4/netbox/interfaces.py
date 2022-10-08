@@ -176,7 +176,8 @@ class Interfaces(ClientBase):
 
                 if interface["untagged_vlan"] is not None:
                     interface["native_vid"] = interface["untagged_vlan"]["vid"]
-                    all_vids.append(interface["native_vid"])
+                    all_vlanids.append(interface["untagged_vlan"]["id"])
+                    all_vids.append(interface["untagged_vlan"]["vid"])
 
             elif vlan_mode == "tagged-all" or is_upstream:
                 interface |= {
@@ -335,10 +336,6 @@ class Interfaces(ClientBase):
             }
             for hostname, lag_members in all_lag_members.items()
         }
-
-        from pprint import pprint
-        #pprint(all_interfaces["minami4"]["mge-0/0/44"])
-        print(sorted([v["vid"] for v in used_vlans["minami4"]]))
 
         return {
             hostname: {
