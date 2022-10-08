@@ -71,7 +71,7 @@ class CommandBase:
 
             nb.nbdata = nb.cli.merge_inventory(devices, interfaces)
             inventory = nb.fetch_inventory()
-            self.console.log(f"[yellow] Building Titanet4 inventory finished")
+            self.console.log(f"[yellow]Building Titanet4 inventory finished")
 
         hostnames = []
         includes, excludes = [], []
