@@ -30,71 +30,66 @@ set interfaces {{ child }} ether-options 802.3ad {{ parent }}
 
 set protocols lldp interface all disable
 
-{% for interface, prop in interfaces.items() %}
-set interfaces {{ interface }} {{ "enable" if prop.enabled else "disable" }}
+{% for interface_name, interface in interfaces.items() %}  {# begin: inteface settings #}
+set interfaces {{ interface_name }} {{ "enable" if interface.is_enabled else "disable" }}
 
-{% if prop.description %}
-set interfaces {{ interface }} description "{{ prop.description }}"
+{% if interface.description %}
+set interfaces {{ interface_name }} description "{{ interface.description }}"
 {% endif %}
 
-{% if prop.uplink or prop.wifi %}
-set protocols lldp interface {{ interface }}
-{% endif %}
-
-
-{% if prop.description %}
-set interfaces {{ interface }} description "{{ prop.description }}"
+{% if interface.is_upstream or interface.is_to_ap %}
+set protocols lldp interface {{ interface_name }}
 {% endif %}
 
 
-{% if not prop.lag_member %}
+{% if not interface.is_lag_member %}  {# begin: non-lag-member interface settings #}
 
-{% if prop.physical %}
+{% if interface.is_physical %}  {# begin: physical interface settings #}
 
-{% if prop.speed_10m %}
-set interfaces {{ interface }} speed 10m
-{% elif prop.speed_100m %}
-set interfaces {{ interface }} speed 100m
-{% elif prop.speed_1g %}
-set interfaces {{ interface }} speed 1g
-{% elif prop.speed_10g %}
-set interfaces {{ interface }} speed 10g
+{% if interface.is_10mbps %}
+set interfaces {{ interface_name }} speed 10m
+{% elif interface.is_100mbps %}
+set interfaces {{ interface_name }} speed 100m
+{% elif interface.is_1gbps %}
+set interfaces {{ interface_name }} speed 1g
+{% elif interface.is_10gbps %}
+set interfaces {{ interface_name }} speed 10g
 {% else %}
-set interfaces {{ interface }} ether-options auto-negotiation
+set interfaces {{ interface_name }} ether-options auto-negotiation
 {% endif %}
 
-{% if prop.poe %}
-set poe interface {{ interface }}
+{% if interface.is_poe %}
+set poe interface {{ interface_name }}
 {% endif %}
 
+{% endif %}  {# end: physical interface settings #}
+
+{% if not interface.is_upstream %}
+set interfaces {{ interface_name }} unit 0 family ethernet-switching storm-control "storm3M"
+set interfaces {{ interface_name }} unit 0 family ethernet-switching filter input-list CDP
+set interfaces {{ interface_name }} unit 0 family ethernet-switching filter output-list CDP
+set interfaces {{ interface_name }} unit 0 family ethernet-switching filter input-list BPDU
+set interfaces {{ interface_name }} unit 0 family ethernet-switching filter output-list BPDU
+set interfaces {{ interface_name }} unit 0 family ethernet-switching filter input-list DEFAULT
+set interfaces {{ interface_name }} unit 0 family ethernet-switching filter output-list DEFAULT
 {% endif %}
 
-{% if not prop.uplink %}
-set interfaces {{ interface }} unit 0 family ethernet-switching storm-control "storm3M"
-set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list CDP
-set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list CDP
-set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list BPDU
-set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list BPDU
-set interfaces {{ interface }} unit 0 family ethernet-switching filter input-list DEFAULT
-set interfaces {{ interface }} unit 0 family ethernet-switching filter output-list DEFAULT
-{% endif %}
-
-{% endif %}
+{% endif %}  {# end: non-lag-member interface settings #}
 
 
-{% if prop.vlan_mode %}
-set interfaces {{ interface }} unit 0 family ethernet-switching interface-mode {{ prop.vlan_mode }}
-{% if prop.trunk_all %}
-set interfaces {{ interface }} unit 0 family ethernet-switching vlan members all
+{% if interface.vlan_mode %}
+set interfaces {{ interface_name }} unit 0 family ethernet-switching interface-mode {{ interface.vlan_mode }}
+{% if interface.is_trunk_all %}
+set interfaces {{ interface_name }} unit 0 family ethernet-switching vlan members all
 {% else %}
-{% for vid in prop.vids %}
-set interfaces {{ interface }} unit 0 family ethernet-switching vlan members {{ vid }}
+{% for vid in interface.all_vids %}
+set interfaces {{ interface_name }} unit 0 family ethernet-switching vlan members {{ vid }}
 {% endfor %}
 {% endif %}
 {% endif %}
 
-{% if prop.native_vid %}
-set interfaces {{ interface }} native-vlan-id {{ prop.native_vid }}
+{% if interface.native_vid %}
+set interfaces {{ interface_name }} native-vlan-id {{ interface.native_vid }}
 {% endif %}
 
-{% endfor %}
+{% endfor %}  {# end: interface settings #}
