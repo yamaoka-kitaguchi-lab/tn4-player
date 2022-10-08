@@ -74,10 +74,14 @@ class Config(CommandBase):
                 self.console.log(f"[yellow]Exporting inventory finished at {self.inventory_json}")
             return 0
 
-        self.render()
+        with self.console.status(f"[yellow]Rendering configs..."):
+            self.render()
+            self.console.log(f"[yellow]Rendering configs finished"):
 
-        for host in self.configs:
-            cfg = f"{self.outdir}/{host}.cfg"
-            with open(cfg, "w") as fd:
-                fd.write(self.configs[host])
+        with self.console.status(f"[yellow]Exporting rendered configs..."):
+            for host in self.configs:
+                cfg = f"{self.outdir}/{host}.cfg"
+                with open(cfg, "w") as fd:
+                    fd.write(self.configs[host])
+            self.console.log(f"[yellow]Exporting rendered configs finished"):
 
