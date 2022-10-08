@@ -153,20 +153,23 @@ class Interfaces(ClientBase):
             if vlan_mode is not None:
                 vlan_mode = vlan_mode["value"].lower()  # or vlan_mode is 'None' going to the else-block
 
-            if vlan_mode == "access" and interface["untagged_vlan"] is not None:
-                interface |= {
-                    "vlan_mode":       "access",
-                    "untagged_vlanid": interface["untagged_vlan"]["id"],
-                    "untagged_vid":    interface["untagged_vlan"]["vid"],
-                    "is_trunk_all":    False,
-                }
-                all_vlanids.append(interface["untagged_vlanid"])
-                all_vids.append(interface["untagged_vid"])
+            #if vlan_mode == "access" and interface["untagged_vlan"] is not None:
+            if vlan_mode == "access":
+                interface["vlan_mode"] = "access"
+                if interface["untagged_vlan"] is not None:
+                    interface |= {
+                        "vlan_mode":       "access",
+                        "untagged_vlanid": interface["untagged_vlan"]["id"],
+                        "untagged_vid":    interface["untagged_vlan"]["vid"],
+                        "is_trunk_all":    False,
+                    }
+                    all_vlanids.append(interface["untagged_vlanid"])
+                    all_vids.append(interface["untagged_vid"])
 
-                ## use vlan name for interface description if it is empty
-                vlan_name = self.lookup_vlan_name(interface["untagged_vlan"]["id"], ctx)
-                if interface["description"] == "" and vlan_name is not None:
-                    interface["description"] = vlan_name
+                    ## use vlan name for interface description if it is empty
+                    vlan_name = self.lookup_vlan_name(interface["untagged_vlan"]["id"], ctx)
+                    if interface["description"] == "" and vlan_name is not None:
+                        interface["description"] = vlan_name
 
             elif vlan_mode == "tagged" and len(interface["tagged_vlans"]) > 0:
                 interface |= {
