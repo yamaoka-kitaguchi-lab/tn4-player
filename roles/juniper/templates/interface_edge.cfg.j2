@@ -52,7 +52,7 @@ set interfaces {{ interface_name }} ether-options auto-negotiation
 set poe interface {{ interface_name }}
 {% endif %}
 {% endif %}
-{% if not interface.is_upstream %}
+{% if not interface.is_upstream and not interface.is_irb %}
 set interfaces {{ interface_name }} unit 0 family ethernet-switching storm-control "storm3M"
 set interfaces {{ interface_name }} unit 0 family ethernet-switching filter input-list CDP
 set interfaces {{ interface_name }} unit 0 family ethernet-switching filter output-list CDP
