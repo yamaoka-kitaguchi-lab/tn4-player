@@ -99,6 +99,10 @@ class Interfaces(ClientBase):
             dev_name = interface["device"]["name"]
             hostname = ctx.devices[dev_name]["hostname"]
 
+            is_empty_irb = interface["name"] == "irb" and interface["mode"] is None
+            if is_empty_irb:
+                continue  # ignored. these interfaces should have been fixed by nbck module beforehand
+
             is_upstream = hastag(interface, Slug.Tag.Upstream)
 
             interface |= {
