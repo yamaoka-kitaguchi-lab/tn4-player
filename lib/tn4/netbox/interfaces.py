@@ -167,8 +167,8 @@ class Interfaces(ClientBase):
             elif vlan_mode == "tagged" and len(interface["tagged_vlans"]) > 0:
                 interface |= {
                     "vlan_mode":       "trunk",  # rephrase to juniper/cisco style
-                    "tagged_vlanids":  [ v["id"] for v in interface["tagged_vlans"] ],
-                    "tagged_vids":     [ v["vid"] for v in interface["tagged_vlans"] ],
+                    "tagged_vlanids":  [v["id"] for v in interface["tagged_vlans"]],
+                    "tagged_vids":     [v["vid"] for v in interface["tagged_vlans"]],
                     "is_trunk_all":    False,
                 }
                 all_vlanids.extend(interface["tagged_vlanids"])
@@ -192,8 +192,8 @@ class Interfaces(ClientBase):
                 }
 
             interface |= {
-                "all_vlanids": list(set(all_vlanids)),
-                "all_vids":    list(set(all_vids)),
+                "all_vlanids": sorted(list(set(all_vlanids))),
+                "all_vids":    sorted(list(set(all_vids))),
             }
 
             ## for cisco edge
@@ -272,10 +272,10 @@ class Interfaces(ClientBase):
         irb_vids, rspan_vids = [], []
 
         for hostname, interfaces in self.all_interfaces.items():
-            v = []
+            used_vlanids = []
 
             for interface in interfaces.values():
-                v.extend(interface["all_vlanids"])
+                used_vlanids.extend(interface["all_vlanids"])
 
                 if interface["is_irb"]:
                     irb_vids.extend(interface["all_vids"])
@@ -285,7 +285,7 @@ class Interfaces(ClientBase):
                 regions[hostname] = interface["region"]
                 roles[hostname] = interface["role"]
 
-            all_used_vlanids[hostname] = list(set(v))
+            all_used_vlanids[hostname] = list(set(used_vlanids))
 
         for hostname, used_vlanids in all_used_vlanids.items():
             region = regions[hostname]
@@ -306,6 +306,9 @@ class Interfaces(ClientBase):
 
                 if is_in_use:
                     used_vlans.setdefault(hostname, []).append(vlan)
+
+            if hostname in used_vlans:
+                used_vlans[hostname].sort(key=lambda v: v["vid"])
 
         return used_vlans, mgmt_vlans
 
@@ -334,7 +337,8 @@ class Interfaces(ClientBase):
         }
 
         from pprint import pprint
-        pprint(all_interfaces["minami4"]["mge-0/0/44"])
+        #pprint(all_interfaces["minami4"]["mge-0/0/44"])
+        print(sorted([v["vid"] for v in used_vlans["minami4"]]))
 
         return {
             hostname: {
