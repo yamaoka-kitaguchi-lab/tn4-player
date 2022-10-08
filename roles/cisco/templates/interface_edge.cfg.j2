@@ -1,32 +1,32 @@
 {% for vlan in vlans %}
-{% if not vlan.protected %}
+{% if not vlan.is_protected %}
 vlan {{ vlan.vid }}
  name {{ vlan.name }}
 {% endif %}
 {% endfor %}
 
-{% for interface, prop in interfaces.items() %}
-interface {{ interface }}
+{% for interface_name, interface in interfaces.items() if interface.is_physical %}
+interface {{ interface_name }}
 
-{% if prop.description %}
- description {{ prop.description }}
+{% if interface.description %}
+ description {{ interface.description }}
 {% else %}
  no description
 {% endif %}
 
-{% if prop.physical_uplink or prop.physical and prop.wifi %}
+{% if interface.is_phy_uplink or interface.is_physical and interface.is_to_ap %}
  lldp transmit
  lldp receive
-{% elif prop.physical %}
+{% elif interface.is_physical %}
  no lldp transmit
  no lldp receive
 {% endif %}
 
-{% if not prop.enabled %}
+{% if not interface.is_enabled %}
  shutdown
  no switchport
  no ip address
-{% if prop.utp %}
+{% if interface.is_utp %}
  speed auto
  power inline never
 {% endif %}
@@ -34,61 +34,61 @@ interface {{ interface }}
 {% else %}
  no shutdown
 
-{% if prop.uplink or prop.physical and prop.wifi %}
+{% if interface.is_upstream or interface.is_physical and interface.is_to_ap %}
  no storm-control broadcast level
  no storm-control multicast level
  no storm-control unicast level
-{% elif not prop.lag_member %}
+{% elif not interface.is_lag_member %}
  storm-control broadcast level bps 3000000
  storm-control multicast level bps 3000000
  no storm-control unicast level
 {% endif %}
 
-{% if prop.physical and not prop.physical_uplink %}
-{% if prop.speed_10m %}
+{% if interface.is_physical and not interface.is_phy_uplink %}
+{% if interface.is_10mbps %}
  speed 10
-{% elif prop.speed_100m %}
+{% elif interface.is_100mbps %}
  speed 100
-{% elif prop.speed_1g %}
+{% elif interface.is_1gbps %}
  speed 1000
 {% else %}
  speed auto
 {% endif %}
 
-{% if prop.poe %}
+{% if interface.is_poe %}
  power inline auto
 {% else %}
  power inline never
 {% endif %}
 {% endif %}
 
-{% if not prop.physical_uplink %}
-{% if prop.trunk_all %}
+{% if not interface.is_phy_uplink %}
+{% if interface.is_trunk_all %}
  switchport
  switchport mode trunk
-{% elif prop.vlan_mode == "access" %}
+{% elif interface.vlan_mode == "access" %}
  switchport
  switchport mode access
- switchport access vlan {{ prop.all_vids[0] }}
+ switchport access vlan {{ interface.all_vids[0] }}
  no switchport trunk allowed vlan
-{% elif prop.vlan_mode == "trunk" %}
+{% elif interface.vlan_mode == "trunk" %}
  switchport
  switchport mode trunk
-{% for removed_vids in prop.removed_vids %}
- switchport trunk allowed vlan remove {{ removed_vids | join(',') }}
+{% for absent_vids in interface.absent_vids %}
+ switchport trunk allowed vlan remove {{ absent_vids | join(',') }}
 {% endfor %}
- switchport trunk allowed vlan add {{ prop.all_vids | join(',') }}
+ switchport trunk allowed vlan add {{ interface.all_vids | join(',') }}
 {% else %}
  no switchport
 {% endif %}
 
-{% if prop.native_vid %}
- switchport trunk native vlan {{ prop.native_vid }}
+{% if interface.native_vid %}
+ switchport trunk native vlan {{ interface.native_vid }}
 {% else %}
  no switchport trunk native vlan
 {% endif %}
 
-{% elif prop.physical_uplink %}
+{% elif interface.is_physical_uplink %}
  switchport
  switchport mode trunk
 {% endif %}
