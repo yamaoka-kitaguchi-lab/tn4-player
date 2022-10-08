@@ -135,7 +135,7 @@ class Interfaces(ClientBase):
             ##  - "*_vlanid*" is the VLAN object ID used NetBox internally
             ##  - "*_vid*" is the actual VLAN ID (1..4094)
 
-            all_vlan_ids = []
+            all_vlanids = []
             all_vids = []
 
             interface |= {
@@ -156,7 +156,7 @@ class Interfaces(ClientBase):
                     "untagged_vid":    interface["untagged_vlan"]["vid"],
                     "is_trunk_all":    False,
                 }
-                all_vlan_ids.append(interface["untagged_vlanid"])
+                all_vlanids.append(interface["untagged_vlanid"])
                 all_vids.append(interface["untagged_vid"])
 
                 ## use vlan name for interface description if it is empty
@@ -171,7 +171,7 @@ class Interfaces(ClientBase):
                     "tagged_vids":     [v["vid"] for v in interface["tagged_vlans"]],
                     "is_trunk_all":    False,
                 }
-                all_vlan_ids.extend(interface["tagged_vlanids"])
+                all_vlanids.extend(interface["tagged_vlanids"])
                 all_vids.extend(interface["tagged_vids"])
 
                 if interface["untagged_vlan"] is not None:
@@ -192,7 +192,7 @@ class Interfaces(ClientBase):
                 }
 
             interface |= {
-                "all_vlanids": list(set(all_vlan_ids)),
+                "all_vlanids": list(set(all_vlanids)),
                 "all_vids":    list(set(all_vids)),
             }
 
@@ -269,8 +269,10 @@ class Interfaces(ClientBase):
         if self.all_interfaces is None:
             self.fetch_interfaces()
 
+        irb_vids, rspan_vids = [], []
+
         for hostname, interfaces in self.all_interfaces.items():
-            v, irb_vids, rspan_vids = [], [], []
+            v = []
 
             for interface in interfaces.values():
                 v.extend(interface["all_vlanids"])
