@@ -83,5 +83,5 @@ class Config(CommandBase):
                 cfg = f"{self.outdir}/{host}.cfg"
                 with open(cfg, "w") as fd:
                     fd.write(self.configs[host])
-            self.console.log(f"[yellow]Exporting rendered configs finished")
+            self.console.log(f"[yellow]Exporting rendered configs finished at {self.outdir}")
 
