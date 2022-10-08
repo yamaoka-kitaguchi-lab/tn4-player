@@ -23,20 +23,12 @@ class Client:
         return merged
 
 
-    def fetch_as_inventory(self, ctx, use_cache=False, debug=False):
-        dprint = lambda s: debug and print(s)
-
-        dprint(f"fetching {self.sites.path}")
+    def fetch_as_inventory(self, ctx, use_cache=False):
         self.sites.fetch_as_inventory(ctx, use_cache=use_cache)
-        dprint(f"fetching {self.vlans.path}")
         self.vlans.fetch_as_inventory(ctx, use_cache=use_cache)
-        dprint(f"fetching {self.addresses.path}")
         self.addresses.fetch_as_inventory(ctx, use_cache=use_cache)
-
-        dprint(f"fetching {self.devices.path}")
-        devices = self.devices.fetch_as_inventory(ctx, use_cache=use_cache)  # depending on sites
-        dprint(f"fetching {self.interfaces.path}")
-        interfaces = self.interfaces.fetch_as_inventory(ctx, use_cache=use_cache)  # depending on devices, vlans, and addresses
-
-        return self.merge_inventory(devices, interfaces)
+        return self.merge_inventory(
+            self.devices.fetch_as_inventory(ctx, use_cache=use_cache),     # depending on sites
+            self.interfaces.fetch_as_inventory(ctx, use_cache=use_cache),  # depending on devices, vlans, and addresses
+        )
 

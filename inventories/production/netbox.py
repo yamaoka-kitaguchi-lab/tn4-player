@@ -23,60 +23,67 @@ def timestamp():
     return n.strftime("%Y-%m-%d@%H-%M-%S")
 
 
-def dynamic_inventory(use_cache=False, debug=False):
-    ts = timestamp()
-    secrets = load_encrypted_secrets(VAULT_FILE, VAULT_PASSWORD_FILE)
-    ctx = Context(endpoint=secrets["netbox_url"], token=secrets["netbox_api_token"])
-    cli = Client()
-    nbdata = cli.fetch_as_inventory(ctx, use_cache=use_cache, debug=debug)
-
-    for hostname in nbdata["_hostnames"]:
-        if "interfaces" not in nbdata[hostname]:
-            print(nbdata[hostname].keys())
+class NetBox:
+    def __init__(self):
+        self.ts        = timestamp()
+        secrets   = load_encrypted_secrets(VAULT_FILE, VAULT_PASSWORD_FILE)
+        self.ctx       = Context(endpoint=secrets["netbox_url"], token=secrets["netbox_api_token"])
+        self.cli       = Client()
+        self.nbdata    = None
+        self.inventory = None
 
 
-    inventory = {
-        **{
-            role: {
-                "hosts": [ h for h in nbdata["_hostnames"] if nbdata[h]["role"] == role ]
-            }
-            for role in nbdata["_roles"]
-        },
-        "_meta": {
-            "hostvars": {
-                hostname: {
-                    "hostname": hostname,
-                    **{
-                        key:    nbdata[hostname][key]
-                        for key in [
-                            "ansible_host",
-                            "device_tags",
-                            "interfaces",
-                            "is_test_device",
-                            "lag_members",
-                            "manufacturer",
-                            "mgmt_vlan",
-                            "region",
-                            "role",
-                            "sitegp",
-                            "vlans",
-                        ]
-                    },
-                    "datetime": ts,
+    def fetch_inventory(self, use_cache=False):
+        if self.nbdata is None:
+            self.nbdata = cli.fetch_as_inventory(ctx, use_cache=use_cache)
+
+        self.inventory = {
+            **{
+                role: {
+                    "hosts": [ h for h in self.nbdata["_hostnames"] if self.nbdata[h]["role"] == role ]
                 }
-                for hostname in nbdata["_hostnames"]
+                for role in self.nbdata["_roles"]
+            },
+            "_meta": {
+                "hostvars": {
+                    hostname: {
+                        "hostname": hostname,
+                        **{
+                            key: self.nbdata[hostname][key]
+                            for key in [
+                                "ansible_host",
+                                "device_tags",
+                                "interfaces",
+                                "is_test_device",
+                                "lag_members",
+                                "manufacturer",
+                                "mgmt_vlan",
+                                "region",
+                                "role",
+                                "sitegp",
+                                "vlans",
+                            ]
+                        },
+                        "datetime": self.ts,
+                    }
+                    for hostname in self.nbdata["_hostnames"]
+                }
             }
         }
-    }
 
-    return inventory
+        return self.inventory
 
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Ansible - Dynamic Inventory Script")
     parser.add_argument("--use-cache", action="store_true", help="use NetBox cache if $HOME/.cache/tn4-player/*.cache available")
-    parser.add_argument("--debug",     action="store_true", help="debug mode")
+    #parser.add_argument("--debug",     action="store_true", help="debug mode")
     args = parser.parse_args()
 
-    inventory = dynamic_inventory(use_cache=args.use_cache, debug=args.debug)
-    print(json.dumps(inventory, indent=4, sort_keys=True, ensure_ascii=False))
+    nb = NetBox()
+    print(json.dumps(
+        nb.fetch_inventory(use_cache=args.use_cache),
+        indent=4,
+        sort_keys=True,
+        ensure_ascii=False
+    ))

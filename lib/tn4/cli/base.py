@@ -1,6 +1,7 @@
 from rich.console import Console
 import os
 import sys
+import time
 
 CURDIR              = os.path.dirname(__file__)
 ANSIBLE_INVENTORIES = os.path.join(CURDIR, "../../../inventories/production")
@@ -8,7 +9,7 @@ ANSIBLE_ROLES       = os.path.join(CURDIR, "../../../roles")
 sys.path.append(ANSIBLE_INVENTORIES)
 
 from tn4.netbox.slug import Slug
-from netbox import dynamic_inventory
+from netbox import NetBox
 
 
 class CommandBase:
@@ -36,7 +37,41 @@ class CommandBase:
 
     def fetch_inventory(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[],
                         vendors=[], no_vendors=[], tags=[], no_tags=[], use_cache=False, debug=False):
-        inventory = dynamic_inventory(use_cache=use_cache, debug=debug)
+        nb = NetBox()
+
+        m = "Fetching the latest inventory from NetBox, this may take a while..."
+        if use_cache:
+            m = "Loading local cache and rebuilding inventory, this usually takes less than few seconds..."
+
+        with self.console.status(f"[yellow]{m}"):
+            start_at = time.time()
+            nb.cli.sites.fetch_as_inventory(nb.ctx, use_cache=use_cache)
+            et = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Loading finished from {nb.cli.sites.path} in {et} sec")
+
+            start_at = time.time()
+            nb.cli.vlans.fetch_as_inventory(nb.ctx, use_cache=use_cache)
+            et = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Loading finished from {nb.cli.vlans.path} in {et} sec")
+
+            start_at = time.time()
+            nb.cli.addresses.fetch_as_inventory(nb.ctx, use_cache=use_cache)
+            et = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Loading finished from {nb.cli.addresses.path} in {et} sec")
+
+            start_at = time.time()
+            devices = nb.cli.devices.fetch_as_inventory(nb.ctx, use_cache=use_cache)
+            et = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Loading finished from {nb.cli.devices.path} in {et} sec")
+
+            start_at = time.time()
+            interfaces = nb.cli.interfaces.fetch_as_inventory(nb.ctx, use_cache=use_cache)
+            et = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Loading finished from {nb.cli.interfaces.path} in {et} sec")
+
+            nb.nbdata = nb.cli.merge_inventory(devices, interfaces)
+            inventory = nb.fetch_inventory()
+            self.console.log(f"[yellow] Building Titanet4 inventory finished")
 
         hostnames = []
         includes, excludes = [], []
