@@ -326,7 +326,7 @@ class Interfaces(ClientBase):
 
         target_lag_members = {
             hostname: {
-                    parent: children
+                parent: children
                 for parent, children in lag_members.items() if parent in all_interfaces  # missing parent means protected parent
             }
             for hostname, lag_members in all_lag_members.items()
