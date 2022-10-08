@@ -35,8 +35,8 @@ class CommandBase:
 
 
     def fetch_inventory(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[],
-                        vendors=[], no_vendors=[], tags=[], no_tags=[], use_cache=False):
-        inventory = dynamic_inventory(use_cache=use_cache)
+                        vendors=[], no_vendors=[], tags=[], no_tags=[], use_cache=False, debug=False):
+        inventory = dynamic_inventory(use_cache=use_cache, debug=debug)
 
         hostnames = []
         includes, excludes = [], []

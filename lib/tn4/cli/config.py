@@ -11,6 +11,7 @@ class Config(CommandBase):
     def __init__(self, args):
         self.flg_use_cache        = args.use_cache
         self.flg_inventory        = args.inventory
+        self.flg_debug            = args.debug
         self.outdir               = args.DIR_PATH
         self.custom_template_path = args.template
         self.inventory_json = f"{self.outdir}/inventory.json"
@@ -59,7 +60,7 @@ class Config(CommandBase):
 
         with self.console.status(f"[yellow]{m}"):
             start_at = time.time()
-            self.fetch_inventory(*self.fetch_inventory_opt)
+            self.fetch_inventory(*self.fetch_inventory_opt, debug=self.flg_debug)
             rt = round(time.time() - start_at, 1)
             self.console.log(f"[yellow]Building Titanet4 inventory finished in {rt} sec")
 

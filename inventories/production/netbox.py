@@ -23,12 +23,12 @@ def timestamp():
     return n.strftime("%Y-%m-%d@%H-%M-%S")
 
 
-def dynamic_inventory(use_cache=False):
+def dynamic_inventory(use_cache=False, debug=False):
     ts = timestamp()
     secrets = load_encrypted_secrets(VAULT_FILE, VAULT_PASSWORD_FILE)
     ctx = Context(endpoint=secrets["netbox_url"], token=secrets["netbox_api_token"])
     cli = Client()
-    nbdata = cli.fetch_as_inventory(ctx, use_cache=use_cache)
+    nbdata = cli.fetch_as_inventory(ctx, use_cache=use_cache, debug=debug)
 
     for hostname in nbdata["_hostnames"]:
         if "interfaces" not in nbdata[hostname]:
@@ -74,8 +74,9 @@ def dynamic_inventory(use_cache=False):
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Ansible - Dynamic Inventory Script")
-    parser.add_argument("--use-cache", action="store_true", help="Use NetBox cache if $HOME/.cache/tn4-player/*.cache available")
+    parser.add_argument("--use-cache", action="store_true", help="use NetBox cache if $HOME/.cache/tn4-player/*.cache available")
+    parser.add_argument("--debug",     action="store_true", help="debug mode")
     args = parser.parse_args()
 
-    inventory = dynamic_inventory(use_cache=args.use_cache)
+    inventory = dynamic_inventory(use_cache=args.use_cache, debug=args.debug)
     print(json.dumps(inventory, indent=4, sort_keys=True, ensure_ascii=False))
