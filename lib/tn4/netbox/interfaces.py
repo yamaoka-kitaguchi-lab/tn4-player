@@ -314,24 +314,23 @@ class Interfaces(ClientBase):
         all_lag_members = self.fetch_lag_members(ctx)  # following fetch_interfaces()
         used_vlans, mgmt_vlans = self.fetch_vlans(ctx)
 
-        ansible_targets = []
-        for device in ctx.devices.values():
-            if device["is_ansible_target"]:
-                ansible_targets.append(device["hostname"])
+        ansible_targets = [ device["hostname"] for device in ctx.devices.values() if device["is_ansible_target"] ]
 
-        target_interfaces = {}
-        for hostname, interfaces in all_interfaces.items():
-            for name, interface in interfaces.items():
-                if interface["is_protected"]:
-                    continue
-                target_interfaces.setdefault(hostname, {})[name] = interface
+        target_interfaces = {
+            hostname: {
+                name: interface
+                for name, interface in interfaces.items() if not interface["is_protected"]
+            }
+            for hostname, interfaces in all_interfaces.items()
+        }
 
-        target_lag_members = {}
-        for hostname, lag_members in all_lag_members.items():
-            for parent, children in lag_members.items():
-                if all_interfaces[parent]["is_protected"]:
-                    continue
-                target_lag_members.setdefault(hostname, {})[parent] = children
+        target_lag_members = {
+            hostname: {
+                    parent: children
+                for parent, children in lag_members.items() if parent in all_interfaces  # missing parent means protected parent
+            }
+            for hostname, lag_members in all_lag_members.items()
+        }
 
         return {
             hostname: {
@@ -340,6 +339,6 @@ class Interfaces(ClientBase):
                 "vlans":       used_vlans[hostname],          # list of extended VLAN object
                 "mgmt_vlan":   mgmt_vlans[hostname],          # a VLAN object
             }
-            for hostname in interfaces.keys() if hostname in ansible_targets
+            for hostname in all_interfaces.keys() if hostname in ansible_targets
         }
 

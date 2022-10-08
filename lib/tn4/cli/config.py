@@ -76,12 +76,12 @@ class Config(CommandBase):
 
         with self.console.status(f"[yellow]Rendering configs..."):
             self.render()
-            self.console.log(f"[yellow]Rendering configs finished"):
+            self.console.log(f"[yellow]Rendering configs finished")
 
         with self.console.status(f"[yellow]Exporting rendered configs..."):
             for host in self.configs:
                 cfg = f"{self.outdir}/{host}.cfg"
                 with open(cfg, "w") as fd:
                     fd.write(self.configs[host])
-            self.console.log(f"[yellow]Exporting rendered configs finished"):
+            self.console.log(f"[yellow]Exporting rendered configs finished")
 

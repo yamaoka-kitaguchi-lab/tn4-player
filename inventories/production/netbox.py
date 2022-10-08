@@ -30,6 +30,11 @@ def dynamic_inventory(use_cache=False):
     cli = Client()
     nbdata = cli.fetch_as_inventory(ctx, use_cache=use_cache)
 
+    for hostname in nbdata["_hostnames"]:
+        if "interfaces" not in nbdata[hostname]:
+            print(nbdata[hostname].keys())
+
+
     inventory = {
         **{
             role: {
