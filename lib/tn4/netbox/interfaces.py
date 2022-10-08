@@ -81,7 +81,7 @@ class Interfaces(ClientBase):
     ##  - value:          NetBox interface object
     def fetch_interfaces(self, ctx, use_cache=False):
         all_interfaces = None
-        hastag = lambda i, t: "tags" in t and t in i["tags"]
+        hastag = lambda i, t: "tags" in i and t in i["tags"]
         hasrole = lambda i, r: ctx.devices[i["device"]["name"]]["role"] == r
 
         if use_cache:
