@@ -164,11 +164,11 @@ class Interfaces(ClientBase):
                 if interface["description"] == "" and vlan_name is not None:
                     interface["description"] = vlan_name
 
-            elif vlan_mode == "tagged" and interface["tagged_vlans"] is not None:
+            elif vlan_mode == "tagged" and len(interface["tagged_vlans"]) > 0:
                 interface |= {
                     "vlan_mode":       "trunk",  # rephrase to juniper/cisco style
-                    "tagged_vlanids":  [v["id"] for v in interface["tagged_vlans"]],
-                    "tagged_vids":     [v["vid"] for v in interface["tagged_vlans"]],
+                    "tagged_vlanids":  [ v["id"] for v in interface["tagged_vlans"] ],
+                    "tagged_vids":     [ v["vid"] for v in interface["tagged_vlans"] ],
                     "is_trunk_all":    False,
                 }
                 all_vlanids.extend(interface["tagged_vlanids"])
@@ -299,7 +299,6 @@ class Interfaces(ClientBase):
                 vlan |= {
                     "is_for_irb":   vlan["vid"] in irb_vids,
                     "is_for_rspan": vlan["vid"] in rspan_vids,
-                    "is_in_use":    is_in_use,
                 }
 
                 if is_for_mgmt:
@@ -333,6 +332,9 @@ class Interfaces(ClientBase):
             }
             for hostname, lag_members in all_lag_members.items()
         }
+
+        from pprint import pprint
+        pprint(all_interfaces["minami4"]["mge-0/0/44"])
 
         return {
             hostname: {
