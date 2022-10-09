@@ -10,7 +10,7 @@ set interfaces {{ interface.name }} speed 1g
 {% elif interface.is_10gbps %}
 set interfaces {{ interface.name }} speed 10g
 
-{% elif interface.is_physical %}
+{% elif interface.is_physical and not interface.is_lag_member %}
 set interfaces {{ interface.name }} ether-options auto-negotiation
 
 {% endif %}
