@@ -1,7 +1,7 @@
 from tn4.cli.base import CommandBase
 
 
-class Config(CommandBase):
+class Deploy(CommandBase):
     def __init__(self, args):
         self.flg_use_cache        = args.use_cache
         self.flg_dryrun           = args.dryrun
