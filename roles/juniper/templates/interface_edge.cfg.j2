@@ -1,6 +1,6 @@
 delete vlans
 {% for interface in interfaces.values() %}
-{% if not interface.is_upstream and not interface.is_irb and not interface.is_rspan %}
+{% if interface.is_physical or interface.is_lag_parent and not interface.is_upstream %}
 delete interfaces {{ interface.name }}
 delete poe interface {{ interface.name }}
 {% endif %}
