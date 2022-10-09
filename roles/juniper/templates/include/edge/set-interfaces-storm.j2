@@ -1,3 +1,3 @@
-{% if interface.is_physical or interface.is_lag_parent and not interface.is_upstream %}
+{% if interface.is_physical and not interface.is_lag_member or interface.is_lag_parent and not interface.is_upstream %}
 set interfaces {{ interface.name }} unit 0 family ethernet-switching storm-control "storm3M"
 {% endif %}
