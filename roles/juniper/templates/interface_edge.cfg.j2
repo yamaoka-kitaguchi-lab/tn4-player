@@ -14,6 +14,7 @@ set vlans "{{ mgmt_vlan.name }}" l3-interface irb.{{ mgmt_vlan.vid }}
 {% for vlan in vlans %}
 set vlans "{{ vlan.name }}" vlan-id {{ vlan.vid }}
 {% if vlan.is_for_rspan %}
+set vlans "{{ vlan.name }}" vlan-id {{ vlan.vid }}
 set vlans "{{ vlan.name }}" switch-options no-mac-learning
 {% endif %}
 {% endfor %}
@@ -31,7 +32,7 @@ set protocols lldp interface all disable
 set interfaces {{ interface.name }} {{ "enable" if interface.is_enabled else "disable" }}
 {% if interface.is_enabled or not interface.is_enabled %}
 {% if interface.description %}
-set interfaces {{ interface_name }} description "{{ interface.description }}"
+set interfaces {{ interface.name }} description "{{ interface.description }}"
 {% endif %}
 {% if interface.is_upstream or interface.is_to_ap %}
 set protocols lldp interface {{ interface.name }}
