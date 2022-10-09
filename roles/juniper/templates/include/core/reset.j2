@@ -1,0 +1,7 @@
+delete vlans
+
+{% for interface in interfaces.values() if interface.is_physical or interface.is_lag_parent %}
+delete interfaces {{ interface.name }}
+{% endfor %}
+
+set protocols lldp interface all

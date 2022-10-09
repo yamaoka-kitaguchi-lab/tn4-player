@@ -1,0 +1,14 @@
+{% include "./include/core/reset.j2" %}
+{% include "./include/core/set-vlans.j2" %}
+
+{% for interface in interfaces.values() %}
+{% include "./include/core/set-interfaces.j2" %}
+
+{% if interface.is_enabled %}
+{% include "./include/core/set-interfaces-storm.j2" %}
+{% include "./include/core/set-interfaces-filter.j2" %}
+{% include "./include/core/set-interfaces-vlan.j2" %}
+{% include "./include/core/set-interfaces-address.j2" %}
+{% endif %}
+
+{% endfor %}

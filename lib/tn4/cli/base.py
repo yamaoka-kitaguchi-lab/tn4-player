@@ -28,7 +28,7 @@ class CommandBase:
                 #f"{ANSIBLE_ROLES}/juniper/templates/overwrite.cfg.j2"
             ],
             Slug.Role.CoreSW: [
-                f"{ANSIBLE_ROLES}/juniper/templates/interface_core.cfg.j2",
+                f"{ANSIBLE_ROLES}/juniper/templates/core.cfg.j2",
                 #f"{ANSIBLE_ROLES}/juniper/templates/overwrite.cfg.j2"
             ]
         }
