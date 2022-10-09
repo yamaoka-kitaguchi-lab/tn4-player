@@ -62,7 +62,10 @@ interface {{ interface.name }}
 {% endif %}
 {% endif %}
 
-{% if not interface.is_phy_uplink %}
+{% if interface.is_phy_uplink %}
+ switchport
+ switchport mode trunk
+{% else %}
 {% if interface.is_trunk_all %}
  switchport
  switchport mode trunk
@@ -81,16 +84,11 @@ interface {{ interface.name }}
 {% else %}
  no switchport
 {% endif %}
-
 {% if interface.native_vid %}
  switchport trunk native vlan {{ interface.native_vid }}
 {% else %}
  no switchport trunk native vlan
 {% endif %}
-
-{% elif interface.is_physical_uplink %}
- switchport
- switchport mode trunk
 {% endif %}
 
 {% endif %}
