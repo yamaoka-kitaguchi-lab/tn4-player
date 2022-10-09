@@ -130,6 +130,7 @@ class Interfaces(ClientBase):
                 "lag_parent_name":   None,
                 "role":              ctx.devices[interface["device"]["name"]]["role"],
                 "region":            ctx.devices[interface["device"]["name"]]["region"],
+                "mtu":               interface["mtu"],  # None or integer (eg. 9000)
             }
 
             if interface["is_lag_member"]:

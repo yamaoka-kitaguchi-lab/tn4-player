@@ -9,3 +9,9 @@
 {% else %}
  no description
 {% endif %}
+
+{% if interface.mtu %}
+ mtu {{ interface.mtu }}
+{% else %}
+ no mtu
+{% endif %}
