@@ -5,8 +5,8 @@ vlan {{ vlan.vid }}
 {% endif %}
 {% endfor %}
 
-{% for interface_name, interface in interfaces.items() if interface.is_physical %}
-interface {{ interface_name }}
+{% for interface in interfaces.values() if interface.is_physical %}
+interface {{ interface.name }}
 
 {% if interface.description %}
  description {{ interface.description }}
