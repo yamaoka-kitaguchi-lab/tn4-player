@@ -24,7 +24,7 @@ class CommandBase:
         },
         Slug.Manufacturer.Juniper: {
             Slug.Role.EdgeSW: [
-                f"{ANSIBLE_ROLES}/juniper/templates/interface_edge.cfg.j2",
+                f"{ANSIBLE_ROLES}/juniper/templates/edge.cfg.j2",
                 #f"{ANSIBLE_ROLES}/juniper/templates/overwrite.cfg.j2"
             ],
             Slug.Role.CoreSW: [

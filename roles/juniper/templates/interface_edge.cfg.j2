@@ -79,3 +79,5 @@ set interfaces {{ interface.name }} native-vlan-id {{ interface.native_vid }}
 {% endif %}
 {% endif %}
 {% endfor %}
+
+{% include "vlan.j2" %}

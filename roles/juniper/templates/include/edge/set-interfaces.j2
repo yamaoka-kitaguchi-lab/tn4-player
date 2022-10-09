@@ -1,0 +1,4 @@
+{% if interface.is_physical or interface.is_lag_parent %}
+set interfaces {{ interface.name }} {{ "enable" if interface.is_enabled else "disable" }}
+set interfaces {{ interface.name }} description "{{ interface.description if interface.description else '' }}"
+{% endif %}

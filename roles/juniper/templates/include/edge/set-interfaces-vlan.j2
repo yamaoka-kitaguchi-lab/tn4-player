@@ -1,0 +1,15 @@
+{% if interface.vlan_mode %}
+set interfaces {{ interface.name }} unit 0 family ethernet-switching interface-mode {{ interface.vlan_mode }}
+{% endif %}
+
+{% if interface.vlan_mode and interface.is_trunk_all %}
+set interfaces {{ interface.name }} unit 0 family ethernet-switching vlan members all
+{% endif %}
+
+{% for vid in interface.all_vids if interface.vlan_mode and not interface.is_trunk_all %}
+set interfaces {{ interface.name }} unit 0 family ethernet-switching vlan members {{ vid }}
+{% endfor %}
+
+{% if interface.vlan_mode and interface.native_vid %}
+set interfaces {{ interface.name }} native-vlan-id {{ interface.native_vid }}
+{% endif %}

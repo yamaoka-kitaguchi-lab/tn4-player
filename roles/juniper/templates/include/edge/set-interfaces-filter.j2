@@ -1,0 +1,8 @@
+{% if interface.is_physical or interface.is_lag_parent and not interface.is_upstream %}
+set interfaces {{ interface.name }} unit 0 family ethernet-switching filter input-list CDP
+set interfaces {{ interface.name }} unit 0 family ethernet-switching filter output-list CDP
+set interfaces {{ interface.name }} unit 0 family ethernet-switching filter input-list BPDU
+set interfaces {{ interface.name }} unit 0 family ethernet-switching filter output-list BPDU
+set interfaces {{ interface.name }} unit 0 family ethernet-switching filter input-list DEFAULT
+set interfaces {{ interface.name }} unit 0 family ethernet-switching filter output-list DEFAULT
+{% endif %}
