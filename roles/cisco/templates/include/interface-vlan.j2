@@ -1,0 +1,26 @@
+{% if interface.vlan_mode == "access" %}
+ switchport
+ switchport mode access
+ switchport access vlan {{ interface.all_vids[0] }}
+ no switchport trunk allowed vlan
+{% endif %}
+
+{% if interface.vlan_mode == "trunk" and not interface.is_trunk_all %}
+ switchport
+ switchport mode trunk
+{% for absent_vids in interface.absent_vids %}
+ switchport trunk allowed vlan remove {{ absent_vids | join(',') }}
+{% endfor %}
+ switchport trunk allowed vlan add {{ interface.all_vids | join(',') }}
+{% endif %}
+
+{% if interface.is_trunk_all or interface.is_phy_uplink %}
+ switchport
+ switchport mode trunk
+{% endif %}
+
+{% if interface.native_vid %}
+ switchport trunk native vlan {{ interface.native_vid }}
+{% else %}
+ no switchport trunk native vlan
+{% endif %}

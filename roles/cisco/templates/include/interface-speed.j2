@@ -1,0 +1,15 @@
+{% if interface.is_physical and not interface.is_phy_uplink %}
+{% if interface.is_10mbps %}
+ speed 10
+
+{% elif interface.is_100mbps %}
+ speed 100
+
+{% elif interface.is_1gbps %}
+ speed 1000
+
+{% else %}
+ speed auto
+
+{% endif %}
+{% endif %}

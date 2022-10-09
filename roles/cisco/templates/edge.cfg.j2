@@ -2,6 +2,11 @@
 
 {% for interface in interfaces.values() if interface.is_physical or interface.is_lag_parent %}
 interface {{ interface.name }}
-{% include "./include/description.j2" %}
+{% include "./include/interface.j2" %}
+{% include "./include/interface-lldp.j2" %}
+{% include "./include/interface-storm.j2" %}
+{% include "./include/interface-speed.j2" %}
+{% include "./include/interface-poe.j2" %}
+{% include "./include/interface-vlan.j2" %}
 
 {% endfor %}

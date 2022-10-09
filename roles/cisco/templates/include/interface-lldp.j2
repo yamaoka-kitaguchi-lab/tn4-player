@@ -1,0 +1,7 @@
+{% if interface.is_phy_uplink or interface.is_to_ap %}
+ lldp transmit
+ lldp receive
+{% else %}
+ no lldp transmit
+ no lldp receive
+{% endif %}
