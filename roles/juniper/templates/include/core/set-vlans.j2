@@ -2,7 +2,9 @@
 set vlans "{{ vlan.name }}" vlan-id {{ vlan.vid }}
 {% endfor %}
 
-set vlans "{{ mgmt_vlan.name }}" l3-interface irb.{{ mgmt_vlan.vid }}
+{% for vlan in vlans if vlan.is_for_irb %}
+set vlans "{{ vlan.name }}" l3-interface irb.{{ vlan.vid }}
+{% endfor %}
 
 {% for vlan in vlans if vlan.is_for_rspan %}
 set vlans "{{ vlan.name }}" switch-options no-mac-learning
