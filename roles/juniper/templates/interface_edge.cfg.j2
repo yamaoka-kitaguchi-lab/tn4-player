@@ -28,7 +28,7 @@ set interfaces {{ child }} ether-options 802.3ad {{ parent }}
 
 set protocols lldp interface all disable
 
-{% for interface in interfaces.values() if interface.is_physical or interface.is_lag_parent and not interface.is_upstream %}
+{% for interface in interfaces.values() if interface.is_physical or interface.is_lag_parent %}
 set interfaces {{ interface.name }} {{ "enable" if interface.is_enabled else "disable" }}
 {% if interface.is_enabled or not interface.is_enabled %}
 {% if interface.description %}
