@@ -19,17 +19,17 @@ class CommandBase:
         Slug.Manufacturer.Cisco: {
             Slug.Role.EdgeSW: [
                 f"{ANSIBLE_ROLES}/cisco/templates/edge.cfg.j2",
-                #f"{ANSIBLE_ROLES}/cisco/templates/overwrite.cfg.j2",
+                f"{ANSIBLE_ROLES}/cisco/templates/overwrite.cfg.j2",
             ]
         },
         Slug.Manufacturer.Juniper: {
             Slug.Role.EdgeSW: [
                 f"{ANSIBLE_ROLES}/juniper/templates/edge.cfg.j2",
-                #f"{ANSIBLE_ROLES}/juniper/templates/overwrite.cfg.j2"
+                f"{ANSIBLE_ROLES}/juniper/templates/edge_overwrite.cfg.j2"
             ],
             Slug.Role.CoreSW: [
                 f"{ANSIBLE_ROLES}/juniper/templates/core.cfg.j2",
-                #f"{ANSIBLE_ROLES}/juniper/templates/overwrite.cfg.j2"
+                f"{ANSIBLE_ROLES}/juniper/templates/core_overwrite.cfg.j2"
             ]
         }
     }

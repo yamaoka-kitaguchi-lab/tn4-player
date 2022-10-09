@@ -42,6 +42,8 @@ class Config(CommandBase):
         ignore_empty_lines = lambda s: "\n".join([l for l in s.split("\n") if l != ""])
 
         for host, hostvar in self.inventory["_meta"]["hostvars"].items():
+            config = []
+
             for template in self.templates[hostvar["manufacturer"]][hostvar["role"]]:
                 try:
                     raw = template.render(hostvar)
@@ -50,7 +52,9 @@ class Config(CommandBase):
                     self.console.log(f"[red bold]An exception occurred while rendering {host} ({ip}). Skipped.")
                     self.console.log(f"[red bold dim]{e}")
                 else:
-                    self.configs[host] = ignore_empty_lines(raw)
+                    config.append(ignore_empty_lines(raw))
+
+            self.configs[host] = "\n".join(config)
 
 
     def exec(self):
