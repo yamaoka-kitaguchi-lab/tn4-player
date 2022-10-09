@@ -1,6 +1,3 @@
-set vlans default vlan-id 1
-set vlans default l3-interface irb.0
-
 {% for vlan in vlans %}
 set vlans "{{ vlan.name }}" vlan-id {{ vlan.vid }}
 {% endfor %}

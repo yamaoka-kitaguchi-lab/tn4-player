@@ -1,4 +1,4 @@
-{% if interface.vlan_mode and not interface.is_irb %}
+{% if interface.vlan_mode and not interface.is_irb and not interface.is_rspan %}
 set interfaces {{ interface.name }} unit 0 family ethernet-switching interface-mode {{ interface.vlan_mode }}
 
 {% if interface.is_trunk_all %}
