@@ -1,0 +1,4 @@
+{% for vlan in vlans if not vlan.is_protected %}
+vlan {{ vlan.vid }}
+ name {{ vlan.name }}
+{% endfor %}

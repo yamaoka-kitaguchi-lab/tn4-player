@@ -18,7 +18,7 @@ class CommandBase:
     template_paths = {
         Slug.Manufacturer.Cisco: {
             Slug.Role.EdgeSW: [
-                f"{ANSIBLE_ROLES}/cisco/templates/interface_edge.cfg.j2",
+                f"{ANSIBLE_ROLES}/cisco/templates/edge.cfg.j2",
                 #f"{ANSIBLE_ROLES}/cisco/templates/overwrite.cfg.j2",
             ]
         },
