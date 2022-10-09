@@ -82,3 +82,4 @@ class Config(CommandBase):
                     fd.write(self.configs[host])
             self.console.log(f"[yellow]Exporting rendered configs finished at {self.outdir}")
 
+        return 0
