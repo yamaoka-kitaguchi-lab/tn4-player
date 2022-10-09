@@ -153,41 +153,35 @@ class Interfaces(ClientBase):
             if vlan_mode is not None:
                 vlan_mode = vlan_mode["value"].lower()  # or vlan_mode is 'None' going to the else-block
 
-            #if vlan_mode == "access" and interface["untagged_vlan"] is not None:
-            if vlan_mode == "access":
-                interface["vlan_mode"] = "access"
+            if vlan_mode == "access" and interface["untagged_vlan"] is not None:
+                interface |= {
+                    "vlan_mode":       "access",
+                    "untagged_vlanid": interface["untagged_vlan"]["id"],
+                    "untagged_vid":    interface["untagged_vlan"]["vid"],
+                    "is_trunk_all":    False,
+                }
+                all_vlanids.append(interface["untagged_vlanid"])
+                all_vids.append(interface["untagged_vid"])
+
+                ## use vlan name for interface description if it is empty
+                vlan_name = self.lookup_vlan_name(interface["untagged_vlan"]["id"], ctx)
+                if interface["description"] == "" and vlan_name is not None:
+                    interface["description"] = vlan_name
+
+            elif vlan_mode == "tagged" and len(interface["tagged_vlans"]) > 0:
+                interface |= {
+                    "vlan_mode":       "trunk",  # rephrase to juniper/cisco style
+                    "tagged_vlanids":  [v["id"] for v in interface["tagged_vlans"]],
+                    "tagged_vids":     [v["vid"] for v in interface["tagged_vlans"]],
+                    "is_trunk_all":    False,
+                }
+                all_vlanids.extend(interface["tagged_vlanids"])
+                all_vids.extend(interface["tagged_vids"])
+
                 if interface["untagged_vlan"] is not None:
-                    interface |= {
-                        "vlan_mode":       "access",
-                        "untagged_vlanid": interface["untagged_vlan"]["id"],
-                        "untagged_vid":    interface["untagged_vlan"]["vid"],
-                        "is_trunk_all":    False,
-                    }
-                    all_vlanids.append(interface["untagged_vlanid"])
-                    all_vids.append(interface["untagged_vid"])
-
-                    ## use vlan name for interface description if it is empty
-                    vlan_name = self.lookup_vlan_name(interface["untagged_vlan"]["id"], ctx)
-                    if interface["description"] == "" and vlan_name is not None:
-                        interface["description"] = vlan_name
-
-            #elif vlan_mode == "tagged" and len(interface["tagged_vlans"]) > 0:
-            elif vlan_mode == "tagged":
-                interface["vlan_mode"] = "trunk"
-                if len(interface["tagged_vlans"]) > 0:
-                    interface |= {
-                        "vlan_mode":       "trunk",  # rephrase to juniper/cisco style
-                        "tagged_vlanids":  [v["id"] for v in interface["tagged_vlans"]],
-                        "tagged_vids":     [v["vid"] for v in interface["tagged_vlans"]],
-                        "is_trunk_all":    False,
-                    }
-                    all_vlanids.extend(interface["tagged_vlanids"])
-                    all_vids.extend(interface["tagged_vids"])
-
-                    if interface["untagged_vlan"] is not None:
-                        interface["native_vid"] = interface["untagged_vlan"]["vid"]
-                        all_vlanids.append(interface["untagged_vlan"]["id"])
-                        all_vids.append(interface["untagged_vlan"]["vid"])
+                    interface["native_vid"] = interface["untagged_vlan"]["vid"]
+                    all_vlanids.append(interface["untagged_vlan"]["id"])
+                    all_vids.append(interface["untagged_vlan"]["vid"])
 
             elif vlan_mode == "tagged-all" or is_upstream:
                 interface |= {
@@ -204,8 +198,7 @@ class Interfaces(ClientBase):
 
             interface |= {
                 "all_vlanids": sorted(list(set(all_vlanids))),
-                #"all_vids":    sorted(list(set(all_vids))),
-                "all_vids":    sorted(all_vids),
+                "all_vids":    sorted(list(set(all_vids))),
             }
 
             ## for cisco edge
