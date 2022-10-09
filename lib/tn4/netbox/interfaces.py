@@ -204,14 +204,15 @@ class Interfaces(ClientBase):
 
             interface |= {
                 "all_vlanids": sorted(list(set(all_vlanids))),
-                "all_vids":    sorted(list(set(all_vids))),
+                #"all_vids":    sorted(list(set(all_vids))),
+                "all_vids":    sorted(all_vids),
             }
 
             ## for cisco edge
             manufacturer = ctx.devices[interface["device"]["name"]]["device_type"]["manufacturer"]["slug"]
             if manufacturer == Slug.Manufacturer.Cisco:
                 packed_size = 20
-                absent_vids = [vid for vid in range(1, 4094) if vid not in all_vids]
+                absent_vids = [vid for vid in range(1, 4095) if vid not in all_vids]
                 interface["absent_vids"] = [absent_vids[i:i+packed_size] for i in range(0, len(absent_vids), packed_size)]
 
                 addr4, addr6 = self.lookup_interface_address(interface["id"], ctx)
