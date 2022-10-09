@@ -23,7 +23,7 @@ class Slug:
 
     class Tag:
         Ansible                = "ansible"
-        BPDUFilter             = "bpdu"
+        BPDUFilter             = "bpdu-filter"
         CoreDownstream         = "downlink"
         CoreMaster             = "mclag-master-core"
         CoreOokayamaMaster     = "mclag-master-co"

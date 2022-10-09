@@ -20,7 +20,7 @@ set interfaces {{ interface.name }} description "{{ interface.description }}"
 delete interfaces {{ interface.name }} description
 {% endif %}
 
-{% if not interface.lag_member and interface.bpdu_filter %}
+{% if not interface.is_lag_member and interface.is_bpdu_filtered %}
 set interfaces {{ interface.name }} unit 0 family ethernet-switching filter input-list BPDU
 set interfaces {{ interface.name }} unit 0 family ethernet-switching filter output-list BPDU
 {% endif %}
