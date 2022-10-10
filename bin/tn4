@@ -72,7 +72,7 @@ if __name__ == "__main__":
     parser1.add_argument("--template",    type=jinja_path, help="custom jinja2 template path instead of the defautls")
     parser1.add_argument("-i", "--inventory", action="store_true", help="export the raw inventory json instead of rendered configs")
     parser1.add_argument("-x", "--use-cache", action="store_true", help="skip NetBox fetching and use local cache if available")
-    parser1.add_argument("--debug", action="store_true", help="debug mode")
+    parser1.add_argument("--debug",           action="store_true", help="debug mode")
     parser1.add_argument("DIR_PATH", type=dir_path, help="path of the output directory")
 
     parser2 = subparsers.add_parser("deploy",
@@ -91,8 +91,8 @@ if __name__ == "__main__":
     parser2.add_argument("--no-tags",     type=str, help="exclude rule for --tags")
     parser2.add_argument("--template",    type=jinja_path, help="custom jinja2 template path instead of the defautls")
     parser2.add_argument("-x", "--use-cache", action="store_true", help="skip NetBox fetching and use local cache if available")
-    parser2.add_argument("--dryrun", action="store_true", help="simulate a command without  provisioning it")
-    parser2.add_argument("--debug", action="store_true", help="debug mode")
+    parser2.add_argument("--dryrun",          action="store_true", help="simulate a command without  provisioning it")
+    parser2.add_argument("--debug",           action="store_true", help="debug mode")
 
     parser3 = subparsers.add_parser("shutdown",
                                     description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
