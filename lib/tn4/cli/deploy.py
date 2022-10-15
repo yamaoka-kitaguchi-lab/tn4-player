@@ -19,11 +19,16 @@ class Deploy(CommandBase):
     def exec(self):
         self.fetch_inventory(*self.fetch_inventory_opt, debug=self.flg_debug)
 
-        self.console.log(f"[yellow]Calling Ansible Runner...")
+        annotation = "[red bold](DRYRUN)" if self.flg_dryrun else ""
         start_at = time.time()
 
-        ansible.run(inventory=self.inventory, playbook="")
+        if self.custom_template_path is None:
+            self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner... {annotation}")
+            ansible.run(inventory=self.inventory, playbook="")
+        else:
+            self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
+            ansible.run(inventory=self.inventory, playbook="")
 
-        elapsed = round(time.time()-start_at, 2)
+        elapsed = round(time.time()-start_at, 1)
         self.console.log(f"[yellow]Ansible Runner finished in {elapsed} sec.")
         return 0
