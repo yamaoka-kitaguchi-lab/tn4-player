@@ -3,12 +3,12 @@ import os
 import sys
 import time
 
-CURDIR              = os.path.dirname(__file__)
-ANSIBLE_WORKDIR     = os.path.join(CURDIR, "../../..")
-ANSIBLE_INVENTORIES = os.path.join(CURDIR, "../../../inventory")
-ANSIBLE_PROJECT     = os.path.join(CURDIR, "../../../project")
-ANSIBLE_ROLES       = os.path.join(CURDIR, "../../../project/roles")
-sys.path.append(ANSIBLE_INVENTORIES)
+CURDIR            = os.path.dirname(__file__)
+ANSIBLE_WORKDIR   = os.path.join(CURDIR, "../../..")
+ANSIBLE_INVENTORY = os.path.join(CURDIR, "../../../inventory")
+ANSIBLE_PROJECT   = os.path.join(CURDIR, "../../../project")
+ANSIBLE_ROLES     = os.path.join(CURDIR, "../../../project/roles")
+sys.path.append(ANSIBLE_INVENTORY)
 
 from tn4.netbox.slug import Slug
 from netbox import NetBox
@@ -17,6 +17,7 @@ from netbox import NetBox
 class CommandBase:
     console = Console(log_time_format="%Y-%m-%dT%H:%M:%S")
 
+    project_path     = ANSIBLE_WORKDIR
     main_task_path   = f"{ANSIBLE_PROJECT}/main.yml"
     ansible_cfg_path = f"{ANSIBLE_WORKDIR}/ansible.cfg"
 
