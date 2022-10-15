@@ -4,9 +4,10 @@ import sys
 import time
 
 CURDIR              = os.path.dirname(__file__)
-ANSIBLE_INVENTORIES = os.path.join(CURDIR, "../../../inventories/production")
-ANSIBLE_ROLES       = os.path.join(CURDIR, "../../../roles")
-ANSIBLE_TASKS       = os.path.join(CURDIR, "../../../tasks")
+ANSIBLE_WORKDIR     = os.path.join(CURDIR, "../../..")
+ANSIBLE_INVENTORIES = os.path.join(CURDIR, "../../../inventory")
+ANSIBLE_ROLES       = os.path.join(CURDIR, "../../../project/roles")
+ANSIBLE_TASKS       = os.path.join(CURDIR, "../../../project/tasks")
 sys.path.append(ANSIBLE_INVENTORIES)
 
 from tn4.netbox.slug import Slug
