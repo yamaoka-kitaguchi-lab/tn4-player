@@ -1,4 +1,5 @@
 import ansible_runner as ansible
+import time
 
 from tn4.cli.base import CommandBase
 
@@ -17,6 +18,12 @@ class Deploy(CommandBase):
 
     def exec(self):
         self.fetch_inventory(*self.fetch_inventory_opt, debug=self.flg_debug)
+
+        self.console.log(f"[yellow]Calling Ansible Runner...")
+        start_at = time.time()
+
         ansible.run(inventory=self.inventory, playbook="")
 
+        elapsed = round(time.time()-start_at, 2)
+        self.console.log(f"[yellow]Ansible Runner finished in {elapsed} sec.")
         return 0

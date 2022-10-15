@@ -58,10 +58,6 @@ class Config(CommandBase):
     def exec(self):
         self.fetch_inventory(*self.fetch_inventory_opt, debug=self.flg_debug)
 
-        hosts = self.inventory["_meta"]["hostvars"].keys()
-        self.console.log(f"[yellow]Found {len(hosts)} hosts")
-        self.console.log(f"[yellow dim]{', '.join(hosts)}")
-
         if self.flg_inventory:
             with self.console.status(f"[green]Exporting raw inventory..."):
                 with open(self.inventory_json, "w") as fd:
