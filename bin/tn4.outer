@@ -1,3 +1,8 @@
 #!/bin/bash
+cd $(dirname $0)
 DOCKER_IMAGE=ghcr.io/yamaoka-kitaguchi-lab/tn4-player:latest
-docker run -it --rm --network host ${DOCKER_IMAGE} tn4 $@
+
+docker run -it --rm \
+  --network host \
+  -v .secrets:/opt/tn4-player/.secrets:ro \
+  ${DOCKER_IMAGE} tn4 $@
