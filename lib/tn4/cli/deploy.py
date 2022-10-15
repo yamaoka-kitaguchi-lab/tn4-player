@@ -20,14 +20,19 @@ class Deploy(CommandBase):
         self.fetch_inventory(*self.fetch_inventory_opt, debug=self.flg_debug)
 
         annotation = "[red bold](DRYRUN)" if self.flg_dryrun else ""
-        start_at = time.time()
+        runner_opt = {
+            "inventory": self.inventory,
+            "playbook":  self.main_task_path,
+            "check":     self.flg_dryrun
+        }
 
+        start_at = time.time()
         if self.custom_template_path is None:
             self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner... {annotation}")
-            ansible.run(inventory=self.inventory, playbook="")
+            ansible.run(**runner_opt)
         else:
             self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
-            ansible.run(inventory=self.inventory, playbook="")
+            ansible.run(**runner_opt)
 
         elapsed = round(time.time()-start_at, 1)
         self.console.log(f"[yellow]Ansible Runner finished in {elapsed} sec.")
