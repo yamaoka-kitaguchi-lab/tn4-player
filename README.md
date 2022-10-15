@@ -7,7 +7,7 @@ Titanet4 as Code - inventory management with NetBox and automated deployment wit
 Some hints and tips from the author. Good luck.
 
 ### Build the EE container with ansible-builder
-See [https://quay.io/repository/ansible/ansible-runner](https://quay.io/repository/ansible/ansible-runner?tab=tags) to check the latest tag and edit Pipfile if needed. Ansible Builder will take more than 10 minutes.
+See [https://quay.io/repository/ansible/ansible-runner](https://quay.io/repository/ansible/ansible-runner?tab=tags) to check the latest tag and edit Pipfile if needed. Ansible Builder will take about 20 minutes.
 
 ```
 % make build.ee
