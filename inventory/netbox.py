@@ -7,9 +7,9 @@ import sys
 import json
 
 CURDIR              = os.path.dirname(__file__)
-LIBRARY_PATH        = os.path.join(CURDIR, "../../lib")
+LIBRARY_PATH        = os.path.join(CURDIR, "../lib")
 VAULT_FILE          = os.path.join(CURDIR, "./group_vars/all/vault.yml")
-VAULT_PASSWORD_FILE = os.path.join(CURDIR, "../../.secrets/vault-pass.txt")
+VAULT_PASSWORD_FILE = os.path.join(CURDIR, "../.secrets/vault-pass.txt")
 
 sys.path.append(LIBRARY_PATH)
 
