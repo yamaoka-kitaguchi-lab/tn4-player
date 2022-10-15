@@ -3,4 +3,4 @@ EE_TAG="latest"
 
 .PHONY: build.ee
 build.ee:
-	docker build -t $(EE_REPOSITORY):$(EE_TAG) - < docker.ee/Dockerfile
+	docker build -t $(EE_REPOSITORY):$(EE_TAG) -f docker.ee/Dockerfile .
