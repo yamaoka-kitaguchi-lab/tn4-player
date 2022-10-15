@@ -1,3 +1,5 @@
+import ansible_runner as ansible
+
 from tn4.cli.base import CommandBase
 
 
@@ -14,4 +16,7 @@ class Deploy(CommandBase):
 
 
     def exec(self):
+        self.fetch_inventory(*self.fetch_inventory_opt, debug=self.flg_debug)
+        ansible.run(inventory=self.inventory)
+
         return 0
