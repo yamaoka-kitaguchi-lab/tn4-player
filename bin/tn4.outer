@@ -1,0 +1,3 @@
+#!/bin/bash
+DOCKER_MAGE=ghcr.io/yamaoka-kitaguchi-lab/tn4-player:latest
+docker run -it --rm --network host ${DOCKER_IMAGE} tn4 $@
