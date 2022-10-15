@@ -2,4 +2,4 @@
 build.ee:
 	pipenv update
 	pipenv requirements > ./docker/requirements.txt
-	pipenv run ansible-runner
+	pipenv run ansible-builder
