@@ -25,6 +25,7 @@ LIBRARY_PATH = os.path.join(CURDIR, "../lib")
 
 sys.path.append(LIBRARY_PATH)
 
+from tn4.__version__ import __version__ as __lib_version__
 from tn4.cli.config import Config
 from tn4.cli.deploy import Deploy
 from tn4.cli.shutdown import Shutdown
@@ -53,6 +54,8 @@ def dir_path(string):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
+    parser.add_argument("-v", "--version", action="store_true", help="show version and exit")
+
     subparsers = parser.add_subparsers(title="commands", dest="command")
 
     parser1 = subparsers.add_parser("config",
@@ -139,6 +142,10 @@ if __name__ == "__main__":
             code = NetBox(args).exec()
         case default:
             code = 1
+
+    if args.version:
+        print(f"library: {__lib_version__}")
+        code = 0
 
     if code == 1:
         parser.print_help()
