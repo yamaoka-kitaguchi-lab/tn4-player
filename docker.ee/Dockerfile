@@ -1,28 +1,21 @@
-ARG EE_BASE_IMAGE=ghcr.io/yamaoka-kitaguchi-lab/tn4-player/ansible-runner-base:latest
-ARG EE_BUILDER_IMAGE=quay.io/ansible/ansible-builder:latest
+FROM ubuntu:22.04
 
-FROM $EE_BASE_IMAGE as galaxy
-ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=
-USER root
+ENV PATH="$HOME/.local/bin:$PATH"
 
-ADD _build /build
-WORKDIR /build
+RUN apt-get update \
+ && apt-get upgrade -y \
+ && DEBIAN_FRONTEND=noninteractive \
+    apt-get install -y --no-install-recommends \
+      python3 \
+      python3-pip \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/*
 
-RUN ansible-galaxy role install -r requirements.yml --roles-path "/usr/share/ansible/roles"
-RUN ANSIBLE_GALAXY_DISABLE_GPG_VERIFY=1 ansible-galaxy collection install $ANSIBLE_GALAXY_CLI_COLLECTION_OPTS -r requirements.yml --collections-path "/usr/share/ansible/collections"
+COPY .. /opt/tn4-player
+WORKDIR /opt/tn4-player
 
-FROM $EE_BUILDER_IMAGE as builder
+RUN python3 -m pip install --upgrade pipenv \
+ && pipenv requirements > requirements.txt \
+ && python3 -m pip install -r requirements.txt
 
-COPY --from=galaxy /usr/share/ansible /usr/share/ansible
-
-ADD _build/requirements.txt requirements.txt
-RUN ansible-builder introspect --sanitize --user-pip=requirements.txt --write-bindep=/tmp/src/bindep.txt --write-pip=/tmp/src/requirements.txt
-RUN assemble
-
-FROM $EE_BASE_IMAGE
-USER root
-
-COPY --from=galaxy /usr/share/ansible /usr/share/ansible
-
-COPY --from=builder /output/ /output/
-RUN /output/install-from-bindep && rm -rf /output/wheels
+RUN ansible-galaxy -r requirements.yml
