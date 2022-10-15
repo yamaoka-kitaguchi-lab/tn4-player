@@ -16,4 +16,4 @@ rich            = "*"
 [requires]
 
 [scripts]
-ansible-builder = "ansible-builder build -t ghcr.io/yamaoka-kitaguchi-lab/tn4-player:latest --verbosity 3 --context docker.ee"
+ansible-builder = "ansible-builder build -f docker.ee/execution-environment.yml -t ghcr.io/yamaoka-kitaguchi-lab/tn4-player:latest --verbosity 3 --context docker.ee"

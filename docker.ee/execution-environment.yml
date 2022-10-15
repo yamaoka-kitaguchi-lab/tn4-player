@@ -4,5 +4,5 @@ build_arg_defaults:
   EE_BASE_IMAGE: ghcr.io/yamaoka-kitaguchi-lab/tn4-player/ansible-runner-base:latest
 
 dependencies:
-  galaxy: docker.ee/requirements.yml
-  python: docker.ee/requirements.txt
+  galaxy: requirements.yml
+  python: requirements.txt
