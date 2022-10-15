@@ -32,6 +32,9 @@ from tn4.cli.shutdown import Shutdown
 from tn4.cli.netbox import NetBox
 
 
+__version__ = "v2022.10.16"
+
+
 def csv_to_list(csv):
     if csv is None:
         return []
@@ -99,21 +102,21 @@ if __name__ == "__main__":
 
     parser3 = subparsers.add_parser("shutdown",
                                     description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
-                                    help="Shutting down Titanet4 in preparation for the campus-wide blackout",
+                                    help="TBD: Shutting down Titanet4 in preparation for the campus-wide blackout",
                                     aliases=["s"])
-    parser3.add_argument("--reboot", action="store_true", help="request reboot instead of system halt")
-    parser3.add_argument("-f", "--force",     action="store_true", help="ignore all warnings and skip confirmation")
+    #parser3.add_argument("--reboot", action="store_true", help="request reboot instead of system halt")
+    #parser3.add_argument("-f", "--force",     action="store_true", help="ignore all warnings and skip confirmation")
 
     parser4 = subparsers.add_parser("netbox",
                                     description="tn4 netbox - Scanning and repairing NetBox integrity and providing CLI-based operation",
-                                    help="Scanning and repairing NetBox integrity and providing CLI-based operation",
+                                    help="TBD: Scanning and repairing NetBox integrity and providing CLI-based CRUD operation",
                                     aliases=["n"])
-    parser4.add_argument("--check", action="store_true", help="")
-    parser4.add_argument("--repair", action="store_true", help="")
-    parser4.add_argument("-v", "--versbose", action="store_true", help="")
-    parser4.add_argument("-f", "--force", action="store_true", help="ignore all warnings and skip confirmation")
-    parser4.add_argument("--dryrun", action="store_true", help="simulate a command without  provisioning it")
-    parser4.add_argument("--use-cache", action="store_true", help="use cache if available")
+    #parser4.add_argument("--check", action="store_true", help="")
+    #parser4.add_argument("--repair", action="store_true", help="")
+    #parser4.add_argument("-v", "--versbose", action="store_true", help="")
+    #parser4.add_argument("-f", "--force", action="store_true", help="ignore all warnings and skip confirmation")
+    #parser4.add_argument("--dryrun", action="store_true", help="simulate a command without  provisioning it")
+    #parser4.add_argument("--use-cache", action="store_true", help="use cache if available")
 
     args = parser.parse_args()
 
@@ -144,6 +147,7 @@ if __name__ == "__main__":
             code = 1
 
     if args.version:
+        print(f"command: {__version__}")
         print(f"library: {__lib_version__}")
         code = 0
 
