@@ -1,8 +1,6 @@
 from jinja2 import FileSystemLoader, Environment
 import os
-import sys
 import json
-import time
 
 from tn4.cli.base import CommandBase
 
