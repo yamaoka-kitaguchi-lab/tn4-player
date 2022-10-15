@@ -26,14 +26,17 @@ class Deploy(CommandBase):
             "check":     self.flg_dryrun
         }
 
+        results = None
         start_at = time.time()
+
         if self.custom_template_path is None:
             self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner... {annotation}")
-            ansible.run(**runner_opt)
+            results = ansible.run(**runner_opt)
         else:
             self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
-            ansible.run(**runner_opt)
+            results = ansible.run(**runner_opt)
 
         elapsed = round(time.time()-start_at, 1)
         self.console.log(f"[yellow]Ansible Runner finished in {elapsed} sec.")
+
         return 0
