@@ -22,16 +22,16 @@
   tags:
     - nondry
 
-- name: Check template rendering result
-  debug:
-    msg: "{{ lookup('template', 'overwrite.cfg.j2') }}"
-  tags:
-    - develop
+#- name: Check template rendering result
+#  debug:
+#    msg: "{{ lookup('template', 'overwrite.cfg.j2') }}"
+#  tags:
+#    - develop
 
 - name: Overwrite configurations
   connection: netconf
   junos_config:
-    src: overwrite.cfg.j2
+    src: "{{ overwrite_j2_path }}"
     src_format: set
     comment: Action performed by ansible
     update: merge

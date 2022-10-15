@@ -132,3 +132,6 @@ class CommandBase:
                 }
             }
         }
+
+        self.console.log(f"[yellow]Found {len(target_hosts)} hosts")
+        self.console.log(f"[yellow dim]{', '.join(target_hosts)}")
