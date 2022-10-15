@@ -36,7 +36,7 @@ class Deploy(CommandBase):
             self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
             results = ansible.run(**runner_opt)
 
-        elapsed = round(time.time()-start_at, 1)
-        self.console.log(f"[yellow]Ansible Runner finished in {elapsed} sec.")
+        et = round(time.time()-start_at, 1)
+        self.console.log(f"[yellow]Ansible Runner finished in {et} sec.")
 
         return 0
