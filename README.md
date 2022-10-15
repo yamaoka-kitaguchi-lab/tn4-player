@@ -10,7 +10,11 @@ Some hints and tips from the author. Good luck.
 See [https://quay.io/repository/ansible/ansible-runner](https://quay.io/repository/ansible/ansible-runner?tab=tags) to check the latest tag and edit Pipfile if needed. Ansible Builder will take about 20 minutes.
 
 ```
-% make build.ee
+% mv docker.ee/Dockerfile docker.ee/Dockerfile.base
+% pipenv update
+% pipenv requirements > docker.ee/requirements.txt
+% docker build -t ghcr.io/yamaoka-kitaguchi-lab/tn4-player/ansible-runner-base:latest - < docker.ee/Dockerfile.base
+% pipenv run ansible-builder
 ```
 
 ## License
