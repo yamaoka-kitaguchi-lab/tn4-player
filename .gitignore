@@ -2,7 +2,7 @@
 .secrets/*
 !.secrets/*.example
 backup
-docker/_build
+docker.ee/_build
 tmp
 
 # Created by https://www.toptal.com/developers/gitignore/api/linux,macos,windows,vim,emacs,visualstudiocode,python,ansible
