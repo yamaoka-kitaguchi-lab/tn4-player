@@ -2,7 +2,7 @@
 .secrets/*
 !.secrets/*.example
 backup
-docker.ee/requriements.txt
+docker.ee/requirements.txt
 docker.ee/Dockerfile.base
 docker.ee/_build
 tmp
