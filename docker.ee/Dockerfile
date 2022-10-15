@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-ENV PATH="$HOME/.local/bin:$PATH"
+ENV PATH="/opt/tn4-player/bin:$HOME/.local/bin:$PATH"
 
 RUN apt-get update \
  && apt-get upgrade -y \
