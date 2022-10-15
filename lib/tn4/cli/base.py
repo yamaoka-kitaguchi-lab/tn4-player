@@ -6,8 +6,8 @@ import time
 CURDIR              = os.path.dirname(__file__)
 ANSIBLE_WORKDIR     = os.path.join(CURDIR, "../../..")
 ANSIBLE_INVENTORIES = os.path.join(CURDIR, "../../../inventory")
+ANSIBLE_PROJECT     = os.path.join(CURDIR, "../../../project")
 ANSIBLE_ROLES       = os.path.join(CURDIR, "../../../project/roles")
-ANSIBLE_TASKS       = os.path.join(CURDIR, "../../../project/tasks")
 sys.path.append(ANSIBLE_INVENTORIES)
 
 from tn4.netbox.slug import Slug
@@ -17,7 +17,8 @@ from netbox import NetBox
 class CommandBase:
     console = Console(log_time_format="%Y-%m-%dT%H:%M:%S")
 
-    main_task_path = f"{ANSIBLE_TASKS}/main.yml"
+    main_task_path   = f"{ANSIBLE_PROJECT}/main.yml"
+    ansible_cfg_path = f"{ANSIBLE_WORKDIR}/ansible.cfg"
 
     template_paths = {
         Slug.Manufacturer.Cisco: {

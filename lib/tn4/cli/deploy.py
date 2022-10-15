@@ -26,7 +26,7 @@ class Deploy(CommandBase):
             "playbook":         self.main_task_path,
             "check":            self.flg_dryrun,
             "envvars": {
-                "ANSIBLE_CONFIG": self.ANSIBLE_WORKDIR + "/ansible.cfg",
+                "ANSIBLE_CONFIG": self.ansible_cfg_path,
             },
         }
 
