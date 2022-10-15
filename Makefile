@@ -8,7 +8,7 @@ default: build.ee
 build.ee:
 	docker build -t $(EE_REPOSITORY):$(EE_TAG) -f docker.ee/Dockerfile .
 	docker tag $(EE_REPOSITORY):$(EE_TAG) $(EE_REPOSITORY):$(EE_LATEST_TAG)
-	perl -i -pe's!^DOCKER_IMAGE=.*$$!DOCKER_MAGE=$(EE_REPOSITORY):$(EE_LATEST_TAG)!g' ./bin/tn4.outer
+	perl -i -pe's!^DOCKER_IMAGE=.*$$!DOCKER_IMAGE=$(EE_REPOSITORY):$(EE_LATEST_TAG)!g' ./bin/tn4.outer
 
 .PHONY: install
 install:
