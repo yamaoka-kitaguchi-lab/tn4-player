@@ -4,7 +4,7 @@
 Titanet4 as Code - inventory management with NetBox and automated deployment with Ansible.
 
 ## Hints
-Hints and tips from the author.
+Some hints and tips from the author. Good luck.
 
 ### Update the EE container with ansible-builder
 See [https://quay.io/repository/ansible/ansible-runner](https://quay.io/repository/ansible/ansible-runner?tab=tags) to check the latest image tag and edit Pipfile if needed. Then type:
