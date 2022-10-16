@@ -10,6 +10,7 @@ ansible-runner  = "*"
 pyyaml          = "*"
 requests        = "*"
 rich            = "*"
+paramiko = "*"
 
 [dev-packages]
 
