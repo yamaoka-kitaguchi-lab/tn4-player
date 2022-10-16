@@ -6,6 +6,7 @@ docker.ee/requirements.txt
 docker.ee/Dockerfile.base
 docker.ee/_build
 tmp
+out
 
 # Created by https://www.toptal.com/developers/gitignore/api/linux,macos,windows,vim,emacs,visualstudiocode,python,ansible
 # Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,windows,vim,emacs,visualstudiocode,python,ansible

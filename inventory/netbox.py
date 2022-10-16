@@ -40,7 +40,7 @@ class NetBox:
         self.inventory = {
             **{
                 role: {
-                    "hosts": [ h for h in self.nbdata["_hostnames"] if self.nbdata[h]["role"] == role ]
+                    "hosts": { h: {} for h in self.nbdata["_hostnames"] if self.nbdata[h]["role"] == role }
                 }
                 for role in self.nbdata["_roles"]
             },

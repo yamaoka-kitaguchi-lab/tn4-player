@@ -27,7 +27,7 @@ class Deploy(CommandBase):
 
         run_opts = dict(
             inventory=self.inventory,
-            private_data_dir=self.project_path,
+            private_data_dir=self.artifact_path,
             project_dir=self.project_path,
             playbook=self.main_task_path,
             envvars=dict(
@@ -38,6 +38,7 @@ class Deploy(CommandBase):
         results = None
         annotation = "[red bold](DRYRUN)" if self.flg_dryrun else ""
         start_at = time.time()
+        os.makedirs(self.artifact_path, exist_ok=True)
 
         ## workaround: https://github.com/ansible/ansible-runner/issues/702
         hosts_json = f"{self.inventory_path}/hosts.json"

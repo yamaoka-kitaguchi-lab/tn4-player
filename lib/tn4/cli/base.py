@@ -19,6 +19,7 @@ class CommandBase:
 
     inventory_path   = ANSIBLE_INVENTORY
     project_path     = ANSIBLE_WORKDIR
+    artifact_path    = f"{ANSIBLE_WORKDIR}/out"
     main_task_path   = f"{ANSIBLE_PROJECT}/tn4.yml"
     ansible_cfg_path = f"{ANSIBLE_WORKDIR}/ansible.cfg"
 
@@ -129,7 +130,7 @@ class CommandBase:
         self.inventory = {
             **{
                 role: {
-                    "hosts": [ h for h in hosts if h in target_hosts ]
+                    "hosts": { h: {} for h in hosts if h in target_hosts }
                 }
                 for role, hosts in role_to_hosts.items()
             },

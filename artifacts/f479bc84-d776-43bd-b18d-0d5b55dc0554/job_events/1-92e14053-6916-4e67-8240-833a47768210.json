@@ -1,1 +1,0 @@
-{"event": "verbose", "uuid": "92e14053-6916-4e67-8240-833a47768210", "counter": 1, "stdout": "\u001b[0;31mERROR! the playbook: /Users/mi/io/titanoc/tn4-player/bin/../lib/tn4/cli/../../../project/main.yml could not be found\u001b[0m", "start_line": 0, "end_line": 1, "runner_ident": "f479bc84-d776-43bd-b18d-0d5b55dc0554", "created": "2022-10-16T02:39:10.295300"}
