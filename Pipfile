@@ -10,7 +10,8 @@ ansible-runner  = "*"
 pyyaml          = "*"
 requests        = "*"
 rich            = "*"
-paramiko = "*"
+paramiko        = "*"  # ansible connection plugin
+ncclient        = "*"  # for paramiko
 
 [dev-packages]
 
