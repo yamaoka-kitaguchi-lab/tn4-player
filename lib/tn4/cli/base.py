@@ -48,32 +48,33 @@ class CommandBase:
         m = "Fetching the latest inventory from NetBox, this may take a while..."
         if use_cache:
             m = "Loading local cache and rebuilding inventory, this usually takes less than few seconds..."
+        annotation = "[red bold dim]using cache" if use_cache else ""
 
         with self.console.status(f"[green]{m}"):
             start_at = time.time()
             nb.cli.sites.fetch_as_inventory(nb.ctx, use_cache=use_cache)
             et = round(time.time() - start_at, 1)
-            self.console.log(f"[yellow]Loading finished from {nb.cli.sites.path} in {et} sec")
+            self.console.log(f"[yellow]Loading finished from {nb.cli.sites.path} in {et} sec {annotation}")
 
             start_at = time.time()
             nb.cli.vlans.fetch_as_inventory(nb.ctx, use_cache=use_cache)
             et = round(time.time() - start_at, 1)
-            self.console.log(f"[yellow]Loading finished from {nb.cli.vlans.path} in {et} sec")
+            self.console.log(f"[yellow]Loading finished from {nb.cli.vlans.path} in {et} sec {annotation}")
 
             start_at = time.time()
             nb.cli.addresses.fetch_as_inventory(nb.ctx, use_cache=use_cache)
             et = round(time.time() - start_at, 1)
-            self.console.log(f"[yellow]Loading finished from {nb.cli.addresses.path} in {et} sec")
+            self.console.log(f"[yellow]Loading finished from {nb.cli.addresses.path} in {et} sec {annotation}")
 
             start_at = time.time()
             devices = nb.cli.devices.fetch_as_inventory(nb.ctx, use_cache=use_cache)
             et = round(time.time() - start_at, 1)
-            self.console.log(f"[yellow]Loading finished from {nb.cli.devices.path} in {et} sec")
+            self.console.log(f"[yellow]Loading finished from {nb.cli.devices.path} in {et} sec {annotation}")
 
             start_at = time.time()
             interfaces = nb.cli.interfaces.fetch_as_inventory(nb.ctx, use_cache=use_cache)
             et = round(time.time() - start_at, 1)
-            self.console.log(f"[yellow]Loading finished from {nb.cli.interfaces.path} in {et} sec")
+            self.console.log(f"[yellow]Loading finished from {nb.cli.interfaces.path} in {et} sec {annotation}")
 
             nb.nbdata = nb.cli.merge_inventory(devices, interfaces)
             inventory = nb.fetch_inventory()

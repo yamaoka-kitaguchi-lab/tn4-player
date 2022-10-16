@@ -7,12 +7,12 @@ from tn4.cli.base import CommandBase
 
 class Config(CommandBase):
     def __init__(self, args):
-        self.flg_use_cache        = args.use_cache
-        self.flg_inventory        = args.inventory
-        self.flg_debug            = args.debug
-        self.outdir               = args.DIR_PATH
-        self.custom_template_path = args.template
-        self.inventory_json = f"{self.outdir}/inventory.json"
+        self.flg_use_cache         = args.use_cache
+        self.flg_inventory         = args.inventory
+        self.flg_debug             = args.debug
+        self.outdir                = args.DIR_PATH
+        self.custom_template_path  = args.template
+        self.inventory_json        = f"{self.outdir}/inventory.json"
         self.fetch_inventory_opts  = [
             args.hosts,   args.no_hosts,
             args.areas,   args.no_areas,

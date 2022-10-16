@@ -1,4 +1,4 @@
-from ansible_runner import Runner
+from ansible_runner import run
 import time
 
 from tn4.cli.base import CommandBase
@@ -23,12 +23,12 @@ class Deploy(CommandBase):
     def exec(self):
         self.fetch_inventory(*self.fetch_inventory_opts, debug=self.flg_debug)
 
-        runner_opts = {
-            "inventory":        self.inventory,
-            "private_data_dir": self.project_path,
-            "project_dir":      self.project_path,
-            "playbook":         self.main_task_path,
-            "check":            self.flg_dryrun,
+        run_opts = {
+            "inventory":          self.inventory,
+            "private_data_dir":   self.project_path,
+            "project_dir":        self.project_path,
+            "playbook":           self.main_task_path,
+            "check":              self.flg_dryrun,
             "envvars": {
                 "ANSIBLE_CONFIG": self.ansible_cfg_path,
             },
@@ -40,12 +40,12 @@ class Deploy(CommandBase):
 
         if self.custom_template_path is None:
             self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner... {annotation}")
-            runner = Runner(**runner_opts)
         else:
             self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
-            runner = Runner(**runner_opts)
 
-        results = runner.run()
+        print("\n"*2)
+        results = run(**run_opts)
+        print("\n"*2)
 
         et = round(time.time() - start_at, 1)
         self.console.log(f"[yellow]Ansible Runner finished in {et} sec.")
