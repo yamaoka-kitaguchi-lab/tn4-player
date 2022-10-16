@@ -25,15 +25,15 @@ class Deploy(CommandBase):
     def exec(self):
         self.fetch_inventory(*self.fetch_inventory_opts, debug=self.flg_debug)
 
-        run_opts = dict(
-            inventory=self.inventory,
-            private_data_dir=self.project_path,
-            project_dir=self.project_path,
-            playbook=self.main_task_path,
-            envvars=dict(
-                ANSIBLE_CONFIG=self.ansible_cfg_path,
-            ),
-        )
+        run_opts = {
+            "inventory":          self.inventory,
+            "private_data_dir":   self.project_path,
+            "project_dir":        self.project_path,
+            "playbook":           self.main_task_path,
+            "envvars": {
+                "ANSIBLE_CONFIG": self.ansible_cfg_path,
+            },
+        }
 
         results = None
         annotation = "[red bold](DRYRUN)" if self.flg_dryrun else ""
