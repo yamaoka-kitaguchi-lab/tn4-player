@@ -10,21 +10,22 @@
   debug:
     msg: "{{ lookup('template', 'edge.cfg.j2') | split('\n') | select('!=', '') | join('\n') }}"
   register: edge_config
-  no_log: "{{ is_quiet }}"
+  no_log: "is_quiet"
 
 - name: Export configs for Edge SWs
   copy:
     content: "{{ edge_config.msg }}"
     dest: "backup/cisco_config.{{ datetime }}/{{ hostname }}_submitted.cfg"
   delegate_to: localhost
-  no_log: "{{ is_quiet }}"
+  no_log: "is_quiet"
 
 - name: Provisioning Edge SWs
   ios_config:
     src: "backup/cisco_config.{{ datetime }}/{{ hostname }}_submitted.cfg"
     save_when: modified
-  diff: "{{ is_debug }}"
-  no_log: "{{ is_quiet }}"
+  diff: "not is_quiet"
+  no_log: "is_quiet"
+  check_mode: "is_dryrun"
 
 - name: Create post snapshots
   ios_config:
