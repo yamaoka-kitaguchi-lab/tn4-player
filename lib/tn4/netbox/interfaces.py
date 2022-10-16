@@ -148,6 +148,7 @@ class Interfaces(ClientBase):
                 "tagged_vids":     None,
                 "untagged_vlanid": None,
                 "untagged_vid":    None,
+                "native_vid":      None,
             }
 
             vlan_mode = interface["mode"]
