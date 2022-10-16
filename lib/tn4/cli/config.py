@@ -13,9 +13,13 @@ class Config(CommandBase):
         self.outdir               = args.DIR_PATH
         self.custom_template_path = args.template
         self.inventory_json = f"{self.outdir}/inventory.json"
-        self.fetch_inventory_opts = [
-            args.hosts, args.no_hosts, args.areas, args.no_areas, args.roles, args.no_roles,
-            args.vendors, args.no_vendors, args.tags, args.no_tags, args.use_cache
+        self.fetch_inventory_opts  = [
+            args.hosts,   args.no_hosts,
+            args.areas,   args.no_areas,
+            args.roles,   args.no_roles,
+            args.vendors, args.no_vendors,
+            args.tags,    args.no_tags,
+            args.use_cache
         ]
 
 

@@ -11,8 +11,12 @@ class Deploy(CommandBase):
         self.flg_debug             = args.debug
         self.custom_template_path  = args.template
         self.fetch_inventory_opts  = [
-            args.hosts, args.no_hosts, args.areas, args.no_areas, args.roles, args.no_roles,
-            args.vendors, args.no_vendors, args.tags, args.no_tags, args.use_cache
+            args.hosts,   args.no_hosts,
+            args.areas,   args.no_areas,
+            args.roles,   args.no_roles,
+            args.vendors, args.no_vendors,
+            args.tags,    args.no_tags,
+            args.use_cache
         ]
 
 
