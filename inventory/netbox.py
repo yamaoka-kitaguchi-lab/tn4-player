@@ -45,7 +45,7 @@ class NetBox:
                 for role in self.nbdata["_roles"]
             },
             "_meta": {
-                "hostvars": {
+                "hosts": {
                     hostname: {
                         "hostname": hostname,
                         **{

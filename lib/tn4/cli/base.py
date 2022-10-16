@@ -85,7 +85,7 @@ class CommandBase:
         includes, excludes = [], []
         area_to_hosts, role_to_hosts, vendor_to_hosts, tag_to_hosts = {}, {}, {}, {}
 
-        for hostname, hostvar in inventory["_meta"]["hostvars"].items():
+        for hostname, hostvar in inventory["_meta"]["hosts"].items():
             area_to_hosts.setdefault(hostvar["region"], []).append(hostname)
             area_to_hosts.setdefault(hostvar["sitegp"], []).append(hostname)
             role_to_hosts.setdefault(hostvar["role"], []).append(hostname)
@@ -122,7 +122,7 @@ class CommandBase:
             excludes.extend(tag_to_hosts[no_tag])
 
         if len(includes) == 0:
-            includes = inventory["_meta"]["hostvars"].keys()
+            includes = inventory["_meta"]["hosts"].keys()
 
         target_hosts = list(set(includes) - set(excludes))
 
@@ -134,8 +134,8 @@ class CommandBase:
                 for role, hosts in role_to_hosts.items()
             },
             "_meta": {
-                "hostvars": {
-                    host: inventory["_meta"]["hostvars"][host]
+                "hosts": {
+                    host: inventory["_meta"]["hosts"][host]
                     for host in target_hosts
                 }
             }
