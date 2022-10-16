@@ -39,6 +39,7 @@ class Deploy(CommandBase):
         annotation = "[red bold](DRYRUN)" if self.flg_dryrun else ""
         start_at = time.time()
 
+        ## workaround: https://github.com/ansible/ansible-runner/issues/702
         hosts_json = f"{self.inventory_path}/hosts.json"
         os.path.exists(hosts_json) and os.remove(hosts_json)
 
