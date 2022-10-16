@@ -17,6 +17,7 @@
 - name: Enable NETCONF
   connection: network_cli
   junos_netconf:
+  check_mode: yes
 
 - name: Create backup directory
   ansible.builtin.file:
@@ -26,6 +27,7 @@
   delegate_to: localhost
   tags:
     - nondry
+  check_mode: yes
 
 - name: Create pre-snapshots
   connection: netconf
@@ -36,6 +38,7 @@
       dir_path: "backup/juniper_config.{{ datetime }}"
   tags:
     - nondry
+  check_mode: yes
 
 - name: Check template rendering result (Edge)
   debug:
@@ -44,6 +47,7 @@
   tags:
     - develop
     - rendering
+  check_mode: yes
 
 - name: Check template rendering result (Core)
   debug:
@@ -52,6 +56,7 @@
   tags:
     - develop
     - rendering
+  check_mode: yes
 
 - name: Update interface configurations (Edge)
   connection: netconf
@@ -62,6 +67,7 @@
     confirm: 0
     update: merge
   when: "'edge_sw' in group_names"
+  check_mode: yes
 
 - name: Update interface configurations (Core)
   connection: netconf
@@ -72,6 +78,7 @@
     confirm: 0
     update: merge
   when: "'core_sw' in group_names"
+  check_mode: yes
 
 - name: Create post-snapshots
   connection: netconf
@@ -82,3 +89,4 @@
       dir_path: "backup/juniper_config.{{ datetime }}"
   tags:
     - nondry
+  check_mode: yes

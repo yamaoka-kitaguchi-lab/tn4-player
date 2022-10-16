@@ -1,5 +1,7 @@
 from ansible_runner import run
+from pprint import pprint
 import time
+import os
 
 from tn4.cli.base import CommandBase
 
@@ -23,29 +25,31 @@ class Deploy(CommandBase):
     def exec(self):
         self.fetch_inventory(*self.fetch_inventory_opts, debug=self.flg_debug)
 
-        run_opts = {
-            "inventory":          self.inventory,
-            "private_data_dir":   self.project_path,
-            "project_dir":        self.project_path,
-            "playbook":           self.main_task_path,
-            "check":              self.flg_dryrun,
-            "envvars": {
-                "ANSIBLE_CONFIG": self.ansible_cfg_path,
-            },
-        }
+        run_opts = dict(
+            inventory=self.inventory,
+            private_data_dir=self.project_path,
+            project_dir=self.project_path,
+            playbook=self.main_task_path,
+            envvars=dict(
+                ANSIBLE_CONFIG=self.ansible_cfg_path,
+            ),
+        )
 
         results = None
         annotation = "[red bold](DRYRUN)" if self.flg_dryrun else ""
         start_at = time.time()
+
+        hosts_json = f"{self.inventory_path}/hosts.json"
+        os.path.exists(hosts_json) and os.remove(hosts_json)
 
         if self.custom_template_path is None:
             self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner... {annotation}")
         else:
             self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
 
-        print("\n"*2)
+        print("\n"*1)
         results = run(**run_opts)
-        print("\n"*2)
+        print("\n"*1)
 
         et = round(time.time() - start_at, 1)
         self.console.log(f"[yellow]Ansible Runner finished in {et} sec.")
