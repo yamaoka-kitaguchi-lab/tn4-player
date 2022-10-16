@@ -1,4 +1,4 @@
-import ansible_runner as ansible
+from ansible_runner import Runner
 import time
 
 from tn4.cli.base import CommandBase
@@ -36,10 +36,12 @@ class Deploy(CommandBase):
 
         if self.custom_template_path is None:
             self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner... {annotation}")
-            results = ansible.run(**runner_opts)
+            runner = Runner(**runner_opts)
         else:
             self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
-            results = ansible.run(**runner_opts)
+            runner = Runner(**runner_opts)
+
+        results = runner.run()
 
         et = round(time.time()-start_at, 1)
         self.console.log(f"[yellow]Ansible Runner finished in {et} sec.")

@@ -3,9 +3,8 @@
 
 class NetBox:
     def __init__(self, args):
-        print(args)
-        print(args.no_hosts)
+        pass
 
 
-    def exec(self, stdout=False):
+    def exec(self):
         pass
