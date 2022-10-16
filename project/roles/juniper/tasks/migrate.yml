@@ -14,71 +14,84 @@
 #    - develop
 #    - verbose
 
-- name: Enable NETCONF
-  connection: network_cli
-  junos_netconf:
-  check_mode: yes
+#- name: Enable NETCONF
+#  connection: network_cli
+#  junos_netconf:
+#
+#- name: Create backup directory
+#  ansible.builtin.file:
+#    path: "backup/juniper_config.{{ datetime }}"
+#    state: directory
+#  register: local_dir
+#  delegate_to: localhost
+#  tags:
+#    - nondry
+#
+#- name: Create pre-snapshots
+#  connection: netconf
+#  junos_config:
+#    backup: yes
+#    backup_options:
+#      filename: "{{ hostname }}_before.cfg"
+#      dir_path: "backup/juniper_config.{{ datetime }}"
+#  tags:
+#    - nondry
 
-- name: Create backup directory
-  ansible.builtin.file:
-    path: "backup/juniper_config.{{ datetime }}"
-    state: directory
-  register: local_dir
-  delegate_to: localhost
-  tags:
-    - nondry
-  check_mode: yes
+#- name: Check template rendering result (Edge)
+#  debug:
+#    msg: "{{ lookup('template', 'edge.cfg.j2') }}"
+#  when: "'edge_sw' in group_names"
+#  tags:
+#    - develop
+#    - rendering
+#
+#- name: Check template rendering result (Core)
+#  debug:
+#    msg: "{{ lookup('template', 'core.cfg.j2') }}"
+#  when: "'core_sw' in group_names"
+#  tags:
+#    - develop
+#    - rendering
 
-- name: Create pre-snapshots
-  connection: netconf
-  junos_config:
-    backup: yes
-    backup_options:
-      filename: "{{ hostname }}_before.cfg"
-      dir_path: "backup/juniper_config.{{ datetime }}"
-  tags:
-    - nondry
-  check_mode: yes
+#- name: Update interface configurations (Edge)
+#  connection: netconf
+#  junos_config:
+#    src: edge.cfg.j2
+#    src_format: set
+#    comment: Action performed by ansible
+#    confirm: 0
+#    update: merge
+#    check_commit: yes
+#  when: "'edge_sw' in group_names"
+#
+#- name: Update interface configurations (Core)
+#  connection: netconf
+#  junos_config:
+#    src: core.cfg.j2
+#    src_format: set
+#    comment: Action performed by ansible
+#    confirm: 0
+#    update: merge
+#    check_commit: yes
+#  when: "'core_sw' in group_names"
 
 - name: Check template rendering result (Edge)
   debug:
-    msg: "{{ lookup('template', 'edge.cfg.j2') }}"
+    msg: "{{ lookup('template', 'edge.cfg.j2') | split('\n') | select('!=', '') | list }}"
   when: "'edge_sw' in group_names"
-  tags:
-    - develop
-    - rendering
-  check_mode: yes
-
-- name: Check template rendering result (Core)
-  debug:
-    msg: "{{ lookup('template', 'core.cfg.j2') }}"
-  when: "'core_sw' in group_names"
-  tags:
-    - develop
-    - rendering
-  check_mode: yes
+  register: edge_config
 
 - name: Update interface configurations (Edge)
   connection: netconf
   junos_config:
-    src: interface_edge.cfg.j2
-    src_format: set
+    lines:
+      - "{{ item }}"
     comment: Action performed by ansible
     confirm: 0
     update: merge
+    check_commit: yes
+  loop: "{{ edge_config.msg }}"
   when: "'edge_sw' in group_names"
-  check_mode: yes
-
-- name: Update interface configurations (Core)
-  connection: netconf
-  junos_config:
-    src: interface_core.cfg.j2
-    src_format: set
-    comment: Action performed by ansible
-    confirm: 0
-    update: merge
-  when: "'core_sw' in group_names"
-  check_mode: yes
 
 - name: Create post-snapshots
   connection: netconf
@@ -89,4 +102,3 @@
       dir_path: "backup/juniper_config.{{ datetime }}"
   tags:
     - nondry
-  check_mode: yes
