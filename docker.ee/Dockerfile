@@ -17,3 +17,8 @@ WORKDIR /opt/tn4-player
 RUN python3 -m pip install --upgrade pipenv \
  && pipenv requirements > requirements.txt \
  && python3 -m pip install -r requirements.txt
+
+RUN pip install \
+      --extra-index-url=https://ansible.github.io/pylibssh/simple/ \
+      --pre \
+      ansible-pylibssh
