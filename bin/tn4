@@ -25,7 +25,7 @@ LIBRARY_PATH = os.path.join(CURDIR, "../lib")
 
 sys.path.append(LIBRARY_PATH)
 
-from tn4.__version__ import __version__ as __lib_version__
+from tn4.__version__ import __version__ as __libtn4_version__
 from tn4.cli.config import Config
 from tn4.cli.deploy import Deploy
 from tn4.cli.shutdown import Shutdown
@@ -148,7 +148,7 @@ if __name__ == "__main__":
 
     if args.version:
         print(f"command: {__version__}")
-        print(f"library: {__lib_version__}")
+        print(f"library: {__libtn4_version__}")
         code = 0
 
     if code == 1:
