@@ -43,7 +43,7 @@ class Deploy(CommandBase):
 
         results = runner.run()
 
-        et = round(time.time()-start_at, 1)
+        et = round(time.time() - start_at, 1)
         self.console.log(f"[yellow]Ansible Runner finished in {et} sec.")
 
         return 0
