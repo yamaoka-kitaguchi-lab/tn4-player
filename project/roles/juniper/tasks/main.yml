@@ -1,12 +1,27 @@
 ---
-- import_tasks: migrate.yml
-  tags:
-    - migrate
+- import_tasks: prepare.yml
   vars:
     ansible_network_os: junos
+  tags:
+    - deploy
+    - overwrite
+
+- import_tasks: deploy_edge.yml
+  vars:
+    ansible_network_os: junos
+  when: "'edge_sw' in group_names"
+  tags:
+    - deploy
+
+- import_tasks: deploy_core.yml
+  vars:
+    ansible_network_os: junos
+  when: "'core_sw' in group_names"
+  tags:
+    - deploy
 
 - import_tasks: overwrite.yml
-  tags:
-    - overwrite
   vars:
     ansible_network_os: junos
+  tags:
+    - overwrite

@@ -4,26 +4,27 @@
   junos_config:
     backup: yes
     backup_options:
-      filename: "{{ hostname }}_overwrite_before.cfg"
+      filename: "{{ hostname }}_before.cfg"
       dir_path: "backup/juniper_config.{{ datetime }}"
 
-- name: Rendering template
+- name: Rendering templates for Edge SWs
   debug:
-    msg: "{{ lookup('template', overwrite_j2_path) | split('\n') | select('!=', '') | join('\n') }}"
-  register: config
+    msg: "{{ lookup('template', 'edge.cfg.j2') | split('\n') | select('!=', '') | join('\n') }}"
+  register: edge_config
   no_log: "{{ is_quiet }}"
+  when: "'edge_sw' in group_names"
 
-- name: Export config
+- name: Export configs for Edge SWs
   copy:
-    content: "{{ config.msg }}"
-    dest: "backup/juniper_config.{{ datetime }}/{{ hostname }}_overwrite_submitted.cfg"
+    content: "{{ edge_config.msg }}"
+    dest: "backup/juniper_config.{{ datetime }}/{{ hostname }}_submitted.cfg"
   delegate_to: localhost
   no_log: "{{ is_quiet }}"
 
-- name: Provisioning
+- name: Provisioning Edge SWs
   connection: netconf
   junos_config:
-    src: "backup/juniper_config.{{ datetime }}/{{ hostname }}_overwrite_submitted.cfg"
+    src: "backup/juniper_config.{{ datetime }}/{{ hostname }}_submitted.cfg"
     src_format: set
     comment: Action performed by ansible
     confirm: "{{ commit_confirm_sec }}"
@@ -35,5 +36,5 @@
   junos_config:
     backup: yes
     backup_options:
-      filename: "{{ hostname }}_overwrite_after.cfg"
+      filename: "{{ hostname }}_after.cfg"
       dir_path: "backup/juniper_config.{{ datetime }}"

@@ -1,0 +1,23 @@
+---
+- name: Display all variables and facts stored in the inventory
+  debug:
+    var: hostvars[inventory_hostname]
+  tags:
+    - debug
+
+- name: Show version
+  connection: network_cli
+  junos_command:
+    commands: show version
+  tags:
+    - debug
+
+- name: Enable NETCONF
+  connection: network_cli
+  junos_netconf:
+
+- name: Create backup directory
+  ansible.builtin.file:
+    path: "backup/juniper_config.{{ datetime }}"
+    state: directory
+  delegate_to: localhost
