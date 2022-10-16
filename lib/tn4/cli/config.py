@@ -43,7 +43,7 @@ class Config(CommandBase):
         self.configs = {}
         ignore_empty_lines = lambda s: "\n".join([l for l in s.split("\n") if l != ""])
 
-        for host, hostvar in self.inventory["_meta"]["hostvars"].items():
+        for host, hostvar in self.inventory["_meta"]["hosts"].items():
             config = []
 
             for template in self.templates[hostvar["manufacturer"]][hostvar["role"]]:
