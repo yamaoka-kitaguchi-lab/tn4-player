@@ -2,7 +2,7 @@
 - name: Display all variables and facts stored in the inventory
   debug:
     var: hostvars[inventory_hostname]
-  when: "{{ is_debug }}"
+  when: "not is_quiet"
   tags:
     - debug
 
@@ -10,7 +10,7 @@
   connection: network_cli
   junos_command:
     commands: show version
-  when: "{{ is_debug }}"
+  when: "not is_quiet"
   tags:
     - debug
 

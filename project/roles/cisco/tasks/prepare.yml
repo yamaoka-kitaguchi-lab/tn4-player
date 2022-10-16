@@ -2,7 +2,7 @@
 - name: Display all variables and facts stored in the inventory
   debug:
     var: hostvars[inventory_hostname]
-  when: "{{ is_debug }}"
+  when: "not is_quiet"
   tags:
     - develop
     - verbose
@@ -11,7 +11,6 @@
   ansible.builtin.file:
     path: "backup/cisco_config.{{ datetime }}"
     state: directory
-  register: local_dir
   delegate_to: localhost
   tags:
     - nondry
