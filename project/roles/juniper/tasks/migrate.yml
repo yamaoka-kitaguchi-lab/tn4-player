@@ -1,18 +1,18 @@
 ---
-- name: Display all variables and facts known for a host
-  debug:
-    var: hostvars[inventory_hostname]
-  tags:
-    - develop
-    - verbose
-
-- name: Show version
-  connection: network_cli
-  junos_command:
-    commands: show version
-  tags:
-    - develop
-    - verbose
+#- name: Display all variables and facts known for a host
+#  debug:
+#    var: hostvars[inventory_hostname]
+#  tags:
+#    - develop
+#    - verbose
+#
+#- name: Show version
+#  connection: network_cli
+#  junos_command:
+#    commands: show version
+#  tags:
+#    - develop
+#    - verbose
 
 - name: Enable NETCONF
   connection: network_cli
