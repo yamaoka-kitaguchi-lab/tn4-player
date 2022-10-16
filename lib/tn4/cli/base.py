@@ -1,4 +1,6 @@
+from pprint import pprint
 from rich.console import Console
+from yaml import safe_load
 import os
 import sys
 import time
@@ -21,6 +23,7 @@ class CommandBase:
     project_path     = ANSIBLE_WORKDIR
     main_task_path   = f"{ANSIBLE_PROJECT}/tn4.yml"
     ansible_cfg_path = f"{ANSIBLE_WORKDIR}/ansible.cfg"
+    group_vars_path  = f"{ANSIBLE_INVENTORY}/group_vars/all/ansible.yml"
 
     template_paths = {
         Slug.Manufacturer.Cisco: {
@@ -126,6 +129,10 @@ class CommandBase:
 
         target_hosts = list(set(includes) - set(excludes))
 
+        ansible_common_vars = {}
+        with open(self.group_vars_path) as fd:
+            ansible_common_vars = safe_load(fd)
+
         self.inventory = {
             **{
                 role: {
@@ -135,7 +142,10 @@ class CommandBase:
             },
             "_meta": {
                 "hosts": {
-                    host: inventory["_meta"]["hosts"][host]
+                    host: {
+                        **inventory["_meta"]["hosts"][host],
+                        **ansible_common_vars,
+                    }
                     for host in target_hosts
                 }
             }
