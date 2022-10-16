@@ -46,7 +46,8 @@ class CommandBase:
 
 
     def fetch_inventory(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[],
-                        vendors=[], no_vendors=[], tags=[], no_tags=[], use_cache=False, dryrun=False, debug=False):
+                        vendors=[], no_vendors=[], tags=[], no_tags=[],
+                        use_cache=False, is_dryrun=False, overwrite_j2_path=None, is_debug=False):
         nb = NetBox()
 
         m = "Fetching the latest inventory from NetBox, this may take a while..."
@@ -131,8 +132,10 @@ class CommandBase:
 
         ansible_common_vars = {
             "commit_confirm_sec": 0,
-            "is_dryrun":          dryrun,
-            "is_quiet":           not debug,
+            "is_dryrun":          is_dryrun,
+            "is_quiet":           not is_debug,
+            "is_overwrite":       overwrite_j2_path is not None,
+            "overwrite_j2_path":  overwrite_j2_path,
         }
 
         with open(self.group_vars_path) as fd:

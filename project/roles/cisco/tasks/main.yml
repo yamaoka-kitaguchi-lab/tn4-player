@@ -1,14 +1,25 @@
 ---
-- import_tasks: migrate.yml
-  tags:
-    - migrate
+- import_tasks: prepare.yml
   vars:
     ansible_network_os: cisco.ios.ios
     ansible_connection: network_cli
+  tags:
+    - deploy
+    - overwrite
+
+- import_tasks: deploy.yml
+  vars:
+    ansible_network_os: cisco.ios.ios
+    ansible_connection: network_cli
+  when: "not is_overwrite"
+  tags:
+    - deploy
 
 - import_tasks: overwrite.yml
-  tags:
-    - overwrite
   vars:
     ansible_network_os: cisco.ios.ios
     ansible_connection: network_cli
+  when: "is_overwrite"
+  tags:
+    - overwrite
+

@@ -9,19 +9,20 @@
 - import_tasks: deploy_edge.yml
   vars:
     ansible_network_os: junos
-  when: "'edge_sw' in group_names"
+  when: "'edge_sw' in group_names and not is_overwrite"
   tags:
     - deploy
 
 - import_tasks: deploy_core.yml
   vars:
     ansible_network_os: junos
-  when: "'core_sw' in group_names"
+  when: "'core_sw' in group_names and not is_overwrite"
   tags:
     - deploy
 
 - import_tasks: overwrite.yml
   vars:
     ansible_network_os: junos
+  when: "is_overwrite"
   tags:
     - overwrite

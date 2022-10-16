@@ -1,0 +1,16 @@
+---
+- name: Display all variables and facts known for a host
+  debug:
+    var: hostvars[inventory_hostname]
+  tags:
+    - develop
+    - verbose
+
+- name: Create backup directory
+  ansible.builtin.file:
+    path: "backup/cisco_config.{{ datetime }}"
+    state: directory
+  register: local_dir
+  delegate_to: localhost
+  tags:
+    - nondry

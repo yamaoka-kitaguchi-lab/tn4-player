@@ -20,6 +20,7 @@ class Deploy(CommandBase):
             args.tags,    args.no_tags,
             args.use_cache,
             args.dryrun,
+            args.template,
         ]
 
 
