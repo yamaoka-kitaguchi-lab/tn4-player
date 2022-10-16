@@ -1,7 +1,8 @@
 ---
-- name: Display all variables and facts known for a host
+- name: Display all variables and facts stored in the inventory
   debug:
     var: hostvars[inventory_hostname]
+  when: "{{ is_debug }}"
   tags:
     - develop
     - verbose

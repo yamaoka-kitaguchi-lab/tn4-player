@@ -19,13 +19,25 @@ class Deploy(CommandBase):
             args.vendors, args.no_vendors,
             args.tags,    args.no_tags,
             args.use_cache,
-            args.dryrun,
-            args.template,
         ]
+
+
+    def append_ansible_common_vars(self):
+        self.ansible_common_vars |= {
+            "commit_confirm_sec": 0,
+            "is_dryrun":          self.flg_dryrun,
+            "is_quiet":           not self.flg_debug,
+            "is_overwrite":       self.custom_template_path is not None,
+            "overwrite_j2_path":  self.custom_template_path,
+        }
+
+        for host in self.inventory["_meta"]["hosts"].values():
+            host |= self.ansible_common_vars
 
 
     def exec(self):
         self.fetch_inventory(*self.fetch_inventory_opts, debug=self.flg_debug)
+        self.append_ansible_common_vars()
 
         run_opts = {
             "inventory":          self.inventory,

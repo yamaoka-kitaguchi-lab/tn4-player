@@ -46,8 +46,7 @@ class CommandBase:
 
 
     def fetch_inventory(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[],
-                        vendors=[], no_vendors=[], tags=[], no_tags=[],
-                        use_cache=False, is_dryrun=False, overwrite_j2_path=None, is_debug=False):
+                        vendors=[], no_vendors=[], tags=[], no_tags=[], use_cache=False, debug=False):
         nb = NetBox()
 
         m = "Fetching the latest inventory from NetBox, this may take a while..."
@@ -130,16 +129,9 @@ class CommandBase:
 
         target_hosts = list(set(includes) - set(excludes))
 
-        ansible_common_vars = {
-            "commit_confirm_sec": 0,
-            "is_dryrun":          is_dryrun,
-            "is_quiet":           not is_debug,
-            "is_overwrite":       overwrite_j2_path is not None,
-            "overwrite_j2_path":  overwrite_j2_path,
-        }
-
+        self.ansible_common_vars = {}
         with open(self.group_vars_path) as fd:
-            ansible_common_vars |= safe_load(fd)
+            self.ansible_common_vars |= safe_load(fd)
 
         self.inventory = {
             **{
@@ -150,10 +142,7 @@ class CommandBase:
             },
             "_meta": {
                 "hosts": {
-                    host: {
-                        **inventory["_meta"]["hosts"][host],
-                        **ansible_common_vars,
-                    }
+                    host: inventory["_meta"]["hosts"][host]
                     for host in target_hosts
                 }
             }
