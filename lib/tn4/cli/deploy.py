@@ -18,7 +18,8 @@ class Deploy(CommandBase):
             args.roles,   args.no_roles,
             args.vendors, args.no_vendors,
             args.tags,    args.no_tags,
-            args.use_cache
+            args.use_cache,
+            args.dryrun,
         ]
 
 
