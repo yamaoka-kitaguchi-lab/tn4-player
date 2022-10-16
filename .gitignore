@@ -1,12 +1,13 @@
 *.log
 .secrets/*
 !.secrets/*.example
+inventory/hosts.json
 backup
 docker.ee/requirements.txt
 docker.ee/Dockerfile.base
 docker.ee/_build
 tmp
-out
+artifacts
 
 # Created by https://www.toptal.com/developers/gitignore/api/linux,macos,windows,vim,emacs,visualstudiocode,python,ansible
 # Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,windows,vim,emacs,visualstudiocode,python,ansible

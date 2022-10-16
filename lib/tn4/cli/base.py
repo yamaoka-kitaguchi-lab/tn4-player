@@ -19,7 +19,6 @@ class CommandBase:
 
     inventory_path   = ANSIBLE_INVENTORY
     project_path     = ANSIBLE_WORKDIR
-    artifact_path    = f"{ANSIBLE_WORKDIR}/out"
     main_task_path   = f"{ANSIBLE_PROJECT}/tn4.yml"
     ansible_cfg_path = f"{ANSIBLE_WORKDIR}/ansible.cfg"
 
