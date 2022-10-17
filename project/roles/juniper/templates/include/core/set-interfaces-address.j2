@@ -1,7 +1,15 @@
 {% for ip in interface.addresses4 %}
+{% if interface.name[:4] == "irb." %}
+set interfaces irb unit {{ interface.name[4:] }} family inet address {{ ip }}
+{% else %}
 set interfaces {{ interface.name }} unit 0 family inet address {{ ip }}
+{% endif %}
 {% endfor %}
 
 {% for ip in interface.addresses6 %}
+{% if interface.name[:4] == "irb." %}
+set interfaces irb unit {{ interface.name[4:] }} family inet6 address {{ ip }}
+{% else %}
 set interfaces {{ interface.name }} unit 0 family inet6 address {{ ip }}
+{% endif %}
 {% endfor %}
