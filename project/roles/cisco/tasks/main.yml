@@ -11,7 +11,7 @@
   vars:
     ansible_network_os: cisco.ios.ios
     ansible_connection: network_cli
-  when: "{{ not is_overwrite }}"
+  when: "not is_overwrite"
   tags:
     - deploy
 
@@ -19,7 +19,7 @@
   vars:
     ansible_network_os: cisco.ios.ios
     ansible_connection: network_cli
-  when: "{{ is_overwrite }}"
+  when: "is_overwrite"
   tags:
     - overwrite
 
