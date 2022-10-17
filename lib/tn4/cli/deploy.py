@@ -12,6 +12,7 @@ class Deploy(CommandBase):
         self.flg_dryrun            = args.dryrun
         self.flg_debug             = args.debug
         self.custom_template_path  = args.template
+        self.verbosity             = args.v
         self.fetch_inventory_opts  = [
             args.hosts,   args.no_hosts,
             args.areas,   args.no_areas,
@@ -26,7 +27,7 @@ class Deploy(CommandBase):
         self.ansible_common_vars |= {
             "commit_confirm_sec": 0,
             "is_dryrun":          self.flg_dryrun,
-            "is_quiet":           not self.flg_debug,
+            "is_quiet":           self.verbosity > 0,
             "is_overwrite":       self.custom_template_path is not None,
             "overwrite_j2_path":  self.custom_template_path,
         }
@@ -44,6 +45,7 @@ class Deploy(CommandBase):
             "private_data_dir":   self.project_path,
             "project_dir":        self.project_path,
             "playbook":           self.main_task_path,
+            "verbosity":          self.verbosity,
             "envvars": {
                 "ANSIBLE_CONFIG": self.ansible_cfg_path,
             },
