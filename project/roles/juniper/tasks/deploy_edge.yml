@@ -11,7 +11,7 @@
   debug:
     msg: "{{ lookup('template', 'edge.cfg.j2') | split('\n') | select('!=', '') | join('\n') }}"
   register: edge_config
-  no_log: "{{ is_quiet }}"
+  no_log: "is_quiet"
   when: "'edge_sw' in group_names"
 
 - name: Export configs for Edge SWs
@@ -19,7 +19,7 @@
     content: "{{ edge_config.msg }}"
     dest: "backup/juniper_config.{{ datetime }}/{{ hostname }}_submitted.cfg"
   delegate_to: localhost
-  no_log: "{{ is_quiet }}"
+  no_log: "is_quiet"
 
 - name: Provisioning Edge SWs
   connection: netconf
@@ -29,7 +29,7 @@
     comment: Action performed by ansible
     confirm: "{{ commit_confirm_sec }}"
     update: merge
-    check_commit: "{{ is_dryrun }}"
+    check_commit: "is_dryrun"
 
 - name: Create post snapshots
   connection: netconf

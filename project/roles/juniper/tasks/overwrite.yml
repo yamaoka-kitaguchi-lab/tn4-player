@@ -5,20 +5,20 @@
     backup: yes
     backup_options:
       filename: "{{ hostname }}_overwrite_before.cfg"
-      dir_path: "backup/juniper_config.{{ datetime }}"
+      dir_path: "project/backup/juniper_config.{{ datetime }}"
 
 - name: Rendering template
   debug:
     msg: "{{ lookup('template', overwrite_j2_path) | split('\n') | select('!=', '') | join('\n') }}"
   register: config
-  no_log: "{{ is_quiet }}"
+  no_log: "is_quiet"
 
 - name: Export config
   copy:
     content: "{{ config.msg }}"
     dest: "backup/juniper_config.{{ datetime }}/{{ hostname }}_overwrite_submitted.cfg"
   delegate_to: localhost
-  no_log: "{{ is_quiet }}"
+  no_log: "is_quiet"
 
 - name: Provisioning
   connection: netconf
@@ -28,7 +28,7 @@
     comment: Action performed by ansible
     confirm: "{{ commit_confirm_sec }}"
     update: merge
-    check_commit: "{{ is_dryrun }}"
+    check_commit: "is_dryrun"
 
 - name: Create post snapshots
   connection: netconf
@@ -36,4 +36,4 @@
     backup: yes
     backup_options:
       filename: "{{ hostname }}_overwrite_after.cfg"
-      dir_path: "backup/juniper_config.{{ datetime }}"
+      dir_path: "project/backup/juniper_config.{{ datetime }}"
