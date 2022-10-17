@@ -23,3 +23,4 @@
     path: "backup/juniper_config.{{ datetime }}"
     state: directory
   delegate_to: localhost
+  no_log: "{{ is_quiet }}"

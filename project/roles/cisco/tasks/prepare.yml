@@ -12,5 +12,4 @@
     path: "backup/cisco_config.{{ datetime }}"
     state: directory
   delegate_to: localhost
-  tags:
-    - nondry
+  no_log: "{{ is_quiet }}"
