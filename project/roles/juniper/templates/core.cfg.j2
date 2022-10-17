@@ -6,7 +6,7 @@
 
 {% if interface.is_enabled %}
 {% include "./include/core/set-interfaces-storm.j2" %}
-{% include "./include/core/set-interfaces-filter.j2" %}
+{# {% include "./include/core/set-interfaces-filter.j2" %} #}
 {% include "./include/core/set-interfaces-vlan.j2" %}
 {% include "./include/core/set-interfaces-address.j2" %}
 {% endif %}
