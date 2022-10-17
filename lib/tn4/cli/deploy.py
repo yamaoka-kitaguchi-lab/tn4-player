@@ -65,7 +65,7 @@ class Deploy(CommandBase):
         else:
             self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
 
-        print("\n"*0)  # terminal margin
+        print("\n"*1)  # terminal margin
         results = run(**run_opts)
         print("\n"*1)  # terminal margin
 
