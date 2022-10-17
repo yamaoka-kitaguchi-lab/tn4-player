@@ -27,7 +27,7 @@ class Deploy(CommandBase):
         self.ansible_common_vars |= {
             "commit_confirm_sec": 0,
             "is_dryrun":          self.flg_dryrun,
-            "is_quiet":           self.verbosity > 0,
+            "is_quiet":           self.verbosity == 0,
             "is_overwrite":       self.custom_template_path is not None,
             "overwrite_j2_path":  self.custom_template_path,
         }
