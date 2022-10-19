@@ -58,10 +58,89 @@ DEFAULT_CLI_ARGS = {
             dict(
                 action="store_true",
                 help="enable tn4 debug mode. this option is only for developers"
-                     "and should NOT be set if you don't know what to expect",
+                     "and should NOT be set if you don't know what to expect (default=False)",
             ),
         ),
     ),
+    "inventory_group_args": (
+        (
+            ("--hosts",)
+            dict(
+                type=str,
+                help="comma separated list of target hostnames",
+            ),
+        ),
+        (
+            ("--no-hosts",)
+            dict(
+                type=str,
+                help="inverted option of ```--hosts```",
+            ),
+        ),
+        (
+            ("--areas",)
+            dict(
+                type=str,
+                help="comma separated list of target regions or site groups (e.g. ookayama-n,suzukake)",
+            ),
+        ),
+        (
+            ("--no-areas",)
+            dict(
+                type=str,
+                help="inverted option of ```--areas```",
+            ),
+        ),
+        (
+            ("--roles",)
+            dict(
+                type=str,
+                help="comma separated list of target device roles (e.g. edge_sw)",
+            ),
+        ),
+        (
+            ("--no-roles",)
+            dict(
+                type=str,
+                help="inverted option of ```--roles```",
+            ),
+        ),
+        (
+            ("--vendors",)
+            dict(
+                type=str,
+                help="comma separated list of target manufacturers (e.g. juniper)",
+            ),
+        ),
+        (
+            ("--no-vendors",)
+            dict(
+                type=str,
+                help="inverted option of ```--vendors```",
+            ),
+        ),
+        (
+            ("--tags",)
+            dict(
+                type=str,
+                help="comma separated list of target tags (e.g. test)",
+            ),
+        ),
+        (
+            ("--no-tags",)
+            dict(
+                type=str,
+                help="inverted option of ```--tags```",
+            ),
+        ),
+        (
+            ("--use-cache",)
+            dict(
+                type=str,
+                help="skip NetBox fetching and use local cache if available",
+            ),
+        ),
+    )
 
 }
 
