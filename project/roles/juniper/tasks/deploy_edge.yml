@@ -12,7 +12,6 @@
     msg: "{{ lookup('template', 'edge.cfg.j2') | split('\n') | select('!=', '') | join('\n') }}"
   register: edge_config
   no_log: "{{ is_quiet }}"
-  when: "'edge_sw' in group_names"
 
 - name: Export configs for Edge SWs
   copy:
