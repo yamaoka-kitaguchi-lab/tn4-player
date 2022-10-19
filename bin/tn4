@@ -39,7 +39,7 @@ __version__ = "v2022.10.16"
 DEFAULT_CLI_ARGS = {
     "positional_args": (
         (
-            ("private_dir",)
+            ("private_dir",),
             dict(
                 help="base directory for data exporting",
             ),
@@ -47,14 +47,14 @@ DEFAULT_CLI_ARGS = {
     ),
     "generic_args": (
         (
-            ("--version",)
+            ("--version",),
             dict(
                 action="store_true",
                 help="show software version and exit",
             ),
         ),
         (
-            ("--debug",)
+            ("--debug",),
             dict(
                 action="store_true",
                 help="enable tn4 debug mode. this option is only for developers"
@@ -64,77 +64,77 @@ DEFAULT_CLI_ARGS = {
     ),
     "inventory_group_args": (
         (
-            ("--hosts",)
+            ("--hosts",),
             dict(
                 type=str,
                 help="comma separated list of target hostnames",
             ),
         ),
         (
-            ("--no-hosts",)
+            ("--no-hosts",),
             dict(
                 type=str,
                 help="inverted option of ```--hosts```",
             ),
         ),
         (
-            ("--areas",)
+            ("--areas",),
             dict(
                 type=str,
                 help="comma separated list of target regions or site groups (e.g. ookayama-n,suzukake)",
             ),
         ),
         (
-            ("--no-areas",)
+            ("--no-areas",),
             dict(
                 type=str,
                 help="inverted option of ```--areas```",
             ),
         ),
         (
-            ("--roles",)
+            ("--roles",),
             dict(
                 type=str,
                 help="comma separated list of target device roles (e.g. edge_sw)",
             ),
         ),
         (
-            ("--no-roles",)
+            ("--no-roles",),
             dict(
                 type=str,
                 help="inverted option of ```--roles```",
             ),
         ),
         (
-            ("--vendors",)
+            ("--vendors",),
             dict(
                 type=str,
                 help="comma separated list of target manufacturers (e.g. juniper)",
             ),
         ),
         (
-            ("--no-vendors",)
+            ("--no-vendors",),
             dict(
                 type=str,
                 help="inverted option of ```--vendors```",
             ),
         ),
         (
-            ("--tags",)
+            ("--tags",),
             dict(
                 type=str,
                 help="comma separated list of target tags (e.g. test)",
             ),
         ),
         (
-            ("--no-tags",)
+            ("--no-tags",),
             dict(
                 type=str,
                 help="inverted option of ```--tags```",
             ),
         ),
         (
-            ("--use-cache",)
+            ("--use-cache",),
             dict(
                 type=str,
                 help="skip NetBox fetching and use local cache if available",
