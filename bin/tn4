@@ -57,8 +57,8 @@ DEFAULT_CLI_ARGS = {
             ("--debug",),
             dict(
                 action="store_true",
-                help="enable tn4 debug mode. this option is only for developers"
-                     "and should NOT be set if you don't know what to expect (default=False)",
+                help="enable tn4 debug mode. this option is only for developers "
+                     "and should NOT be set if you don't know what to expect",
             ),
         ),
     ),
@@ -136,7 +136,7 @@ DEFAULT_CLI_ARGS = {
         (
             ("--use-cache",),
             dict(
-                type=str,
+                action="store_true",
                 help="skip NetBox fetching and use local cache if available",
             ),
         ),
@@ -149,7 +149,7 @@ class Tn4ArgumentParser(argparse.ArgumentParser):
     common_message = '''
         These are common tn4 commands:
 
-            render Jinaj2 template fetching inventory from NetBox and store as configs
+            Render Jinaj2 template fetching inventory from NetBox and store as configs
 
                 tn4 config /tmp/out
                 tn4 config --as-json /tmp/out
@@ -157,7 +157,7 @@ class Tn4ArgumentParser(argparse.ArgumentParser):
                 tn4 config --areas ookayama-s,ishikawadai --no-hosts minami3 /tmp/out
                 tn4 config --template /tmp/custom.j2 /tmp/out
 
-            provisioning tn4 with Ansible
+            Provisioning tn4 with Ansible
 
                 tn4 deploy
                 tn4 deploy -vv
