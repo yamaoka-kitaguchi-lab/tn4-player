@@ -4,19 +4,20 @@
 
 tn4 - Titanet4 as Code
 
-A command-line utility to repair NetBox and deploy Titanet4 with Ansible.
+A command-line utility to deploy Titanet4 with Ansible and repair NetBox consistency.
 
   * tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files
-  * tn4 deploy - Provisioning Titanet4 with Ansible fetching inventory from NetBox
-  * tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout
-  * tn4 netbox - Scanning and repairing NetBox integrity and providing CLI-based operation
+  * tn4 deploy - Provisioning Titanet4 with Ansible
+  * tn4 shutdown - Shutting down Titanet4 for the campus-wide blackout
+  * tn4 netbox - Scanning and repairing NetBox integrity and providing CLI-based bulk operation
 
 Since:   October 2022
 Source:  https://github.com/yamaoka-kitaguchi-lab/tn4-player
 
 """
 
-from argparse import ArgumentParser
+from textwrap import dedent
+import argparse
 import os
 import sys
 
@@ -33,6 +34,67 @@ from tn4.cli.netbox import NetBox
 
 
 __version__ = "v2022.10.16"
+
+
+DEFAULT_CLI_ARGS = {
+    "positional_args": (
+        (
+            ("private_dir",)
+            dict(
+                help="base directory for data exporting",
+            ),
+        ),
+    ),
+    "generic_args": (
+        (
+            ("--version",)
+            dict(
+                action="store_true",
+                help="show software version and exit",
+            ),
+        ),
+        (
+            ("--debug",)
+            dict(
+                action="store_true",
+                help="enable tn4 debug mode. this option is only for developers"
+                     "and should not be set if you don't know what to expect",
+            ),
+        ),
+    ),
+
+}
+
+
+class Tn4ArgumentParser(argparse.ArgumentParser):
+    common_message = '''
+        These are common tn4 commands:
+
+            render Jinaj2 template fetching inventory from NetBox and store as configs
+
+                tn4 config /tmp/out
+                tn4 config --as-json /tmp/out
+                tn4 config --use-cache /tmp/out
+                tn4 config --areas ookayama-s,ishikawadai --no-hosts minami3 /tmp/out
+                tn4 config --template /tmp/custom.j2 /tmp/out
+
+            provisioning tn4 with Ansible
+
+                tn4 deploy
+                tn4 deploy -vv
+                tn4 deploy --dryrun
+                tn4 deploy --remote-fetch /tmp/out
+                tn4 deploy --tags test --no-vendors cisco --commit-confirm 1
+                tn4 deploy --vendors juniper --no-roles core_sw --overwrite /tmp/junos.j2
+
+        `tn4 --help` list all optional command line arguments
+    '''
+
+    def error(self, message):
+        if "required: command" in message.lower():
+            print(dedent(common_message)[1:])
+
+        super(Tn4ArgumentParser, self).error(message)
 
 
 def csv_to_list(csv):
@@ -55,8 +117,9 @@ def dir_path(string):
     sys.exit(254)
 
 
+
 if __name__ == "__main__":
-    parser = ArgumentParser()
+    parser = Tn4ArgumentParser()
     parser.add_argument("-v", "--version", action="store_true", help="show version and exit")
 
     subparsers = parser.add_subparsers(title="commands", dest="command")
