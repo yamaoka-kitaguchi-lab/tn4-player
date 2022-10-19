@@ -281,8 +281,8 @@ if __name__ == "__main__":
     #    action="store_true",
     #    help="ignore all warnings and skip confirmation",
     #)
-    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["generic_args"])
-    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+    add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["generic_args"])
+    add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
 
     netbox_parser = subparsers.add_parser(
         "netbox",
@@ -290,7 +290,7 @@ if __name__ == "__main__":
         help="TBD: Scanning and repairing NetBox integrity and providing CLI-based CRUD operation",
         aliases=["n"],
     )
-    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["generic_args"])
+    add_args_to_parser(netbox_parser, DEFAULT_CLI_ARGS["generic_args"])
 
     args = parser.parse_args()
 
