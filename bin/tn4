@@ -227,38 +227,43 @@ if __name__ == "__main__":
         help="custom jinja2 template path instead of the defautls"
     )
     config_parser.add_argument(
-        "--as-json",
+        "--as-ansible-inventory",
         action="store_true",
         help="export the raw inventory json instead of rendered configs"
     )
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["generic_args"])
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
-    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["positional_args"])
 
+    deploy_parser = subparsers.add_parser(
+        "deploy",
+        description="tn4 deploy - Provisioning Titanet4 with Ansible fetching inventory from NetBox",
+        help="Provisioning Titanet4 with Ansible fetching inventory from NetBox",
+        aliases=["d"],
+    )
+    deploy_parser.add_argument(
+        "--remote-fetch",
+        action="store_true",
+        help="fetch and save current configs and exit"
+    )
+    deploy_parser.add_argument(
+        "--overwrite",
+        type=jinja_path,
+        help="custom jinja2 template path instead of the defautls"
+    )
+    deploy_parser.add_argument(
+        "--commit-confirm",
+        type=int,
+        help="set minutes for commit confirm. only effective for juniper hosts"
+    )
+    deploy_parser.add_argument(
+        "-v",
+        action="count",
+        help="increase the verbosity with multiple v's (up to 5)"
+    )
+    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["generic_args"])
+    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
 
-
-
-    parser2 = subparsers.add_parser("deploy",
-                                    description="tn4 deploy - Provisioning Titanet4 with Ansible fetching inventory from NetBox",
-                                    help="Provisioning Titanet4 with Ansible fetching inventory from NetBox",
-                                    aliases=["d"])
-    parser2.add_argument("--hosts",       type=str, help="limit the hosts")
-    parser2.add_argument("--no-hosts",    type=str, help="exclude rule for --hosts")
-    parser2.add_argument("--areas",       type=str, help="limit the hosts with specified regions or site groups (eg. ookayama-n,suzukake)")
-    parser2.add_argument("--no-areas",    type=str, help="exclude rule for --areas")
-    parser2.add_argument("--roles",       type=str, help="limit the hosts with specified device roles (eg. edge_sw)")
-    parser2.add_argument("--no-roles",    type=str, help="exclude rule for --roles")
-    parser2.add_argument("--vendors",     type=str, help="limit the hosts with specified manufacturers (eg. juniper)")
-    parser2.add_argument("--no-vendors",  type=str, help="exclude rule for --vendors")
-    parser2.add_argument("--tags",        type=str, help="limit the hosts with specified device tags (eg. test)")
-    parser2.add_argument("--no-tags",     type=str, help="exclude rule for --tags")
-    parser2.add_argument("--remote-fetch", action="store_true", help="fetch and save current configs and exit")
-    parser2.add_argument("--overwrite",   type=jinja_path, help="custom jinja2 template path instead of the defautls")
-    parser2.add_argument("--commit-confirm", type=int, help="seconds for commit confirm. only effective for juniper")
-    parser2.add_argument("-v",                action="count", help="increase the verbosity with multiple v's (up to 5)")
-    parser2.add_argument("--use-cache", action="store_true", help="skip NetBox fetching and use local cache if available")
-    parser2.add_argument("--dryrun",          action="store_true", help="simulate a command without  provisioning it")
-    parser2.add_argument("--debug",           action="store_true", help="debug mode (for tn4 command debug)")
 
     parser3 = subparsers.add_parser("shutdown",
                                     description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
