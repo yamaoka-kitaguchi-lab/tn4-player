@@ -176,6 +176,11 @@ class Tn4ArgumentParser(argparse.ArgumentParser):
         super(Tn4ArgumentParser, self).error(message)
 
 
+def add_args_to_parser(parser, args):
+    for arg in args:
+        parser.add_argument(*arg[0], **arg[1])
+
+
 def csv_to_list(csv):
     if csv is None:
         return []
@@ -197,30 +202,41 @@ def dir_path(string):
 
 
 if __name__ == "__main__":
-    parser = Tn4ArgumentParser()
-    parser.add_argument("-v", "--version", action="store_true", help="show version and exit")
+    parser = Tn4ArgumentParser(
+        prog="tn4",
+        description="Run without arguments to see common usage",
+    )
+    subparsers = parser.add_subparsers(
+        title="commands",
+        description="COMMAND [ARGS]",
+        help="Command to invoke",
+        dest="command",
+    )
+    add_args_to_parser(parser, DEFAULT_CLI_ARGS["generic_args"])
+    subparsers.required = True
 
-    subparsers = parser.add_subparsers(title="commands", dest="command")
+    config_parser = subparsers.add_parser(
+       "config",
+       description="tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files",
+       help="Rendering Jinja2 templates and exporting them as *.cfg files",
+       aliases=["c"],
+    )
+    config_parser.add_argument(
+        "--template",
+        type=jinja_path,
+        help="custom jinja2 template path instead of the defautls"
+    )
+    config_parser.add_argument(
+        "--as-json",
+        action="store_true",
+        help="export the raw inventory json instead of rendered configs"
+    )
+    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["generic_args"])
+    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
 
-    parser1 = subparsers.add_parser("config",
-                                    description="tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files",
-                                    help="Rendering Jinja2 templates and exporting them as *.cfg files",
-                                    aliases=["c"])
-    parser1.add_argument("--hosts",       type=str, help="limit the hosts")
-    parser1.add_argument("--no-hosts",    type=str, help="exclude rule for --hosts")
-    parser1.add_argument("--areas",       type=str, help="limit the hosts with specified regions or site groups (eg. ookayama-n,suzukake)")
-    parser1.add_argument("--no-areas",    type=str, help="exclude rule for --areas")
-    parser1.add_argument("--roles",       type=str, help="limit the hosts with specified device roles (eg. edge_sw)")
-    parser1.add_argument("--no-roles",    type=str, help="exclude rule for --roles")
-    parser1.add_argument("--vendors",     type=str, help="limit the hosts with specified manufacturers (eg. juniper)")
-    parser1.add_argument("--no-vendors",  type=str, help="exclude rule for --vendors")
-    parser1.add_argument("--tags",        type=str, help="limit the hosts with specified device tags (eg. test)")
-    parser1.add_argument("--no-tags",     type=str, help="exclude rule for --tags")
-    parser1.add_argument("--template",    type=jinja_path, help="custom jinja2 template path instead of the defautls")
-    parser1.add_argument("--as-json", action="store_true", help="export the raw inventory json instead of rendered configs")
-    parser1.add_argument("--use-cache", action="store_true", help="skip NetBox fetching and use local cache if available")
-    parser1.add_argument("--debug",           action="store_true", help="debug mode (for tn4 command debug)")
-    parser1.add_argument("DIR_PATH", type=dir_path, help="path of the output directory")
+
+
 
     parser2 = subparsers.add_parser("deploy",
                                     description="tn4 deploy - Provisioning Titanet4 with Ansible fetching inventory from NetBox",
