@@ -9,7 +9,7 @@ from tn4.cli.base import CommandBase
 class Deploy(CommandBase):
     def __init__(self, args):
         self.flg_use_cache         = args.use_cache
-        self.flg_fetch             = args.fetch_only
+        self.flg_fetch             = args.remote_fetch
         self.flg_dryrun            = args.dryrun
         self.flg_debug             = args.debug
         self.custom_template_path  = args.overwrite

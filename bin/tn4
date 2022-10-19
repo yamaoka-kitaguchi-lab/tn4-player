@@ -95,7 +95,7 @@ if __name__ == "__main__":
     parser2.add_argument("--no-vendors",  type=str, help="exclude rule for --vendors")
     parser2.add_argument("--tags",        type=str, help="limit the hosts with specified device tags (eg. test)")
     parser2.add_argument("--no-tags",     type=str, help="exclude rule for --tags")
-    parser2.add_argument("--fetch-only", action="store_true", help="fetch and save current configs and exit")
+    parser2.add_argument("--remote-fetch", action="store_true", help="fetch and save current configs and exit")
     parser2.add_argument("--overwrite",   type=jinja_path, help="custom jinja2 template path instead of the defautls")
     parser2.add_argument("--commit-confirm", type=int, help="seconds for commit confirm. only effective for juniper")
     parser2.add_argument("-v",                action="count", help="increase the verbosity with multiple v's (up to 5)")
