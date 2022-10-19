@@ -58,7 +58,7 @@ DEFAULT_CLI_ARGS = {
             dict(
                 action="store_true",
                 help="enable tn4 debug mode. this option is only for developers"
-                     "and should not be set if you don't know what to expect",
+                     "and should NOT be set if you don't know what to expect",
             ),
         ),
     ),
