@@ -11,7 +11,7 @@ class Deploy(CommandBase):
         self.flg_use_cache         = args.use_cache
         self.flg_dryrun            = args.dryrun
         self.flg_debug             = args.debug
-        self.custom_template_path  = args.template
+        self.custom_template_path  = args.overwrite
         self.commit_confirm_min    = 0 if args.commit_confirm is None else args.commit_confirm
         self.verbosity             = args.v
         self.fetch_inventory_opts  = [
