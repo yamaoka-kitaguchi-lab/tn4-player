@@ -9,6 +9,7 @@ from tn4.cli.base import CommandBase
 class Deploy(CommandBase):
     def __init__(self, args):
         self.flg_use_cache         = args.use_cache
+        self.flg_fetch             = args.fetch_only
         self.flg_dryrun            = args.dryrun
         self.flg_debug             = args.debug
         self.custom_template_path  = args.overwrite
@@ -29,6 +30,7 @@ class Deploy(CommandBase):
             "commit_confirm_min": self.commit_confirm_min,
             "is_debug":           self.flg_debug,
             "is_dryrun":          self.flg_dryrun,
+            "is_fetch_only":      self.flg_fetch,
             "is_overwrite":       self.custom_template_path is not None,
             "is_quiet":           self.verbosity is None or self.verbosity < 2,
             "overwrite_j2_path":  self.custom_template_path,
@@ -61,10 +63,12 @@ class Deploy(CommandBase):
         hosts_json = f"{self.inventory_path}/hosts.json"
         os.path.exists(hosts_json) and os.remove(hosts_json)
 
-        if self.custom_template_path is None:
-            self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner... {annotation}")
-        else:
+        if self.custom_template_path is not None:
             self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
+        elif self.flg_fetch is not None:
+            self.console.log(f"[yellow]Gathering current configs with Ansible Runner...")
+        else:
+            self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner... {annotation}")
 
         print("\n"*1)  # terminal margin
         results = run(**run_opts)

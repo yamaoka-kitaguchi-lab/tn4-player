@@ -2,6 +2,7 @@
 - import_tasks: prepare.yml
   vars:
     ansible_network_os: junos
+  when: "not is_fetch_only"
   tags:
     - deploy
     - overwrite
@@ -9,20 +10,27 @@
 - import_tasks: deploy_edge.yml
   vars:
     ansible_network_os: junos
-  when: "'edge_sw' in group_names and not is_overwrite"
+  when: "'edge_sw' in group_names and not is_overwrite and not is_fetch_only"
   tags:
     - deploy
 
 - import_tasks: deploy_core.yml
   vars:
     ansible_network_os: junos
-  when: "'core_sw' in group_names and not is_overwrite"
+  when: "'core_sw' in group_names and not is_overwrite and not is_fetch_only"
   tags:
     - deploy
 
 - import_tasks: overwrite.yml
   vars:
     ansible_network_os: junos
-  when: "is_overwrite"
+  when: "is_overwrite and not is_fetch_only"
   tags:
     - overwrite
+
+- import_tasks: fetch.yml
+  vars:
+    ansible_network_os: junos
+  when: "is_fetch_only"
+  tags:
+    - fetch

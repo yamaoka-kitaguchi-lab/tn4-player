@@ -1,0 +1,8 @@
+---
+- name: Fetch configs
+  connection: netconf
+  junos_config:
+    backup: yes
+    backup_options:
+      filename: "{{ hostname }}.cfg"
+      dir_path: "project/backup/juniper_config.{{ datetime }}"

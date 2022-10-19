@@ -1,5 +1,5 @@
 ---
-- name: "Titanet4 Provisioning (see: https://github.com/yamaoka-kitaguchi-lab/tn4-player)"
+- name: "Titanet4 Playbook Collections (see: https://github.com/yamaoka-kitaguchi-lab/tn4-player)"
   hosts: all
   gather_facts: no
 
