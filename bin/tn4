@@ -224,12 +224,12 @@ if __name__ == "__main__":
     config_parser.add_argument(
         "--template",
         type=jinja_path,
-        help="custom jinja2 template path instead of the defautls"
+        help="custom jinja2 template path instead of the defautls",
     )
     config_parser.add_argument(
         "--as-ansible-inventory",
         action="store_true",
-        help="export the raw inventory json instead of rendered configs"
+        help="export the raw inventory json instead of rendered configs",
     )
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["generic_args"])
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
@@ -244,44 +244,53 @@ if __name__ == "__main__":
     deploy_parser.add_argument(
         "--remote-fetch",
         action="store_true",
-        help="fetch and save current configs and exit"
+        help="fetch and save current configs and exit",
     )
     deploy_parser.add_argument(
         "--overwrite",
         type=jinja_path,
-        help="custom jinja2 template path instead of the defautls"
+        help="custom jinja2 template path instead of the defautls",
     )
     deploy_parser.add_argument(
         "--commit-confirm",
         type=int,
-        help="set minutes for commit confirm. only effective for juniper hosts"
+        help="set minutes for commit confirm. only effective for juniper hosts",
     )
     deploy_parser.add_argument(
         "-v",
         action="count",
-        help="increase the verbosity with multiple v's (up to 5)"
+        help="increase the verbosity with multiple v's (up to 5)",
     )
     add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["generic_args"])
     add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
 
 
-    parser3 = subparsers.add_parser("shutdown",
-                                    description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
-                                    help="TBD: Shutting down Titanet4 in preparation for the campus-wide blackout",
-                                    aliases=["s"])
-    #parser3.add_argument("--reboot", action="store_true", help="request reboot instead of system halt")
-    #parser3.add_argument("-f", "--force",     action="store_true", help="ignore all warnings and skip confirmation")
+    shutdown_parser = subparsers.add_parser(
+        "shutdown",
+        description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
+        help="TBD: Shutting down Titanet4 in preparation for the campus-wide blackout",
+        aliases=["s"],
+    )
+    #shutdown_parser.add_argument(
+    #    "--reboot",
+    #    action="store_true",
+    #    help="request reboot instead of system halt",
+    #)
+    #shutdown_parser.add_argument(
+    #    "--force",
+    #    action="store_true",
+    #    help="ignore all warnings and skip confirmation",
+    #)
+    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["generic_args"])
+    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
 
-    parser4 = subparsers.add_parser("netbox",
-                                    description="tn4 netbox - Scanning and repairing NetBox integrity and providing CLI-based operation",
-                                    help="TBD: Scanning and repairing NetBox integrity and providing CLI-based CRUD operation",
-                                    aliases=["n"])
-    #parser4.add_argument("--check", action="store_true", help="")
-    #parser4.add_argument("--repair", action="store_true", help="")
-    #parser4.add_argument("-v", "--versbose", action="store_true", help="")
-    #parser4.add_argument("-f", "--force", action="store_true", help="ignore all warnings and skip confirmation")
-    #parser4.add_argument("--dryrun", action="store_true", help="simulate a command without  provisioning it")
-    #parser4.add_argument("--use-cache", action="store_true", help="use cache if available")
+    netbox_parser = subparsers.add_parser(
+        "netbox",
+        description="tn4 netbox - Scanning and repairing NetBox integrity and providing CLI-based operation",
+        help="TBD: Scanning and repairing NetBox integrity and providing CLI-based CRUD operation",
+        aliases=["n"],
+    )
+    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["generic_args"])
 
     args = parser.parse_args()
 
