@@ -171,7 +171,7 @@ class Tn4ArgumentParser(argparse.ArgumentParser):
 
     def error(self, message):
         if "required: command" in message.lower():
-            print(dedent(common_message)[1:])
+            print(dedent(self.common_message)[1:])
 
         super(Tn4ArgumentParser, self).error(message)
 
