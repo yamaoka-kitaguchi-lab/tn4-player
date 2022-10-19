@@ -12,6 +12,7 @@ class Deploy(CommandBase):
         self.flg_dryrun            = args.dryrun
         self.flg_debug             = args.debug
         self.custom_template_path  = args.template
+        self.commit_confirm_min    = 0 if args.commit_confirm is None else args.commit_confirm
         self.verbosity             = args.v
         self.fetch_inventory_opts  = [
             args.hosts,   args.no_hosts,
@@ -25,11 +26,11 @@ class Deploy(CommandBase):
 
     def append_ansible_common_vars(self):
         self.ansible_common_vars |= {
-            "commit_confirm_sec": 0,
-            "is_dryrun":          self.flg_dryrun,
-            "is_quiet":           self.verbosity is None or self.verbosity < 2,
+            "commit_confirm_min": self.commit_confirm_min,
             "is_debug":           self.flg_debug,
+            "is_dryrun":          self.flg_dryrun,
             "is_overwrite":       self.custom_template_path is not None,
+            "is_quiet":           self.verbosity is None or self.verbosity < 2,
             "overwrite_j2_path":  self.custom_template_path,
         }
 
