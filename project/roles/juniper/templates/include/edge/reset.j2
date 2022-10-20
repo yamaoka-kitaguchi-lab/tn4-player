@@ -1,0 +1,12 @@
+delete vlans
+
+{% for interface in interfaces.values() if interface.is_physical or interface.is_lag_parent and not interface.is_upstream %}
+delete interfaces {{ interface.name }}
+{% endfor %}
+
+{% for interface in interfaces.values() if interface.is_physical %}
+delete poe interface {{ interface.name }}
+{% endfor %}
+
+set protocols lldp interface all disable
+

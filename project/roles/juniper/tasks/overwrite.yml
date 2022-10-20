@@ -1,0 +1,39 @@
+---
+- name: Create pre snapshots
+  connection: netconf
+  junos_config:
+    backup: yes
+    backup_options:
+      filename: "{{ hostname }}_before.cfg"
+      dir_path: "{{ snapshot_basedir }}"
+
+- name: Rendering template
+  debug:
+    msg: "{{ lookup('template', overwrite_j2_path) | split('\n') | select('!=', '') | join('\n') }}"
+  register: config
+  no_log: "{{ is_quiet }}"
+
+- name: Export config
+  copy:
+    content: "{{ config.msg }}"
+    dest: "{{ snapshot_basedir }}/{{ hostname })_submitted.cfg"
+  delegate_to: localhost
+  no_log: "{{ is_quiet }}"
+
+- name: Provisioning
+  connection: netconf
+  junos_config:
+    src: "{{ snapshot_basedir }}/{{ hostname }}_submitted.cfg"
+    src_format: set
+    comment: Action performed by ansible
+    confirm: "{{ commit_confirm_min }}"
+    update: merge
+    check_commit: "{{ is_dryrun }}"
+
+- name: Create post snapshots
+  connection: netconf
+  junos_config:
+    backup: yes
+    backup_options:
+      filename: "{{ hostname }}_after.cfg"
+      dir_path: "{{ snapshot_basedir }}"

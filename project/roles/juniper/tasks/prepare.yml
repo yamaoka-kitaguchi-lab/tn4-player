@@ -1,0 +1,15 @@
+---
+- name: Display all variables and facts stored in the inventory
+  debug:
+    var: hostvars[inventory_hostname]
+  when: "not is_quiet and is_debug"
+
+- name: Show version
+  connection: network_cli
+  junos_command:
+    commands: show version
+  when: "not is_quiet and is_debug"
+
+- name: Enable NETCONF
+  connection: network_cli
+  junos_netconf:

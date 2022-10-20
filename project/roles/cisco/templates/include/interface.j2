@@ -1,0 +1,17 @@
+{% if interface.is_enabled %}
+ no shutdown
+{% else %}
+ shutdown
+{% endif %}
+
+{% if interface.description %}
+ description {{ interface.description }}
+{% else %}
+ no description
+{% endif %}
+
+{% if interface.mtu %}
+ mtu {{ interface.mtu }}
+{% else %}
+ no mtu
+{% endif %}

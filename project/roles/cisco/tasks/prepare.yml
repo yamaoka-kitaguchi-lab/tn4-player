@@ -1,0 +1,17 @@
+---
+- name: Display all variables and facts stored in the inventory
+  debug:
+    var: hostvars[inventory_hostname]
+  when: "not is_quiet and is_debug"
+
+- name: Run show version on remote devices
+  cisco.ios.ios_command:
+    commands: show version
+  when: "not is_quiet"
+
+- name: Create backup directory
+  ansible.builtin.file:
+    path: "{{ snapshot_basedir }}"
+    state: directory
+  delegate_to: localhost
+  no_log: "{{ is_quiet }}"

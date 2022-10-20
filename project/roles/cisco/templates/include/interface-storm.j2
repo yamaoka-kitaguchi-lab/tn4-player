@@ -1,0 +1,9 @@
+{% if interface.is_physical and not interface.is_phy_uplink and not interface.is_to_ap %}
+ storm-control broadcast level bps 3000000
+ storm-control multicast level bps 3000000
+ no storm-control unicast level
+{% else %}
+ no storm-control broadcast level
+ no storm-control multicast level
+ no storm-control unicast level
+{% endif %}

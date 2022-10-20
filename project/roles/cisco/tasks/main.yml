@@ -1,0 +1,25 @@
+---
+- import_tasks: prepare.yml
+  vars:
+    ansible_network_os: cisco.ios.ios
+    ansible_connection: network_cli
+  when: "not is_fetch_only"
+
+- import_tasks: deploy.yml
+  vars:
+    ansible_network_os: cisco.ios.ios
+    ansible_connection: network_cli
+  when: "not is_overwrite and not is_fetch_only"
+
+- import_tasks: overwrite.yml
+  vars:
+    ansible_network_os: cisco.ios.ios
+    ansible_connection: network_cli
+  when: "is_overwrite and not is_fetch_only"
+
+- import_tasks: fetch.yml
+  vars:
+    ansible_network_os: cisco.ios.ios
+    ansible_connection: network_cli
+  when: "is_fetch_only"
+

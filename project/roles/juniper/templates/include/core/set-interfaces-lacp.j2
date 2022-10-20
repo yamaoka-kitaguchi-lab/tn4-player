@@ -1,0 +1,5 @@
+set interfaces {{ parent }} aggregated-ether-options lacp active
+
+{% for child in children %}
+set interfaces {{ child }} ether-options 802.3ad {{ parent }}
+{% endfor %}

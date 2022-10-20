@@ -1,18 +1,21 @@
 import json
+import os
 import requests
 
 
 class Context:
-    endpoint = None  # ex. https://netbox.m.noc.titech.ac.jp:8000/api
-    token = None     # ex. 0123456789abcdef0123456789abcdef01234567
-    sites = None
-    devices = None
-    vlans = None
-    addresses = None
+    endpoint   = None  # ex) https://netbox.m.noc.titech.ac.jp:8000
+    token      = None  # ex) 0123456789abcdef0123456789abcdef01234567
+    sites      = None
+    devices    = None
+    vlans      = None
+    addresses  = None
     interfaces = None
 
-    def __init__(netbox_url, token):
-        self.endpoint = self.netbox_url.rstrip('/') + '/api'
+    def __init__(self, endpoint=None, token=None):
+        self.endpoint = endpoint.rstrip("/")
+        if self.endpoint[:4] != "/api":
+            self.endpoint += "/api"
         self.token = token
 
 
@@ -23,16 +26,31 @@ class ClientBase:
         url = ctx.endpoint + location
 
         headers = {
-            'Authorization': f'Token {ctx.token}',
-            'Content-Type':  'application/json',
-            'Accept':        'application/json; indent=4'
+            "Authorization": f"Token {ctx.token}",
+            "Content-Type":  "application/json",
+            "Accept":        "application/json; indent=4"
         }
 
-        if data:
-            ## NOTE:
-            ## To avoid the overload of NetBox,
-            ## large volume editing operations must be splitinto multiple requests.
+        if data is None:
+            while url:
+                raw = requests.get(url, headers=headers, verify=True)
 
+                code = raw.status_code
+                if not 200 <= code < 300:
+                    return [], code  # early return
+
+                res = json.loads(raw.text)
+                responses += res["results"]
+
+                ## If the "next" field has a URL, the results are not yet aligned.
+                url = res["next"]
+
+            self.dump(location, responses)
+
+        ## NOTE:
+        ## To avoid the overload of NetBox,
+        ## large volume editing operations must be split into multiple requests.
+        else:
             ptr, size = 0, 100  # size: widnow size of the request division
             while ptr < len(data):
                 d = data[ptr:ptr+size]
@@ -42,29 +60,39 @@ class ClientBase:
                 else:
                     raw = requests.post(url, json.dumps(d), headers=headers, verify=True)
 
-                ## Early return
-                ## Any status other than the 200s is considered a failure.
                 code = raw.status_code
-                if 200 <= code < 300:
-                    return code, []
+                if not 200 <= code < 300:
+                    return [], code  # early return
 
                 responses += json.loads(raw.text)
                 ptr += size
 
-        else:
-            while url:
-                raw = requests.get(url, headers=headers, verify=True)
+        return responses, code
 
-                ## Early return
-                code = raw.status_code
-                if 200 <= code < 300:
-                    return code, []
 
-                res = json.loads(raw.text)
-                responses += res['results']
+    @staticmethod
+    def lookup_cache_file(location):
+        ## If the response is from /dcim/interfaces/ then it is be exported as dcim-interfaces.cache
+        cache_name = "-".join([i for i in location.split("/") if i != ""]) + ".cache"
+        cache_dir = os.path.expanduser("~") + "/.cache/tn4-player"
+        return cache_name, cache_dir, cache_dir + "/" + cache_name
 
-                ## If the 'next' field has a URL, the results are not yet aligned.
-                url = res['next']
 
-        return code, responses
+    def dump(self, location, responses):
+        if len(responses) == 0: return  # early return
 
+        _, cache_dir, cache_path = self.lookup_cache_file(location)
+        os.makedirs(cache_dir, exist_ok=True)
+        with open(cache_path, "w") as fd:
+            json.dump(responses, fd, indent=4, sort_keys=True, ensure_ascii=False)
+
+
+    def load(self, location):
+        _, _, cache_path = self.lookup_cache_file(location)
+        responses, ok = None, True
+        try:
+            with open(cache_path) as fd:
+                responses = json.load(fd)
+        except Exception as e:
+            ok = False
+        return responses, ok

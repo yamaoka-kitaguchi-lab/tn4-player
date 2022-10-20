@@ -1,0 +1,336 @@
+#!/usr/bin/env python3
+
+"""
+
+tn4 - Titanet4 as Code
+
+A command-line utility to deploy Titanet4 with Ansible and repair NetBox consistency.
+
+  * tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files
+  * tn4 deploy - Provisioning Titanet4 with Ansible using NetBox as inventory
+  * tn4 shutdown - Shutting down Titanet4 for the campus-wide blackout
+  * tn4 netbox - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation
+
+Since:   October 2022
+Source:  https://github.com/yamaoka-kitaguchi-lab/tn4-player
+
+"""
+
+from textwrap import dedent
+import argparse
+import os
+import sys
+
+CURDIR       = os.path.dirname(__file__)
+LIBRARY_PATH = os.path.join(CURDIR, "../lib")
+
+sys.path.append(LIBRARY_PATH)
+
+from tn4.__version__ import __version__ as __libtn4_version__
+from tn4.cli.config import Config
+from tn4.cli.deploy import Deploy
+from tn4.cli.shutdown import Shutdown
+from tn4.cli.netbox import NetBox
+
+
+__version__ = "v2022.10.16"
+
+
+DEFAULT_CLI_ARGS = {
+    "positional_args": (
+        (
+            ("private_dir",),
+            dict(
+                help="base directory for data exporting",
+            ),
+        ),
+    ),
+    "generic_args": (
+        (
+            ("--version",),
+            dict(
+                action="store_true",
+                help="show software version and exit",
+            ),
+        ),
+        (
+            ("--debug",),
+            dict(
+                action="store_true",
+                help="enable tn4-cli debug mode. only for developers and should NOT be set if you don't know what to expect",
+            ),
+        ),
+    ),
+    "inventory_group_args": (
+        (
+            ("--hosts",),
+            dict(
+                type=str,
+                help="comma-separated list of target hostnames",
+            ),
+        ),
+        (
+            ("--no-hosts",),
+            dict(
+                type=str,
+                help="inverted option of ```--hosts```",
+            ),
+        ),
+        (
+            ("--areas",),
+            dict(
+                type=str,
+                help="comma-separated list of target regions or site groups (e.g. ookayama-n,suzukake)",
+            ),
+        ),
+        (
+            ("--no-areas",),
+            dict(
+                type=str,
+                help="inverted option of ```--areas```",
+            ),
+        ),
+        (
+            ("--roles",),
+            dict(
+                type=str,
+                help="comma-separated list of target device roles (e.g. edge_sw)",
+            ),
+        ),
+        (
+            ("--no-roles",),
+            dict(
+                type=str,
+                help="inverted option of ```--roles```",
+            ),
+        ),
+        (
+            ("--vendors",),
+            dict(
+                type=str,
+                help="comma-separated list of target manufacturers (e.g. juniper)",
+            ),
+        ),
+        (
+            ("--no-vendors",),
+            dict(
+                type=str,
+                help="inverted option of ```--vendors```",
+            ),
+        ),
+        (
+            ("--tags",),
+            dict(
+                type=str,
+                help="comma-separated list of target tags (e.g. test)",
+            ),
+        ),
+        (
+            ("--no-tags",),
+            dict(
+                type=str,
+                help="inverted option of ```--tags```",
+            ),
+        ),
+        (
+            ("--use-cache",),
+            dict(
+                action="store_true",
+                help="skip NetBox fetching and use local cache if available (~/.cache/tn4-player/*.cache)",
+            ),
+        ),
+    )
+
+}
+
+
+class Tn4ArgumentParser(argparse.ArgumentParser):
+    common_message = '''
+        These are common tn4 examples:
+
+            Render Jinaj2 templates and export them as *.cfg files
+
+                tn4 config --use-cache /tmp/out
+                tn4 config --areas ookayama-s,ishikawadai --no-hosts minami3 /tmp/out
+                tn4 config --template /tmp/custom.j2 /tmp/out
+
+            Fetch running configs and save them as *.cfg files
+
+                tn4 config --remote-fetch /tmp/out
+
+            Provisioning Titanet4 with Ansible
+
+                tn4 deploy
+                tn4 deploy -vv
+                tn4 deploy --dryrun
+                tn4 deploy --tags test --no-vendors cisco --commit-confirm 1
+                tn4 deploy --vendors juniper --no-roles core_sw --overwrite /tmp/junos.j2
+
+        `tn4 --help` list all optional command line arguments
+    '''
+
+    def error(self, message):
+        if "required: command" in message.lower():
+            print(dedent(self.common_message)[1:])
+
+        super(Tn4ArgumentParser, self).error(message)
+
+
+def add_args_to_parser(parser, args):
+    for arg in args:
+        parser.add_argument(*arg[0], **arg[1])
+
+
+def csv_to_list(csv):
+    if csv is None:
+        return []
+    return csv.split(",")
+
+
+def jinja_path(string):
+    ## todo: validate jinja here
+    if os.path.isfile(string):
+        return string
+    print(f"No such file: {string}")
+    sys.exit(254)
+
+
+def dir_path(string):
+    if os.path.isdir(string):
+        return string
+    print(f"No such directory: {string}")
+    sys.exit(254)
+
+
+if __name__ == "__main__":
+    parser = Tn4ArgumentParser(
+        prog="tn4",
+        description="Run without arguments to see common usage",
+    )
+    subparsers = parser.add_subparsers(
+        title="commands",
+        description="COMMAND [ARGS]",
+        dest="command",
+    )
+    add_args_to_parser(parser, DEFAULT_CLI_ARGS["generic_args"])
+    subparsers.required = True
+
+    config_parser = subparsers.add_parser(
+       "config",
+       description="tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files",
+       help="render Jinja2 templates or fetch running configs using Ansible",
+       aliases=["c"],
+    )
+    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+    config_parser.add_argument(
+        "--remote-fetch",
+        action="store_true",
+        help="fetch and save running configs using Ansible and exit",
+    )
+    config_parser.add_argument(
+        "--template",
+        type=jinja_path,
+        help="use custom Jinja2 template instead of the defautls",
+        dest="custom_j2_path"
+    )
+    config_parser.add_argument(
+        "--as-ansible-inventory",
+        action="store_true",
+        help="export the raw inventory json instead of rendered configs",
+        dest="as_inventory",
+    )
+    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["positional_args"])
+
+    deploy_parser = subparsers.add_parser(
+        "deploy",
+        description="tn4 deploy - Provisioning Titanet4 with Ansible using NetBox as inventory",
+        help="provisioning Titanet4 with Ansible",
+        aliases=["d"],
+    )
+    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+    deploy_parser.add_argument(
+        "--overwrite",
+        type=jinja_path,
+        help="use custom Jinja2 template instead of the defautls to overwrite configs",
+        dest="overwrite_j2_path"
+    )
+    deploy_parser.add_argument(
+        "--commit-confirm",
+        type=int,
+        help="set the time (minutes) to use in ```commit confirm```. only effective on juniper hosts",
+        dest="commit_confirm_min",
+    )
+    deploy_parser.add_argument(
+        "--dryrun",
+        action="store_true",
+        help="simulate a command's result without actually running it",
+    )
+    deploy_parser.add_argument(
+        "-v",
+        action="count",
+        help="increase the verbosity with multiple v's (up to 5)",
+    )
+
+    shutdown_parser = subparsers.add_parser(
+        "shutdown",
+        description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
+        help="TBD: shutting down Titanet4 for the campus-wide blackout",
+        aliases=["s"],
+    )
+    add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+    #shutdown_parser.add_argument(
+    #    "--reboot",
+    #    action="store_true",
+    #    help="request reboot instead of system halt",
+    #)
+    #shutdown_parser.add_argument(
+    #    "--force",
+    #    action="store_true",
+    #    help="ignore all warnings and skip confirmation",
+    #)
+
+    netbox_parser = subparsers.add_parser(
+        "netbox",
+        description="tn4 netbox - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation",
+        help="TBD: scan and repair NetBox inconsistency with cli-based CRUD operation",
+        aliases=["n"],
+    )
+
+    args = parser.parse_args()
+
+    match args.command:
+        case "config" | "deploy" | "shutdown" | "c" | "d" | "s":
+            args.hosts = csv_to_list(args.hosts)
+            args.no_hosts = csv_to_list(args.no_hosts)
+            args.areas = csv_to_list(args.areas)
+            args.no_areas = csv_to_list(args.no_areas)
+            args.roles = csv_to_list(args.roles)
+            args.no_roles = csv_to_list(args.no_roles)
+            args.vendors = csv_to_list(args.vendors)
+            args.no_vendors = csv_to_list(args.no_vendors)
+            args.tags = csv_to_list(args.tags)
+            args.no_tags = csv_to_list(args.no_tags)
+
+    code = None
+    match args.command:
+        case "config" | "c":
+            code = Config(args).exec()
+        case "deploy" | "d":
+            code = Deploy(args).exec()
+        case "shutdown" | "s":
+            code = Shutdown(args).exec()
+        case "netbox" | "n":
+            code = NetBox(args).exec()
+        case default:
+            code = 1
+
+    if args.version:
+        print(f"command: {__version__}")
+        print(f"library: {__libtn4_version__}")
+        code = 0
+
+    if code == 1:
+        parser.print_help()
+
+    sys.exit(code)
+
