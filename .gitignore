@@ -2,7 +2,7 @@
 .secrets/*
 !.secrets/*.example
 inventory/hosts.json
-snapshots
+project/snapshots
 docker.ee/requirements.txt
 docker.ee/Dockerfile.base
 docker.ee/_build
