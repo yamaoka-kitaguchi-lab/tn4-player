@@ -148,5 +148,13 @@ class CommandBase:
             }
         }
 
-        self.console.log(f"[yellow]Found {len(target_hosts)} hosts")
-        self.console.log(f"[yellow dim]{', '.join(target_hosts)}")
+        ok = True
+        n_target_hosts = len(target_hosts)
+        if n_target_hosts > 0:
+            self.console.log(f"[yellow]Found {n_target_hosts} hosts")
+            self.console.log(f"[yellow dim]{', '.join(target_hosts)}")
+        else:
+            self.console.log("[red bold]No hosts found. Check the typos of your condition or devices' tags on NetBox")
+            ok = False
+
+        return ok

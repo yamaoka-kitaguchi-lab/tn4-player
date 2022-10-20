@@ -84,7 +84,9 @@ class Config(CommandBase):
         if self.flg_remote_fetch:
             return self.remote_fetch()
 
-        self.fetch_inventory(*self.fetch_inventory_opts, debug=self.flg_debug)
+        ok = self.fetch_inventory(*self.fetch_inventory_opts, debug=self.flg_debug)
+        if not ok:
+            return 100
 
         if self.flg_inventory:
             with self.console.status(f"[green]Exporting raw inventory..."):

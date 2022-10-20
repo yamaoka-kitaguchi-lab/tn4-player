@@ -48,7 +48,10 @@ class Deploy(CommandBase):
 
 
     def exec(self):
-        self.fetch_inventory(*self.fetch_inventory_opts, debug=self.flg_debug)
+        ok = self.fetch_inventory(*self.fetch_inventory_opts, debug=self.flg_debug)
+        if not ok:
+            return 100
+
         self.append_ansible_common_vars()
 
         run_opts = {
