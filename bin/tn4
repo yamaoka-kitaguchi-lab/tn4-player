@@ -136,7 +136,7 @@ DEFAULT_CLI_ARGS = {
             ("--use-cache",),
             dict(
                 action="store_true",
-                help="skip NetBox fetching and use local cache if available",
+                help="skip NetBox fetching and use local cache if available (~/.cache/tn4-player/*.cache)",
             ),
         ),
     )
