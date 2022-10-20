@@ -262,6 +262,11 @@ if __name__ == "__main__":
         dest="min_commit_confirm",
     )
     deploy_parser.add_argument(
+        "--dryrun",
+        action="store_true",
+        help="simulate a command's result without actually running it",
+    )
+    deploy_parser.add_argument(
         "-v",
         action="count",
         help="increase the verbosity with multiple v's (up to 5)",
