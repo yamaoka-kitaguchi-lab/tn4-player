@@ -16,6 +16,6 @@ install:
 
 .PHONY: release
 release:
-	git commit ---allow-empty -m "Release: $(RELEASE_TAG)"
+	git commit --allow-empty -m "Release: $(RELEASE_TAG)"
 	git tag -a $(RELEASE_TAG) -m "Release: $(RELEASE_TAG)"
 	git push origin $(RELEASE_TAG)
