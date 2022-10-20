@@ -1,5 +1,6 @@
 FROM ubuntu:22.04
 
+ARG INSTLL_PATH="/opt/tn4-player"
 ENV PATH="/opt/tn4-player/bin:$HOME/.local/bin:$PATH"
 
 RUN apt-get update \
@@ -12,8 +13,8 @@ RUN apt-get update \
  && apt-get clean \
  && rm -rf /var/lib/apt/*
 
-COPY . /opt/tn4-player
-WORKDIR /opt/tn4-player
+COPY . ${INSTALL_PATH}
+WORKDIR ${INSTALL_PATH}
 
 RUN python3 -m pip install --upgrade pipenv \
  && pipenv requirements > requirements.txt \
