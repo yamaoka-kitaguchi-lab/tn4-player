@@ -196,6 +196,8 @@ def jinja_path(string):
 
 
 def dir_path(string):
+    if string[0] != "/":
+        string = os.getcwd() + "/" + string
     if os.path.isdir(string):
         return string
     print(f"No such directory: {string}")
