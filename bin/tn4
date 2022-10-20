@@ -36,11 +36,29 @@ from tn4.cli.netbox import NetBox
 __version__ = "v2022.10.21"
 
 
+def jinja_path(string):
+    ## todo: validate jinja here
+    if os.path.isfile(string):
+        return string
+    print(f"No such file: {string}")
+    sys.exit(254)
+
+
+def dir_path(string):
+    if string[0] != "/":
+        string = os.getcwd() + "/" + string
+    if os.path.isdir(string):
+        return string
+    print(f"No such directory: {string}")
+    sys.exit(254)
+
+
 DEFAULT_CLI_ARGS = {
     "positional_args": (
         (
             ("private_dir",),
             dict(
+                type=dir_path,
                 help="base directory for data exporting",
             ),
         ),
@@ -185,23 +203,6 @@ def csv_to_list(csv):
     if csv is None:
         return []
     return csv.split(",")
-
-
-def jinja_path(string):
-    ## todo: validate jinja here
-    if os.path.isfile(string):
-        return string
-    print(f"No such file: {string}")
-    sys.exit(254)
-
-
-def dir_path(string):
-    if string[0] != "/":
-        string = os.getcwd() + "/" + string
-    if os.path.isdir(string):
-        return string
-    print(f"No such directory: {string}")
-    sys.exit(254)
 
 
 if __name__ == "__main__":
