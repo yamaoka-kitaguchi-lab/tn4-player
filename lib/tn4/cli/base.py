@@ -52,7 +52,7 @@ class CommandBase:
         m = "Fetching the latest inventory from NetBox, this may take a while..."
         if use_cache:
             m = "Loading local cache and rebuilding inventory, this usually takes less than few seconds..."
-        annotation = "[red bold dim]using cache" if use_cache else ""
+        annotation = "[green bold dim]using cache" if use_cache else ""
 
         with self.console.status(f"[green]{m}"):
             start_at = time.time()
@@ -84,11 +84,13 @@ class CommandBase:
             inventory = nb.fetch_inventory()
             self.console.log(f"[yellow]Building Titanet4 inventory completed")
 
+        ok = True
         hostnames = []
         includes, excludes = [], []
         area_to_hosts, role_to_hosts, vendor_to_hosts, tag_to_hosts = {}, {}, {}, {}
 
         for hostname, hostvar in inventory["_meta"]["hosts"].items():
+            hostnames.append(hostname)
             area_to_hosts.setdefault(hostvar["region"], []).append(hostname)
             area_to_hosts.setdefault(hostvar["sitegp"], []).append(hostname)
             role_to_hosts.setdefault(hostvar["role"], []).append(hostname)
@@ -96,6 +98,35 @@ class CommandBase:
 
             for tag in hostvar["device_tags"]:
                 tag_to_hosts.setdefault(tag, []).append(hostname)
+
+        typos = []
+        for host in [*hosts, *no_hosts]:
+            if host not in hostnames:
+                typos.append(host)
+
+        for area in [*areas, *no_areas]:
+            if area not in area_to_hosts:
+                typos.append(area)
+
+        for role in [*roles, *no_roles]:
+            if role not in role_to_hosts:
+                typos.append(role)
+
+        for vendor in [*vendors, *no_vendors]:
+            if vendor not in vendor_to_hosts:
+                typos.append(vendor)
+
+        for tag in [*tags, *no_tags]:
+            if tag not in tag_to_hosts:
+                typos.append(tag)
+
+        if len(typos) > 0:
+            self.console.log("[red bold]Aboted. Your condition contains NetBox undefined keywords. Typos?")
+            self.console.log(f"[red dim]{', '.join(typos)}")
+            ok = False
+
+        if not ok:
+            return ok
 
         includes.extend(hosts)
         excludes.extend(no_hosts)
@@ -148,7 +179,6 @@ class CommandBase:
             }
         }
 
-        ok = True
         n_target_hosts = len(target_hosts)
         if n_target_hosts > 0:
             self.console.log(f"[yellow]Found {n_target_hosts} hosts")
