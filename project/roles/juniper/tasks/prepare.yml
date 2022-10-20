@@ -16,7 +16,7 @@
 
 - name: Create backup directory
   ansible.builtin.file:
-    path: "backup/juniper_config.{{ datetime }}"
+    path: "{{ snapshot_basedir }}/config.{{ datetime }}"
     state: directory
   delegate_to: localhost
   no_log: "{{ is_quiet }}"

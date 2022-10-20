@@ -5,7 +5,7 @@
     backup: yes
     backup_options:
       filename: "{{ hostname }}_overwrite_before.cfg"
-      dir_path: "project/backup/config.{{ datetime }}"
+      dir_path: "{{ snapshot_basedir }}/config.{{ datetime }}"
 
 - name: Rendering template
   debug:
@@ -16,14 +16,14 @@
 - name: Export config
   copy:
     content: "{{ config.msg }}"
-    dest: "backup/juniper_config.{{ datetime }}/{{ hostname }}_overwrite_submitted.cfg"
+    dest: "{{ snapshot_basedir }}/config.{{ datetime }}/{{ hostname })_submitted.cfg"
   delegate_to: localhost
   no_log: "{{ is_quiet }}"
 
 - name: Provisioning
   connection: netconf
   junos_config:
-    src: "backup/juniper_config.{{ datetime }}/{{ hostname }}_overwrite_submitted.cfg"
+    src: "{{ snapshot_basedir }}/config.{{ datetime }}/{{ hostname }}_submitted.cfg"
     src_format: set
     comment: Action performed by ansible
     confirm: "{{ commit_confirm_min }}"
@@ -36,4 +36,4 @@
     backup: yes
     backup_options:
       filename: "{{ hostname }}_overwrite_after.cfg"
-      dir_path: "project/backup/config.{{ datetime }}"
+      dir_path: "{{ snapshot_basedir }}/config.{{ datetime }}"

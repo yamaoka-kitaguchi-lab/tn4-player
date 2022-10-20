@@ -24,6 +24,8 @@ class Deploy(CommandBase):
             args.use_cache,
         ]
 
+        self.snapshot_basedir      = f"{self.workdir_path}/project/backup"
+
 
     def append_ansible_common_vars(self):
         self.ansible_common_vars |= {
@@ -34,6 +36,7 @@ class Deploy(CommandBase):
             "is_overwrite":       self.custom_template_path is not None,
             "is_quiet":           self.verbosity is None or self.verbosity < 2,
             "overwrite_j2_path":  self.custom_template_path,
+            "snapshot_basedir":   self.snapshot_basedir,
         }
 
         for host in self.inventory["_meta"]["hosts"].values():
@@ -46,8 +49,8 @@ class Deploy(CommandBase):
 
         run_opts = {
             "inventory":          self.inventory,
-            "private_data_dir":   self.project_path,
-            "project_dir":        self.project_path,
+            "private_data_dir":   self.workdir_path,
+            "project_dir":        self.workdir_path,
             "playbook":           self.main_task_path,
             "verbosity":          self.verbosity,
             "envvars": {

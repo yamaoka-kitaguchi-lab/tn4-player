@@ -20,7 +20,7 @@ class CommandBase:
     console = Console(log_time_format="%Y-%m-%dT%H:%M:%S")
 
     inventory_path   = ANSIBLE_INVENTORY
-    project_path     = ANSIBLE_WORKDIR
+    workdir_path     = ANSIBLE_WORKDIR
     main_task_path   = f"{ANSIBLE_PROJECT}/tn4.yml"
     ansible_cfg_path = f"{ANSIBLE_WORKDIR}/ansible.cfg"
     group_vars_path  = f"{ANSIBLE_INVENTORY}/group_vars/all/ansible.yml"
