@@ -153,6 +153,7 @@ class Tn4ArgumentParser(argparse.ArgumentParser):
                 tn4 config /tmp/out
                 tn4 config --as-json /tmp/out
                 tn4 config --use-cache /tmp/out
+                tn4 config --remote-fetch /tmp/out
                 tn4 config --areas ookayama-s,ishikawadai --no-hosts minami3 /tmp/out
                 tn4 config --template /tmp/custom.j2 /tmp/out
 
@@ -161,7 +162,6 @@ class Tn4ArgumentParser(argparse.ArgumentParser):
                 tn4 deploy
                 tn4 deploy -vv
                 tn4 deploy --dryrun
-                tn4 deploy --remote-fetch /tmp/out
                 tn4 deploy --tags test --no-vendors cisco --commit-confirm 1
                 tn4 deploy --vendors juniper --no-roles core_sw --overwrite /tmp/junos.j2
 
@@ -187,6 +187,7 @@ def csv_to_list(csv):
 
 
 def jinja_path(string):
+    ## todo: validate jinja here
     if os.path.isfile(string):
         return string
     print(f"No such file: {string}")
@@ -240,7 +241,6 @@ if __name__ == "__main__":
         dest="as_inventory",
     )
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["positional_args"])
-    #add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["generic_args"])
 
 
     deploy_parser = subparsers.add_parser(
@@ -272,7 +272,6 @@ if __name__ == "__main__":
         action="count",
         help="increase the verbosity with multiple v's (up to 5)",
     )
-    #add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["generic_args"])
 
 
     shutdown_parser = subparsers.add_parser(
@@ -292,7 +291,6 @@ if __name__ == "__main__":
     #    action="store_true",
     #    help="ignore all warnings and skip confirmation",
     #)
-    #add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["generic_args"])
 
     netbox_parser = subparsers.add_parser(
         "netbox",
@@ -300,7 +298,6 @@ if __name__ == "__main__":
         help="TBD: Scanning and repairing NetBox integrity and providing CLI-based CRUD operation",
         aliases=["n"],
     )
-    #add_args_to_parser(netbox_parser, DEFAULT_CLI_ARGS["generic_args"])
 
     args = parser.parse_args()
 
