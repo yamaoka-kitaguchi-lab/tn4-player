@@ -237,6 +237,7 @@ if __name__ == "__main__":
         "--as-ansible-inventory",
         action="store_true",
         help="export the raw inventory json instead of rendered configs",
+        dest="as_inventory",
     )
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["positional_args"])
     #add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["generic_args"])
@@ -259,7 +260,7 @@ if __name__ == "__main__":
         "--commit-confirm",
         type=int,
         help="set minutes for commit confirm. only effective for juniper hosts",
-        dest="min_commit_confirm",
+        dest="commit_confirm_min",
     )
     deploy_parser.add_argument(
         "--dryrun",

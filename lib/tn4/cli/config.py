@@ -7,12 +7,15 @@ from tn4.cli.base import CommandBase
 
 class Config(CommandBase):
     def __init__(self, args):
-        self.flg_use_cache         = args.use_cache
-        self.flg_inventory         = args.inventory
-        self.flg_debug             = args.debug
-        self.outdir                = args.DIR_PATH
-        self.custom_template_path  = args.custom_j2_path
+        self.__args                = vars(args)
+        self.outdir                = args.private_dir
         self.inventory_json        = f"{self.outdir}/inventory.json"
+
+        self.custom_template_path  = args.custom_j2_path
+        self.flg_debug             = args.debug
+        self.flg_inventory         = args.as_inventory
+        self.flg_remote_fetch      = args.remote_fetch
+        self.flg_use_cache         = args.use_cache
         self.fetch_inventory_opts  = [
             args.hosts,   args.no_hosts,
             args.areas,   args.no_areas,
@@ -24,16 +27,18 @@ class Config(CommandBase):
 
 
     def remote_fetch(self):
+        from argparse import Namespace
         from tn4.cli.deploy import Deploy
 
-        deploy = Deploy(dict(
-            **args,
+        deploy_opt = self.__args
+        deploy_opt |= dict(
             remote_fetch=True,
             dryrun=True,           # actually not effective but for safety
-            min_commit_confirm=1,  # same as above
+            commit_confirm_min=1,  # same as above
             overwrite_j2_path=None,
-            vervosity=None,
-        ))
+            v=None,
+        )
+        deploy = Deploy(Namespace(**deploy_opt))
 
         return deploy.exec()
 
