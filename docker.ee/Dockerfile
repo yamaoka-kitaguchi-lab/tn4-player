@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-ARG INSTLL_PATH="/opt/tn4-player"
+ARG INSTALL_PATH="/opt/tn4-player"
 ENV PATH="/opt/tn4-player/bin:$HOME/.local/bin:$PATH"
 
 RUN apt-get update \
