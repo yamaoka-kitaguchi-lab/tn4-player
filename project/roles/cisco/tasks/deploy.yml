@@ -4,7 +4,7 @@
     backup: yes
     backup_options:
       filename: "{{ hostname }}_before.cfg"
-      dir_path: "project/backup/cisco_config.{{ datetime }}"
+      dir_path: "project/backup/config.{{ datetime }}"
 
 - name: Rendering templates for Edge SWs
   debug:
@@ -32,4 +32,4 @@
     backup: yes
     backup_options:
       filename: "{{ hostname }}_after.cfg"
-      dir_path: "project/backup/cisco_config.{{ datetime }}"
+      dir_path: "project/backup/config.{{ datetime }}"

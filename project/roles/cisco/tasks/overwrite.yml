@@ -4,7 +4,7 @@
     backup: yes
     backup_options:
       filename: "{{ hostname }}_overwrite_before.cfg"
-      dir_path: "backup/cisco_config.{{ datetime }}"
+      dir_path: "backup/config.{{ datetime }}"
 
 - name: Rendering templates for Edge SWs
   debug:
@@ -32,4 +32,4 @@
     backup: yes
     backup_options:
       filename: "{{ hostname }}_overwrite_after.cfg"
-      dir_path: "backup/cisco_config.{{ datetime }}"
+      dir_path: "backup/configconfig.{{ datetime }}"

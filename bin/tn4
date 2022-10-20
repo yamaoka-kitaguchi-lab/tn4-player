@@ -157,7 +157,7 @@ class Tn4ArgumentParser(argparse.ArgumentParser):
                 tn4 config --areas ookayama-s,ishikawadai --no-hosts minami3 /tmp/out
                 tn4 config --template /tmp/custom.j2 /tmp/out
 
-            Provisioning tn4 with Ansible
+            Provisioning the Titanet4 with Ansible
 
                 tn4 deploy
                 tn4 deploy -vv

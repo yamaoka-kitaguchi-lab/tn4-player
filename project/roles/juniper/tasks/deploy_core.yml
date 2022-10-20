@@ -5,7 +5,7 @@
     backup: yes
     backup_options:
       filename: "{{ hostname }}_before.cfg"
-      dir_path: "backup/juniper_config.{{ datetime }}"
+      dir_path: "backup/config.{{ datetime }}"
 
 - name: Rendering templates for Core SWs
   debug:
@@ -37,4 +37,4 @@
     backup: yes
     backup_options:
       filename: "{{ hostname }}_after.cfg"
-      dir_path: "backup/juniper_config.{{ datetime }}"
+      dir_path: "backup/config.{{ datetime }}"

@@ -1,7 +1,6 @@
 ---
 - name: Fetch configs
-  connection: netconf
-  junos_config:
+  ios_config:
     backup: yes
     backup_options:
       filename: "{{ hostname }}.cfg"
