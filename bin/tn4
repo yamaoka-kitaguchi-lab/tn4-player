@@ -33,7 +33,7 @@ from tn4.cli.shutdown import Shutdown
 from tn4.cli.netbox import NetBox
 
 
-__version__ = "v2022.10.16"
+__version__ = "v2022.10.21"
 
 
 DEFAULT_CLI_ARGS = {
