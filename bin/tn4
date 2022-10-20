@@ -9,7 +9,7 @@ A command-line utility to deploy Titanet4 with Ansible and repair NetBox consist
   * tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files
   * tn4 deploy - Provisioning Titanet4 with Ansible
   * tn4 shutdown - Shutting down Titanet4 for the campus-wide blackout
-  * tn4 netbox - Scanning and repairing NetBox integrity and providing CLI-based bulk operation
+  * tn4 netbox - Scanning and repairing NetBox integrity, also providing CLI-based bulk operation
 
 Since:   October 2022
 Source:  https://github.com/yamaoka-kitaguchi-lab/tn4-player
@@ -146,18 +146,19 @@ DEFAULT_CLI_ARGS = {
 
 class Tn4ArgumentParser(argparse.ArgumentParser):
     common_message = '''
-        These are common tn4 commands:
+        These are common tn4 examples:
 
-            Render Jinaj2 template fetching inventory from NetBox and store as configs
+            Render Jinaj2 templates and export them as *.cfg files
 
-                tn4 config /tmp/out
-                tn4 config --as-json /tmp/out
                 tn4 config --use-cache /tmp/out
-                tn4 config --remote-fetch /tmp/out
                 tn4 config --areas ookayama-s,ishikawadai --no-hosts minami3 /tmp/out
                 tn4 config --template /tmp/custom.j2 /tmp/out
 
-            Provisioning the Titanet4 with Ansible
+            Fetch running configs and save them as *.cfg files
+
+                tn4 config --remote-fetch /tmp/out
+
+            Provisioning Titanet4 with Ansible
 
                 tn4 deploy
                 tn4 deploy -vv
