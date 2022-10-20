@@ -5,4 +5,4 @@
     backup: yes
     backup_options:
       filename: "{{ hostname }}.cfg"
-      dir_path: "{{ snapshot_basedir }}/config.{{ datetime }}"
+      dir_path: "{{ snapshot_basedir }}"

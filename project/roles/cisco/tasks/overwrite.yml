@@ -3,8 +3,8 @@
   ios_config:
     backup: yes
     backup_options:
-      filename: "{{ hostname }}_overwrite_before.cfg"
-      dir_path: "{{ snapshot_basedir }}/config.{{ datetime }}"
+      filename: "{{ hostname }}_before.cfg"
+      dir_path: "{{ snapshot_basedir }}"
 
 - name: Rendering templates for Edge SWs
   debug:
@@ -15,13 +15,13 @@
 - name: Export configs for Edge SWs
   copy:
     content: "{{ edge_config.msg }}"
-    dest: "{{ snapshot_basedir }}/config.{{ datetime }}/{{ hostname }}_submitted.cfg"
+    dest: "{{ snapshot_basedir }}/{{ hostname }}_submitted.cfg"
   delegate_to: localhost
   no_log: "{{ is_quiet }}"
 
 - name: Provisioning Edge SWs
   ios_config:
-    src: "{{ snapshot_basedir }}/config.{{ datetime }}/{{ hostname }}_submitted.cfg"
+    src: "{{ snapshot_basedir }}/{{ hostname }}_submitted.cfg"
     save_when: modified
   diff: "not is_quiet"
   no_log: "{{ is_quiet }}"
@@ -31,5 +31,5 @@
   ios_config:
     backup: yes
     backup_options:
-      filename: "{{ hostname }}_overwrite_after.cfg"
-      dir_path: "{{ snapshot_basedir }}/config.{{ datetime }}"
+      filename: "{{ hostname }}_after.cfg"
+      dir_path: "{{ snapshot_basedir }}"

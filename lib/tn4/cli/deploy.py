@@ -1,4 +1,5 @@
 from ansible_runner import run
+from datetime import datetime
 from pprint import pprint
 import time
 import os
@@ -24,7 +25,9 @@ class Deploy(CommandBase):
             args.use_cache,
         ]
 
-        self.snapshot_basedir      = f"{self.workdir_path}/project/backup"
+        n = datetime.now()
+        ts = n.strftime("%Y-%m-%d@%H-%M-%S")
+        self.snapshot_basedir = f"{self.workdir_path}/project/snapshots/config.{ts}"
 
 
     def append_ansible_common_vars(self):

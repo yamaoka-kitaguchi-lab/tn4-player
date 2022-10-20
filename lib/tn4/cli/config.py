@@ -39,6 +39,7 @@ class Config(CommandBase):
             v=None,
         )
         deploy = Deploy(Namespace(**deploy_opt))
+        deploy.snapshot_basedir = self.outdir
 
         return deploy.exec()
 
