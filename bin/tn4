@@ -7,9 +7,9 @@ tn4 - Titanet4 as Code
 A command-line utility to deploy Titanet4 with Ansible and repair NetBox consistency.
 
   * tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files
-  * tn4 deploy - Provisioning Titanet4 with Ansible
+  * tn4 deploy - Provisioning Titanet4 with Ansible using NetBox as inventory
   * tn4 shutdown - Shutting down Titanet4 for the campus-wide blackout
-  * tn4 netbox - Scanning and repairing NetBox integrity, also providing CLI-based bulk operation
+  * tn4 netbox - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation
 
 Since:   October 2022
 Source:  https://github.com/yamaoka-kitaguchi-lab/tn4-player
@@ -66,7 +66,7 @@ DEFAULT_CLI_ARGS = {
             ("--hosts",),
             dict(
                 type=str,
-                help="comma separated list of target hostnames",
+                help="comma-separated list of target hostnames",
             ),
         ),
         (
@@ -80,7 +80,7 @@ DEFAULT_CLI_ARGS = {
             ("--areas",),
             dict(
                 type=str,
-                help="comma separated list of target regions or site groups (e.g. ookayama-n,suzukake)",
+                help="comma-separated list of target regions or site groups (e.g. ookayama-n,suzukake)",
             ),
         ),
         (
@@ -94,7 +94,7 @@ DEFAULT_CLI_ARGS = {
             ("--roles",),
             dict(
                 type=str,
-                help="comma separated list of target device roles (e.g. edge_sw)",
+                help="comma-separated list of target device roles (e.g. edge_sw)",
             ),
         ),
         (
@@ -108,7 +108,7 @@ DEFAULT_CLI_ARGS = {
             ("--vendors",),
             dict(
                 type=str,
-                help="comma separated list of target manufacturers (e.g. juniper)",
+                help="comma-separated list of target manufacturers (e.g. juniper)",
             ),
         ),
         (
@@ -122,7 +122,7 @@ DEFAULT_CLI_ARGS = {
             ("--tags",),
             dict(
                 type=str,
-                help="comma separated list of target tags (e.g. test)",
+                help="comma-separated list of target tags (e.g. test)",
             ),
         ),
         (
@@ -210,29 +210,27 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(
         title="commands",
         description="COMMAND [ARGS]",
-        help="Command to invoke",
         dest="command",
     )
     add_args_to_parser(parser, DEFAULT_CLI_ARGS["generic_args"])
     subparsers.required = True
 
-
     config_parser = subparsers.add_parser(
        "config",
        description="tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files",
-       help="Rendering Jinja2 templates and exporting them as *.cfg files",
+       help="render Jinja2 templates or fetch running configs using Ansible",
        aliases=["c"],
     )
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
     config_parser.add_argument(
         "--remote-fetch",
         action="store_true",
-        help="fetch and save current configs and exit",
+        help="fetch and save running configs using Ansible and exit",
     )
     config_parser.add_argument(
         "--template",
         type=jinja_path,
-        help="custom jinja2 template path instead of the defautls",
+        help="use custom Jinja2 template instead of the defautls",
         dest="custom_j2_path"
     )
     config_parser.add_argument(
@@ -243,24 +241,23 @@ if __name__ == "__main__":
     )
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["positional_args"])
 
-
     deploy_parser = subparsers.add_parser(
         "deploy",
-        description="tn4 deploy - Provisioning Titanet4 with Ansible fetching inventory from NetBox",
-        help="Provisioning Titanet4 with Ansible fetching inventory from NetBox",
+        description="tn4 deploy - Provisioning Titanet4 with Ansible using NetBox as inventory",
+        help="provisioning Titanet4 with Ansible",
         aliases=["d"],
     )
     add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
     deploy_parser.add_argument(
         "--overwrite",
         type=jinja_path,
-        help="custom jinja2 template path instead of the defautls",
+        help="use custom Jinja2 template instead of the defautls to overwrite configs",
         dest="overwrite_j2_path"
     )
     deploy_parser.add_argument(
         "--commit-confirm",
         type=int,
-        help="set minutes for commit confirm. only effective for juniper hosts",
+        help="set the time (minutes) to use in ```commit confirm```. only effective on juniper hosts",
         dest="commit_confirm_min",
     )
     deploy_parser.add_argument(
@@ -274,11 +271,10 @@ if __name__ == "__main__":
         help="increase the verbosity with multiple v's (up to 5)",
     )
 
-
     shutdown_parser = subparsers.add_parser(
         "shutdown",
         description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
-        help="TBD: Shutting down Titanet4 in preparation for the campus-wide blackout",
+        help="TBD: shutting down Titanet4 for the campus-wide blackout",
         aliases=["s"],
     )
     add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
@@ -295,8 +291,8 @@ if __name__ == "__main__":
 
     netbox_parser = subparsers.add_parser(
         "netbox",
-        description="tn4 netbox - Scanning and repairing NetBox integrity and providing CLI-based operation",
-        help="TBD: Scanning and repairing NetBox integrity and providing CLI-based CRUD operation",
+        description="tn4 netbox - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation",
+        help="TBD: scan and repair NetBox inconsistency with cli-based CRUD operation",
         aliases=["n"],
     )
 
