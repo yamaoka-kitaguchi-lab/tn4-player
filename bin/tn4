@@ -223,6 +223,11 @@ if __name__ == "__main__":
     )
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
     config_parser.add_argument(
+        "--remote-fetch",
+        action="store_true",
+        help="fetch and save current configs and exit",
+    )
+    config_parser.add_argument(
         "--template",
         type=jinja_path,
         help="custom jinja2 template path instead of the defautls",
@@ -234,7 +239,7 @@ if __name__ == "__main__":
         help="export the raw inventory json instead of rendered configs",
     )
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["positional_args"])
-    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["generic_args"])
+    #add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["generic_args"])
 
 
     deploy_parser = subparsers.add_parser(
@@ -244,11 +249,6 @@ if __name__ == "__main__":
         aliases=["d"],
     )
     add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
-    deploy_parser.add_argument(
-        "--remote-fetch",
-        action="store_true",
-        help="fetch and save current configs and exit",
-    )
     deploy_parser.add_argument(
         "--overwrite",
         type=jinja_path,
@@ -271,7 +271,7 @@ if __name__ == "__main__":
         action="count",
         help="increase the verbosity with multiple v's (up to 5)",
     )
-    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["generic_args"])
+    #add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["generic_args"])
 
 
     shutdown_parser = subparsers.add_parser(
@@ -281,7 +281,6 @@ if __name__ == "__main__":
         aliases=["s"],
     )
     add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
-    add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["generic_args"])
     #shutdown_parser.add_argument(
     #    "--reboot",
     #    action="store_true",
@@ -292,6 +291,7 @@ if __name__ == "__main__":
     #    action="store_true",
     #    help="ignore all warnings and skip confirmation",
     #)
+    #add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["generic_args"])
 
     netbox_parser = subparsers.add_parser(
         "netbox",
@@ -299,7 +299,7 @@ if __name__ == "__main__":
         help="TBD: Scanning and repairing NetBox integrity and providing CLI-based CRUD operation",
         aliases=["n"],
     )
-    add_args_to_parser(netbox_parser, DEFAULT_CLI_ARGS["generic_args"])
+    #add_args_to_parser(netbox_parser, DEFAULT_CLI_ARGS["generic_args"])
 
     args = parser.parse_args()
 
