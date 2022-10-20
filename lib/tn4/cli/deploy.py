@@ -64,13 +64,13 @@ class Deploy(CommandBase):
         os.path.exists(hosts_json) and os.remove(hosts_json)
 
         if self.custom_template_path is not None:
-            self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
+            self.console.log(f"[yellow]Ready to provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
 
         elif self.flg_fetch is not None:
-            self.console.log(f"[yellow]Gathering current configs with Ansible Runner...")
+            self.console.log(f"[yellow]Ready to gathering current configs with Ansible Runner...")
 
         else:
-            self.console.log(f"[yellow]Provisioning Titanet4 with Ansible Runner... {annotation}")
+            self.console.log(f"[yellow]Ready to provisioning Titanet4 with Ansible Runner... {annotation}")
 
         print("\n"*1)  # terminal margin
         results = run(**run_opts)
