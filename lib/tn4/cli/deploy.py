@@ -24,6 +24,8 @@ class Deploy(CommandBase):
             args.use_cache,
         ]
 
+        self.flg_fetch_only = False
+
         n = datetime.now()
         ts = n.strftime("%Y-%m-%d@%H-%M-%S")
         self.snapshot_basedir = f"{self.workdir_path}/project/snapshots/config.{ts}"
@@ -34,7 +36,7 @@ class Deploy(CommandBase):
             "commit_confirm_min": self.commit_confirm_min,
             "is_debug":           self.flg_debug,
             "is_dryrun":          self.flg_dryrun,
-            "is_fetch_only":      self.flg_fetch,
+            "is_fetch_only":      self.flg_fetch_only,
             "is_overwrite":       self.custom_template_path is not None,
             "is_quiet":           self.verbosity is None or self.verbosity < 2,
             "overwrite_j2_path":  self.custom_template_path,
@@ -73,7 +75,7 @@ class Deploy(CommandBase):
         if self.custom_template_path is not None:
             self.console.log(f"[yellow]Ready to provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
 
-        elif self.flg_fetch is not None:
+        elif self.flg_fetch_only is not None:
             self.console.log(f"[yellow]Ready to gather current configs with Ansible Runner...")
 
         else:

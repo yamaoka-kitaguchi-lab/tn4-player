@@ -13,10 +13,3 @@
 - name: Enable NETCONF
   connection: network_cli
   junos_netconf:
-
-- name: Create backup directory
-  ansible.builtin.file:
-    path: "{{ snapshot_basedir }}"
-    state: directory
-  delegate_to: localhost
-  no_log: "{{ is_quiet }}"

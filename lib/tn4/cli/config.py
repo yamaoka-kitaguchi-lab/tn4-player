@@ -32,7 +32,6 @@ class Config(CommandBase):
 
         deploy_opt = self.__args
         deploy_opt |= dict(
-            remote_fetch=True,
             dryrun=True,           # actually not effective but for safety
             commit_confirm_min=1,  # same as above
             overwrite_j2_path=None,
@@ -40,6 +39,7 @@ class Config(CommandBase):
         )
         deploy = Deploy(Namespace(**deploy_opt))
         deploy.snapshot_basedir = self.outdir
+        deploy.flg_fetch_only = True
 
         return deploy.exec()
 
