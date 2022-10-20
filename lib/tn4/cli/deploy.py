@@ -67,7 +67,7 @@ class Deploy(CommandBase):
             self.console.log(f"[yellow]Ready to provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
 
         elif self.flg_fetch is not None:
-            self.console.log(f"[yellow]Ready to gathering current configs with Ansible Runner...")
+            self.console.log(f"[yellow]Ready to gather current configs with Ansible Runner...")
 
         else:
             self.console.log(f"[yellow]Ready to provisioning Titanet4 with Ansible Runner... {annotation}")
