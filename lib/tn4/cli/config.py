@@ -23,6 +23,21 @@ class Config(CommandBase):
         ]
 
 
+    def remote_fetch(self):
+        from tn4.cli.deploy import Deploy
+
+        deploy = Deploy(dict(
+            **args,
+            remote_fetch=True,
+            dryrun=True,           # actually not effective but for safety
+            min_commit_confirm=1,  # same as above
+            overwrite_j2_path=None,
+            vervosity=None,
+        ))
+
+        return deploy.exec()
+
+
     def load_templates(self, trim_blocks):
         self.templates = {}
 
@@ -60,6 +75,9 @@ class Config(CommandBase):
 
 
     def exec(self):
+        if self.flg_remote_fetch:
+            return self.remote_fetch()
+
         self.fetch_inventory(*self.fetch_inventory_opts, debug=self.flg_debug)
 
         if self.flg_inventory:
