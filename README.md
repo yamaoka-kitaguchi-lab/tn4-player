@@ -121,7 +121,7 @@ options:
 ```
 
 ## Hints
-Some hints and tips from the author. Good luck.
+Some hints and tips from the author.
 
 ### Build the EE container with ansible-builder
 See [https://quay.io/repository/ansible/ansible-runner](https://quay.io/repository/ansible/ansible-runner?tab=tags) to check the latest tag and edit Pipfile if needed. Ansible Builder will take about 20 minutes.
