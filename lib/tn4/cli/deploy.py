@@ -12,8 +12,8 @@ class Deploy(CommandBase):
         self.flg_fetch             = args.remote_fetch
         self.flg_dryrun            = args.dryrun
         self.flg_debug             = args.debug
-        self.custom_template_path  = args.overwrite
-        self.commit_confirm_min    = 0 if args.commit_confirm is None else args.commit_confirm
+        self.custom_template_path  = args.overwrite_j2_path
+        self.commit_confirm_min    = 0 if args.min_commit_confirm is None else args.min_commit_confirm
         self.verbosity             = args.v
         self.fetch_inventory_opts  = [
             args.hosts,   args.no_hosts,

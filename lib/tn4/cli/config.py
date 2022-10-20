@@ -11,7 +11,7 @@ class Config(CommandBase):
         self.flg_inventory         = args.inventory
         self.flg_debug             = args.debug
         self.outdir                = args.DIR_PATH
-        self.custom_template_path  = args.template
+        self.custom_template_path  = args.custom_j2_path
         self.inventory_json        = f"{self.outdir}/inventory.json"
         self.fetch_inventory_opts  = [
             args.hosts,   args.no_hosts,

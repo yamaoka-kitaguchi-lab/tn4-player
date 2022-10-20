@@ -57,8 +57,7 @@ DEFAULT_CLI_ARGS = {
             ("--debug",),
             dict(
                 action="store_true",
-                help="enable tn4 debug mode. this option is only for developers "
-                     "and should NOT be set if you don't know what to expect",
+                help="enable tn4-cli debug mode. only for developers and should NOT be set if you don't know what to expect",
             ),
         ),
     ),
@@ -215,25 +214,28 @@ if __name__ == "__main__":
     add_args_to_parser(parser, DEFAULT_CLI_ARGS["generic_args"])
     subparsers.required = True
 
+
     config_parser = subparsers.add_parser(
        "config",
        description="tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files",
        help="Rendering Jinja2 templates and exporting them as *.cfg files",
        aliases=["c"],
     )
+    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
     config_parser.add_argument(
         "--template",
         type=jinja_path,
         help="custom jinja2 template path instead of the defautls",
+        dest="custom_j2_path"
     )
     config_parser.add_argument(
         "--as-ansible-inventory",
         action="store_true",
         help="export the raw inventory json instead of rendered configs",
     )
-    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["generic_args"])
-    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["positional_args"])
+    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["generic_args"])
+
 
     deploy_parser = subparsers.add_parser(
         "deploy",
@@ -241,6 +243,7 @@ if __name__ == "__main__":
         help="Provisioning Titanet4 with Ansible fetching inventory from NetBox",
         aliases=["d"],
     )
+    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
     deploy_parser.add_argument(
         "--remote-fetch",
         action="store_true",
@@ -250,11 +253,13 @@ if __name__ == "__main__":
         "--overwrite",
         type=jinja_path,
         help="custom jinja2 template path instead of the defautls",
+        dest="overwrite_j2_path"
     )
     deploy_parser.add_argument(
         "--commit-confirm",
         type=int,
         help="set minutes for commit confirm. only effective for juniper hosts",
+        dest="min_commit_confirm",
     )
     deploy_parser.add_argument(
         "-v",
@@ -262,7 +267,6 @@ if __name__ == "__main__":
         help="increase the verbosity with multiple v's (up to 5)",
     )
     add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["generic_args"])
-    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
 
 
     shutdown_parser = subparsers.add_parser(
@@ -271,6 +275,8 @@ if __name__ == "__main__":
         help="TBD: Shutting down Titanet4 in preparation for the campus-wide blackout",
         aliases=["s"],
     )
+    add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+    add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["generic_args"])
     #shutdown_parser.add_argument(
     #    "--reboot",
     #    action="store_true",
@@ -281,8 +287,6 @@ if __name__ == "__main__":
     #    action="store_true",
     #    help="ignore all warnings and skip confirmation",
     #)
-    add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["generic_args"])
-    add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
 
     netbox_parser = subparsers.add_parser(
         "netbox",
