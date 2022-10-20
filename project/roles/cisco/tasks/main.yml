@@ -3,7 +3,6 @@
   vars:
     ansible_network_os: cisco.ios.ios
     ansible_connection: network_cli
-  when: "not is_fetch_only"
   tags:
     - deploy
     - overwrite

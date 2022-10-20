@@ -2,7 +2,6 @@
 - import_tasks: prepare.yml
   vars:
     ansible_network_os: junos
-  when: "not is_fetch_only"
   tags:
     - deploy
     - overwrite

@@ -66,6 +66,8 @@ class Deploy(CommandBase):
         hosts_json = f"{self.inventory_path}/hosts.json"
         os.path.exists(hosts_json) and os.remove(hosts_json)
 
+        os.makedirs(self.snapshot_basedir, exist_ok=True)
+
         if self.custom_template_path is not None:
             self.console.log(f"[yellow]Ready to provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
 
@@ -75,7 +77,7 @@ class Deploy(CommandBase):
         else:
             self.console.log(f"[yellow]Ready to provisioning Titanet4 with Ansible Runner... {annotation}")
 
-        print("\n"*1)  # terminal margin
+        print("\n"*0)  # terminal margin
         results = run(**run_opts)
         print("\n"*1)  # terminal margin
 
