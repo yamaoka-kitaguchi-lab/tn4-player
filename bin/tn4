@@ -38,6 +38,8 @@ __version__ = "v2022.10.21"
 
 def jinja_path(string):
     ## todo: validate jinja here
+    if string[0] != "/":
+        string = os.getcwd() + "/" + string
     if os.path.isfile(string):
         return string
     print(f"No such file: {string}")

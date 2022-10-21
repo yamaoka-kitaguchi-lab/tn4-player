@@ -16,7 +16,7 @@
 - name: Export config
   copy:
     content: "{{ config.msg }}"
-    dest: "{{ snapshot_basedir }}/{{ hostname })_submitted.cfg"
+    dest: "{{ snapshot_basedir }}/{{ hostname }}_submitted.cfg"
   delegate_to: localhost
   no_log: "{{ is_quiet }}"
 
