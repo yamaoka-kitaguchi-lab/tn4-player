@@ -1,6 +1,10 @@
 {% include "./include/core/reset.j2" %}
 {% include "./include/core/set-vlans.j2" %}
 
+{% for parent, children in lag_members.items() %}
+{% include "./include/edge/set-interfaces-lacp.j2" %}
+{% endfor %}
+
 {% for interface in interfaces.values() %}
 {% include "./include/core/set-interfaces.j2" %}
 
