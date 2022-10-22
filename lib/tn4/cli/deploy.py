@@ -78,7 +78,7 @@ class Deploy(CommandBase):
         if self.custom_template_path is not None:
             self.console.log(f"[yellow]Ready to provisioning Titanet4 with Ansible Runner using custom template... {annotation}")
 
-        elif self.flg_fetch_only is not None:
+        elif self.flg_fetch_only:
             self.console.log(f"[yellow]Ready to gather current configs with Ansible Runner...")
 
         else:
