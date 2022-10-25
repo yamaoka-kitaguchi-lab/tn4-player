@@ -41,6 +41,7 @@ class Slug:
         PoE                    = "poe"
         Protect                = "protect"
         Rspan                  = "rspan"
+        Storm5M                = "storm-5m"
         Test                   = "test"
         Upstream               = "uplink"
         VlanOokayama           = "vlan-o"
