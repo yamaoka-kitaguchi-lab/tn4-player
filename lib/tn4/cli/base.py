@@ -121,7 +121,7 @@ class CommandBase:
                 typos.append(tag)
 
         if len(typos) > 0:
-            self.console.log("[red bold]Aboted. Your condition contains NetBox undefined keywords. Typos?")
+            self.console.log("[red bold]Aborted. Your condition may contain NetBox undefined keywords. Typos?")
             self.console.log(f"[red dim]{', '.join(typos)}")
             ok = False
 
