@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from pprint import pprint
 from rich.console import Console
 from yaml import safe_load
@@ -86,8 +87,9 @@ class CommandBase:
 
         ok = True
         hostnames = []
-        includes, excludes = [], []
+        target_hosts = set()
         area_to_hosts, role_to_hosts, vendor_to_hosts, tag_to_hosts = {}, {}, {}, {}
+        flatten = lambda x: [z for y in x for z in (flatten(y) if hasattr(y, '__iter__') and not isinstance(y, str) else (y,))]
 
         for hostname, hostvar in inventory["_meta"]["hosts"].items():
             hostnames.append(hostname)
@@ -128,41 +130,35 @@ class CommandBase:
         if not ok:
             return ok
 
-        includes.extend(hosts)
-        excludes.extend(no_hosts)
+        target_hosts |= set(hosts)
 
-        for area in areas:
-            includes.extend(area_to_hosts[area])
+        if len(target_hosts) == 0:
+            target_hosts |= set(inventory["_meta"]["hosts"].keys())
 
-        for no_area in no_areas:
-            excludes.extend(area_to_hosts[no_area])
+        target_hosts -= set(no_hosts)
 
-        for role in roles:
-            includes.extend(role_to_hosts[role])
-
-        for no_role in no_roles:
-            excludes.extend(role_to_hosts[no_role])
-
-        for vendor in vendors:
-            includes.extend(vendor_to_hosts[vendor])
-
-        for no_vendor in no_vendors:
-            excludes.extend(vendor_to_hosts[no_vendor])
-
-        for tag in tags:
-            includes.extend(tag_to_hosts[tag])
-
-        for no_tag in no_tags:
-            excludes.extend(tag_to_hosts[no_tag])
-
-        if len(includes) == 0:
-            includes = inventory["_meta"]["hosts"].keys()
-
-        target_hosts = list(set(includes) - set(excludes))
+        if areas:
+            target_hosts &= set(flatten([ area_to_hosts[area] for area in areas ]))
+        if no_areas:
+            target_hosts -= set(flatten([ area_to_hosts[no_area] for no_area in no_areas ]))
+        if roles:
+            target_hosts &= set(flatten([ role_to_hosts[role] for role in roles ]))
+        if no_roles:
+            target_hosts -= set(flatten([ role_to_hosts[no_role] for no_role in no_roles ]))
+        if vendors:
+            target_hosts &= set(flatten([ vendor_to_hosts[vendor] for vendor in vendors ]))
+        if no_vendors:
+            target_hosts -= set(flatten([ vendor_to_hosts[no_vendor] for no_vendor in no_vendors ]))
+        if tags:
+            target_hosts &= set(flatten([ tag_to_hosts[tag] for tag in tags ]))
+        if no_tags:
+            target_hosts -= set(flatten([ tag_to_hosts[no_tag] for no_tag in no_tags ]))
 
         self.ansible_common_vars = {}
         with open(self.group_vars_path) as fd:
             self.ansible_common_vars |= safe_load(fd)
+
+        target_hosts = sorted(list(target_hosts))  # type conversion: set to list
 
         self.inventory = {
             **{
@@ -172,10 +168,10 @@ class CommandBase:
                 for role, hosts in role_to_hosts.items()
             },
             "_meta": {
-                "hosts": {
+                "hosts": OrderedDict({
                     host: inventory["_meta"]["hosts"][host]
                     for host in target_hosts
-                }
+                })
             }
         }
 
