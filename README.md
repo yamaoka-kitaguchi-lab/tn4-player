@@ -1,5 +1,5 @@
 # tn4-player
-[![GitHub last commit](https://img.shields.io/github/last-commit/yamaoka-kitaguchi-lab/tn4-player)](https://github.com/yamaoka-kitaguchi-lab/tn4-player/commit/HEAD) [![GitHub commit activity](https://img.shields.io/github/commit-activity/y/yamaoka-kitaguchi-lab/tn4-player)](https://github.com/yamaoka-kitaguchi-lab/tn4-player/commits/master)
+[![CodeQL](https://github.com/yamaoka-kitaguchi-lab/tn4-player/actions/workflows/github-code-scanning/codeql/badge.svg?branch=main)](https://github.com/yamaoka-kitaguchi-lab/tn4-player/actions/workflows/github-code-scanning/codeql) [![GitHub last commit](https://img.shields.io/github/last-commit/yamaoka-kitaguchi-lab/tn4-player)](https://github.com/yamaoka-kitaguchi-lab/tn4-player/commit/HEAD) [![GitHub commit activity](https://img.shields.io/github/commit-activity/y/yamaoka-kitaguchi-lab/tn4-player)](https://github.com/yamaoka-kitaguchi-lab/tn4-player/commits/master)
 
 Titanet4 as Code - inventory management with NetBox and automated deployment with Ansible.
 
