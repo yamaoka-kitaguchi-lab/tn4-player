@@ -40,11 +40,11 @@
         },
         "ansible-runner": {
             "hashes": [
-                "sha256:bc3348580b0cbb8b5831039dadad6cce115e155b91c7ad0f66d751d54a0586a0",
-                "sha256:cd9b6cb1174011b4e2e0a5993d4d04d928cde5fe22a8993aed4438493387c182"
+                "sha256:1d2f02d3a62573f38e68a23790118b7981791c2bed2b5f22f7a36a221c288756",
+                "sha256:f26d409293964d3a90c1af1acfd32d461f314f4405b72308d62f65d8ac4c0621"
             ],
             "index": "pypi",
-            "version": "==2.2.1"
+            "version": "==2.3.1"
         },
         "bcrypt": {
             "hashes": [
