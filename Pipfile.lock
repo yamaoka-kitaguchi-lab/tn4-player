@@ -24,11 +24,11 @@
         },
         "ansible-builder": {
             "hashes": [
-                "sha256:455cd68fb4b28c7af96fd00cf23bf93cce071aedaed7bb5f4e8c9c4b09f9ab20",
-                "sha256:a07fac9d278d3ac05d2a05eec7a4215e56adb6c23d1c00713c027dcdcb8aae47"
+                "sha256:dabe4b65515ebe301bd40bd1c14da4d1739eae75accfd40aaa74c15b8f336c8c",
+                "sha256:ea37eff9dbce9b8adfc0c3535bc97a62d6737c7787f9381a15b4f7da205fbb68"
             ],
             "index": "pypi",
-            "version": "==1.1.0"
+            "version": "==1.2.0"
         },
         "ansible-core": {
             "hashes": [
