@@ -482,11 +482,11 @@
         },
         "paramiko": {
             "hashes": [
-                "sha256:003e6bee7c034c21fbb051bf83dc0a9ee4106204dd3c53054c71452cc4ec3938",
-                "sha256:655f25dc8baf763277b933dfcea101d636581df8d6b9774d1fb653426b72c270"
+                "sha256:6bef55b882c9d130f8015b9a26f4bd93f710e90fe7478b9dcc810304e79b3cd8",
+                "sha256:fedc9b1dd43bc1d45f67f1ceca10bc336605427a46dcdf8dec6bfea3edf57965"
             ],
             "index": "pypi",
-            "version": "==2.11.0"
+            "version": "==3.0.0"
         },
         "parsley": {
             "hashes": [
