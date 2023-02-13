@@ -1,6 +1,9 @@
+class VlanState:
+    tags = None
+
+
 class DeviceState:
-    name       = None  # device name, e.g., minami3
-    interfaces = None  # list of InterfaceState
+    tags = None
 
 
 class InterfaceState:
@@ -30,9 +33,9 @@ class InterfaceState:
 
 
 class NbckReport:
-    category = None
-    current  = None
-    desired  = None
-    argument = None
-    message  = None
+    category      = None
+    current_state = None
+    desired_state = None
+    argument      = None
+    message       = None
 
