@@ -1,3 +1,8 @@
+class DeviceState:
+    name       = None  # device name, e.g., minami3
+    interfaces = None  # list of InterfaceState
+
+
 class InterfaceState:
     is_enabled          = None
     description         = None
@@ -22,4 +27,12 @@ class InterfaceState:
         self.untagged_vlanid = nb_interface_obj["untagged_vlanid"]
         self.tagged_vids  = nb_interface_obj["tagged_vids"]
         self.untagged_vid = nb_interface_obj["untagged_vid"]
+
+
+class NbckReport:
+    category = None
+    current  = None
+    desired  = None
+    argument = None
+    message  = None
 
