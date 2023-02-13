@@ -1,9 +1,15 @@
 class VlanState:
     tags = None
 
+    def __init__(self, nb_vlan_obj=None):
+        self.tags = nb_vlan_obj["tags"]
+
 
 class DeviceState:
     tags = None
+
+    def __init__(self, nb_device_obj=None):
+        self.tags = nb_device_obj["tags"]
 
 
 class InterfaceState:
@@ -17,9 +23,9 @@ class InterfaceState:
     untagged_vid        = None
 
     def __init__(self, nb_interface_obj=None):
-        self.is_enabled          = nb_interface_obj["enabled"]
-        self.description         = nb_interface_obj["description"]
-        self.tags                = nb_interface_obj["tags"]
+        self.is_enabled  = nb_interface_obj["enabled"]
+        self.description = nb_interface_obj["description"]
+        self.tags        = nb_interface_obj["tags"]
 
         try:
             self.is_tagged_vlan_mode = nb_interface_obj["mode"]["value"] == "tagged"
