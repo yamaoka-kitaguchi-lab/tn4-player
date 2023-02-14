@@ -1,3 +1,6 @@
+from enum import Flag, auto
+
+
 class VlanState:
     tags = None
 
@@ -36,6 +39,12 @@ class InterfaceState:
         self.untagged_vlanid = nb_interface_obj["untagged_vlanid"]
         self.tagged_vids  = nb_interface_obj["tagged_vids"]
         self.untagged_vid = nb_interface_obj["untagged_vid"]
+
+
+class Category(Flag):
+    CREATE = auto()
+    UPDATE = auto()
+    DELETE = auto()
 
 
 class NbckReport:
