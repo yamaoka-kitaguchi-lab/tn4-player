@@ -1,6 +1,6 @@
 from tn4.netbox.slug import Slug
 from tn4.nbck.base import Base, Vlans, Devices, Interfaces
-from tn4.nbck.state import DeviceState, InterfaceState
+from tn4.nbck.state import DeviceState, InterfaceState, Category, NbckReport
 
 
 class Diagnosis(Base):
@@ -40,6 +40,7 @@ class Diagnosis(Base):
                 desired.tagged_vids.add(dplane_vids)  # must have all D-Plane VLANs
                 desired.untagged_vid = cplane_vid     # must be C-Plane VLAN
 
+                ok = desired.is_equal(current)
 
 
 

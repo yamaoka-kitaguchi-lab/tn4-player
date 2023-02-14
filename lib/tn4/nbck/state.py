@@ -14,17 +14,27 @@ class StateBase:
         return tag in self.nb_object["tags"]
 
 
+    def is_equal(self, state, attrs=[]):
+        if len(attrs) == 0:
+            attrs = [ k for k in self.__dict__.keys() if k[:2] != "__" and k[-2:] != "__" ]
+
+        for attr in attrs:
+            if getattr(self, attr) != getattr(state, attr):
+                return False
+        return True
+
+
 class VlanState(StateBase):
     def __init__(self, nb_object=None):
         super().__init__(nb_object)
 
 
-class DeviceState:
+class DeviceState(StateBase):
     def __init__(self, nb_object=None):
         super().__init__(nb_object)
 
 
-class InterfaceState:
+class InterfaceState(StateBase):
     is_enabled          = None
     description         = None
     tags                = None
