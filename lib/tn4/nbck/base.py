@@ -12,8 +12,8 @@ class NetBoxObjectBase:
 
         for obj in self.all:
             for value in values:
-                if value in reduce(operator.getitem, keylst, obj):
-                    matched.add(obj)
+                obj_values = reduce(operator.getitem, keylst, obj)
+                value in obj_values and matched.add(obj)
 
         return list(matched)
 
@@ -29,10 +29,17 @@ class NetBoxObjectBase:
 class Vlans(NetBoxObjectBase):
     def __init__(self, nb_objs):
         super().__init__(nb_objs)
+        vids = [ obj["vid"] for obj in nb_objs ]
+
+
+    def with_vids(self, *vids):
+        vlans = sorted(super().__with_key(["vid"], *vids), key=lambda v: v["vid"], reverse=False)
+        return Vlans(vlans)
 
 
     def with_tags(self, *tags):
-        return sorted(super().with_tags(*tags), key=lambda v: v["vid"], reverse=False))
+        vlans = sorted(super().with_tags(*tags), key=lambda v: v["vid"], reverse=False))
+        return Vlans(vlans)
 
 
 class Devices(NetBoxObjectBase):
@@ -41,7 +48,8 @@ class Devices(NetBoxObjectBase):
 
 
     def with_sites(self, *sites):
-        return sorted(super().__with_key(["site", "slug"], *sites), key=lambda d: d["name"], reverse=False)
+        devices = sorted(super().__with_key(["site", "slug"], *sites), key=lambda d: d["name"], reverse=False)
+        return Devices(devices)
 
 
 class Interfaces(NetBoxObjectBase):

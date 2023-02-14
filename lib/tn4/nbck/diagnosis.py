@@ -11,10 +11,23 @@ class Diagnosis(Base):
 
 
     def check_wifi_tag_consistency(self):
-        wifi_dplane_vids = self.nb_vlans.with_tags(Slug.Tag.Wifi)
+        wifi_o1_cplane_vid = self.nb_vlans.with_tags(Slug.Tag.WifiMgmtVlanOokayama1).vids
+        wifi_o2_cplane_vid = self.nb_vlans.with_tags(Slug.Tag.WifiMgmtVlanOokayama2).vids
+        wifi_s_cplane_vid  = self.nb_vlans.with_tags(Slug.Tag.WifiMgmtVlanSuzukake).vids
+        wifi_o_dplane_vids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.VlanOokayama).vids
+        wifi_s_dplane_vids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.Suzukake).vids
 
         for hostname, interfaces in self.nb_interfaces.all.items():
+            device = self.nb_devices.all[hostname]
 
+            cplane_vid, dplane_vids = None, None
+            match device["wifi_area_group"]:
+                case "O1":
+                    cplane_vid, dplane_vids = wifi_o1_cplane_vid, wifi_o_dplane_vids
+                case "O2":
+                    cplane_vid, dplane_vids = wifi_o2_cplane_vid, wifi_o_dplane_vids
+                case "S":
+                    cplane_vid, dplane_vids = wifi_s_cplane_vid, wifi_s_dplane_vids
 
             for ifname, interface in interfaces.items():
                 not interface["is_to_ap"] and continue  # skip if the interface is not for AP
