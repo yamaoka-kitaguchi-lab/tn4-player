@@ -60,7 +60,7 @@ class Diagnosis(Base):
                 condition.is_enabled = CV(False, Cond.IS)
                 condition.description = CV(None, Cond.IS)
                 condition.tags = CV(None, Cond.IS)
-                condition.is_tagged_vlan_mode = CV(None, Cond.IS)
+                condition.interface_mode = CV(None, Cond.IS)
                 condition.tagged_vids = CV(None, Cond.IS)
                 condition.untagged_vid = CV(None, Cond.IS)
 
@@ -94,7 +94,7 @@ class Diagnosis(Base):
                 current.has("is_to_ap") or continue
 
                 ## must be 'tagged' mode
-                condition.is_tagged_vlan_mode = CV(True, Cond.IS)
+                condition.interface_mode = CV("tagged", Cond.IS)
 
                 ## must have all D-Plane VLANs
                 condition.tagged_vids = CV(dplane_vids, Cond.INCLUDE)
@@ -117,7 +117,7 @@ class Diagnosis(Base):
                 current.has_tag(Slug.Tag.Hosting) or continue
 
                 ## must be 'tagged' mode
-                condition.is_tagged_vlan_mode = CV(True, Cond.IS)
+                condition.interface_mode = CV("tagged", Cond.IS)
 
                 ## must have all hosting VLANs
                 condition.tagged_vids = CV(hosting_vids, Cond.INCLUDE)
@@ -132,7 +132,6 @@ class Diagnosis(Base):
             ## skip if the device is not Core SW or Edge SW
             self.nb_devices[hostname]["role"] in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ] or continue
 
-
             for ifname, interface in device_interfaces.items():
                 condition = InterfaceCondition("VLAN group violation", manual_repair=True)
 
@@ -141,3 +140,31 @@ class Diagnosis(Base):
                 condition.untagged_vid = CV(titanet_vids, Cond.INCLUDED)
 
                 self.interface_conditions[hostname][ifname].append(condition)
+
+
+    def check_interface_mode_consistency(self):
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
+            for ifname, interface in device_interfaces.items():
+                current = InterfaceState(interface)
+                condition = InterfaceCondition("interface mode inconsistency")
+
+                current.interface_mode != None or continue
+
+                ## interface mode must be cleared if no VLANs are attached
+                if len(current.tagged_vids) == 0 and untagged_vid == None:
+                    condition.interface_mode = CV(None, Cond.IS)
+
+                self.interface_conditions[hostname][ifname].append(condition)
+
+
+    def check_and_remove_empty_irb(self):
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
+            for ifname, interface in device_interfaces.items():
+                current = InterfaceState(interface)
+                condition = InterfaceCondition("obsoleted interface")
+
+                ifname[:4] == "irb." and current.interface_mode is None or continue
+
+                ## remove empty irb inteface from NetBox
+                condition.remove_from_nb = CV(True, Cond.IS)
+
