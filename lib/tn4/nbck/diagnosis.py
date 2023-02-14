@@ -58,16 +58,14 @@ class Diagnosis(Base):
             for ifname, interface in device_interfaces.items():
                 current, desired = InterfaceState(interface), InterfaceState(interface)
 
-                current.has("is_to_ap") or continue   # skip if the interface is not for AP
+                current.has("is_to_ap") or continue  # skip if the interface is not for AP
 
-                desired.is_tagged_vlan_mode = True    # must be 'tagged' mode
-                desired.tagged_vids.add(dplane_vids)  # must have all D-Plane VLANs
-                desired.untagged_vid = cplane_vid     # must be C-Plane VLAN
+                desired.is_tagged_vlan_mode = True   # must be 'tagged' mode
+                desired.tagged_vids = dplane_vids    # must have all D-Plane VLANs
+                desired.untagged_vid = cplane_vid    # must be C-Plane VLAN
 
-                ok = desired.is_equal(current)
-                if not ok:
-                    local_summary.setdefault(hostname, {})[ifname] = \
-                        NbckReport(Category.UPDATE, current, desired, "Wi-Fi")
+                local_summary.setdefault(hostname, {})[ifname] = \
+                    NbckReport(Category.UPDATE, current, desired, "Wi-Fi")
 
         self.merge_summary(local_summary)
 
