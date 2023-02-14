@@ -35,13 +35,6 @@ class DeviceState(StateBase):
 
 
 class InterfaceState(StateBase):
-    is_enabled          = None
-    description         = None
-    tags                = None
-    is_tagged_vlan_mode = None
-    tagged_vids         = None  # 802.1q VLAN IDs
-    untagged_vid        = None
-
     def __init__(self, nb_object=None):
         super().__init__(nb_object)
         self.is_enabled  = nb_object["enabled"]
@@ -57,6 +50,15 @@ class InterfaceState(StateBase):
         self.untagged_vid = nb_object["untagged_vid"]
 
 
+    def merge(self, state):
+        self.tags.append(state.tags)
+        if state.tagged_vids is not None:
+            self.is_tagged_vlan_mode = True
+            self.tagged_vids.add(state.tagged_vids)
+        if state.untagged_vid is not None:
+            self.untagged_vid = state.untagged_vid
+
+
 class Category(Flag):
     CREATE = auto()
     UPDATE = auto()
@@ -64,9 +66,16 @@ class Category(Flag):
 
 
 class NbckReport:
-    category      = None
-    current_state = None
-    desired_state = None
-    argument      = None
-    message       = None
+    def __init__(self, category, current, desired, argument=[], message=None):
+        self.category      = category
+        self.current_state = current
+        self.desired_state = desired
+        self.argument      = argument
+        self.message       = message
+
+
+    def merge(self, new_report):
+        self.desired_state.merge(new_report.desired_state)
+        self.argument.append(new_report.argument)
+        self.message.append(new_report.message)
 
