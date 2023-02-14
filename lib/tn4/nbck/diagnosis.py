@@ -26,6 +26,7 @@ class Diagnosis(Base):
 
                 if Slug.Tag.Keep in current.tags and Slug.Tag.Obsoleted in current.tags:
                     condition = InterfaceCondition("tag contradiction (Keep/Obsoleted)", manual_repair=True)
+                    self.interface_conditions[hostname][ifname].append(condition)
 
 
     def check_keep_tag_consistency(self):
@@ -50,16 +51,18 @@ class Diagnosis(Base):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("tag operation (Keep)", priority=11)
+                condition = InterfaceCondition("tag operation (Obsoleted)", priority=11)
 
-                ## skip if the interface does not have 'keep' tag
-                current.has_tag(Slug.Tag.Keep) or continue
+                ## skip if the interface does not have 'obsoleted' tag
+                current.has_tag(Slug.Tag.Obsoleted) or continue
 
-                ## must be disabled
+                ## must be cleared
                 condition.is_enabled = CV(False, Cond.IS)
-
-                ## must not have 'keep' tag
-                condition.tags = CV(Slug.Tag.Keep, Cond.EXCLUDE)
+                condition.description = CV(None, Cond.IS)
+                condition.tags = CV(None, Cond.IS)
+                condition.is_tagged_vlan_mode = CV(None, Cond.IS)
+                condition.tagged_vids = CV(None, Cond.IS)
+                condition.untagged_vid = CV(None, Cond.IS)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
