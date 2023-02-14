@@ -11,12 +11,14 @@ class Diagnosis(Base):
 
 
     def check_wifi_tag_consistency(self):
-        wifi_dplane_vids = self.nb_vlans.with_tag(Slug.Tag.Wifi)
-
+        wifi_dplane_vids = self.nb_vlans.with_tags(Slug.Tag.Wifi)
 
         for hostname, interfaces in self.nb_interfaces.all.items():
+
+
             for ifname, interface in interfaces.items():
                 not interface["is_to_ap"] and continue  # skip if the interface is not for AP
+
 
 
 
