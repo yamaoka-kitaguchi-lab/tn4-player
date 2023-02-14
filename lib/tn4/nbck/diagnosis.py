@@ -34,7 +34,7 @@ class Diagnosis(Base):
             for ifname, interface in device_interfaces.items():
                 current, desired = InterfaceState(interface), InterfaceState(interface)
 
-                not current.has("is_to_ap") and continue  # skip if the interface is not for AP
+                current.has("is_to_ap") or continue  # skip if the interface is not for AP
 
 
 
