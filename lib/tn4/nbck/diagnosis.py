@@ -3,7 +3,8 @@ from tn4.nbck.base import Base, Vlans, Devices, Interfaces
 from tn4.nbck.state import ConditionalValue as CV
 from tn4.nbck.state import Condition as Cond
 from tn4.nbck.state import InterfaceCondition
-from tn4.nbck.state import DeviceState, InterfaceState, NbckReport, ReportCategory
+from tn4.nbck.state import DeviceState, InterfaceState
+from tn4.nbck.state import NbckReport, ReportCategory
 
 
 class Diagnosis(Base):
@@ -16,6 +17,51 @@ class Diagnosis(Base):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             for ifname, interface in device_interfaces.items():
                 self.interface_conditions.setdefault(hostname, {})[ifname] = []
+
+
+    def check_among_tag_consistency(self):
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
+            for ifname, interface in device_interfaces.items():
+                current = InterfaceState(interface)
+
+                if Slug.Tag.Keep in current.tags and Slug.Tag.Obsoleted in current.tags:
+                    condition = InterfaceCondition("tag contradiction (Keep/Obsoleted)", manual_repair=True)
+
+
+    def check_keep_tag_consistency(self):
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
+            for ifname, interface in device_interfaces.items():
+                current = InterfaceState(interface)
+                condition = InterfaceCondition("tag operation (Keep)", priority=10)
+
+                ## skip if the interface does not have 'keep' tag
+                current.has_tag(Slug.Tag.Keep) or continue
+
+                ## must be disabled
+                condition.is_enabled = CV(False, Cond.IS)
+
+                ## must not have 'keep' tag
+                condition.tags = CV(Slug.Tag.Keep, Cond.EXCLUDE)
+
+                self.interface_conditions[hostname][ifname].append(condition)
+
+
+    def check_obsoleted_tag_consistency(self):
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
+            for ifname, interface in device_interfaces.items():
+                current = InterfaceState(interface)
+                condition = InterfaceCondition("tag operation (Keep)", priority=11)
+
+                ## skip if the interface does not have 'keep' tag
+                current.has_tag(Slug.Tag.Keep) or continue
+
+                ## must be disabled
+                condition.is_enabled = CV(False, Cond.IS)
+
+                ## must not have 'keep' tag
+                condition.tags = CV(Slug.Tag.Keep, Cond.EXCLUDE)
+
+                self.interface_conditions[hostname][ifname].append(condition)
 
 
     def check_wifi_tag_consistency(self):
@@ -39,7 +85,7 @@ class Diagnosis(Base):
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("Wi-Fi Tag Violation")
+                condition = InterfaceCondition("tag violation (Wi-Fi)")
 
                 ## skip if the interface is not for AP
                 current.has("is_to_ap") or continue
@@ -62,7 +108,7 @@ class Diagnosis(Base):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("Hosting Tag Violation")
+                condition = InterfaceCondition("tag violation (Hosting)")
 
                 ## skip if the interface is not for hosting
                 current.has_tag(Slug.Tag.Hosting) or continue
@@ -76,7 +122,7 @@ class Diagnosis(Base):
                 self.interface_conditions[hostname][ifname].append(condition)
 
 
-    def check_vlan_group(self):
+    def check_vlan_group_consistency(self):
         titanet_vids = self.nb_vlans.with_groups(Slug.VLANGroup.Titanet).vids
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
@@ -85,11 +131,10 @@ class Diagnosis(Base):
 
 
             for ifname, interface in device_interfaces.items():
-                condition = InterfaceCondition("VLAN Group Violation", force_abort=True)
+                condition = InterfaceCondition("VLAN group violation", manual_repair=True)
 
                 ## must be included in the Titanet VLAN group
                 condition.tagged_vids  = CV(titanet_vids, Cond.INCLUDED)
                 condition.untagged_vid = CV(titanet_vids, Cond.INCLUDED)
 
                 self.interface_conditions[hostname][ifname].append(condition)
-
