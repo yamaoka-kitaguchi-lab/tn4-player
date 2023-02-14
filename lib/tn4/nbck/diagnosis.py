@@ -39,9 +39,10 @@ class Diagnosis(Base):
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("Wi-Fi")
+                condition = InterfaceCondition("Wi-Fi Tag Violation")
 
-                current.has("is_to_ap") or continue  # skip if the interface is not for AP
+                ## skip if the interface is not for AP
+                current.has("is_to_ap") or continue
 
                 ## must be 'tagged' mode
                 condition.is_tagged_vlan_mode = CV(True, Cond.IS)
@@ -57,16 +58,20 @@ class Diagnosis(Base):
 
     def check_hosting_tag_consistency(self):
         hosting_vids = self.nb_vlans.with_tags(Slug.Tag.Hosting).vids
-        local_summary = {}
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             for ifname, interface in device_interfaces.items():
-                current, desired = InterfaceState(interface), InterfaceState(interface)
+                current = InterfaceState(interface)
+                condition = InterfaceCondition("Hosting Tag Violation")
 
-                current.has_tag(Slug.Tag.Hosting) or continue  # skip if the interface is not for hosting
+                ## skip if the interface is not for hosting
+                current.has_tag(Slug.Tag.Hosting) or continue
 
-                desired.is_tagged_vlan_mode = True   # must be 'tagged' mode
-                desired.tagged_vids = hosting_vids   # must have all D-Plane VLANs
+                ## must be 'tagged' mode
+                condition.is_tagged_vlan_mode = CV(True, Cond.IS)
 
-        self.merge_summary(local_summary)
+                ## must have all hosting VLANs
+                condition.tagged_vids = CV(hosting_vids, Cond.INCLUDE)
+
+                self.interface_conditions[hostname][ifname].append(condition)
 
