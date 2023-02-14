@@ -25,16 +25,20 @@ class Diagnosis(Base):
             cplane_vid, dplane_vids = None, None
             match device["wifi_area_group"]:
                 case "O1":
-                    cplane_vid, dplane_vids = wifi_o1_cplane_vid, wifi_o_dplane_vids
+                    cplane_vid, dplane_vids = wifi_o1_cplane_vid, set(wifi_o_dplane_vids)
                 case "O2":
-                    cplane_vid, dplane_vids = wifi_o2_cplane_vid, wifi_o_dplane_vids
+                    cplane_vid, dplane_vids = wifi_o2_cplane_vid, set(wifi_o_dplane_vids)
                 case "S":
-                    cplane_vid, dplane_vids = wifi_s_cplane_vid, wifi_s_dplane_vids
+                    cplane_vid, dplane_vids = wifi_s_cplane_vid, set(wifi_s_dplane_vids)
 
             for ifname, interface in device_interfaces.items():
                 current, desired = InterfaceState(interface), InterfaceState(interface)
 
-                current.has("is_to_ap") or continue  # skip if the interface is not for AP
+                current.has("is_to_ap") or continue   # skip if the interface is not for AP
+
+                desired.is_tagged_vlan_mode = True    # must be 'tagged' mode
+                desired.tagged_vids.add(dplane_vids)  # must have all D-Plane VLANs
+                desired.untagged_vid = cplane_vid     # must be C-Plane VLAN
 
 
 

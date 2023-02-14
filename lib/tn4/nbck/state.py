@@ -29,8 +29,6 @@ class InterfaceState:
     description         = None
     tags                = None
     is_tagged_vlan_mode = None
-    tagged_vlanids      = None  # NetBox object IDs
-    untagged_vlanid     = None  # NetBox object IDs
     tagged_vids         = None  # 802.1q VLAN IDs
     untagged_vid        = None
 
@@ -45,9 +43,7 @@ class InterfaceState:
         except KeyError:
             self.is_tagged_vlan_mode = False
 
-        self.tagged_vlanids  = nb_object["tagged_vlanids"]
-        self.untagged_vlanid = nb_object["untagged_vlanid"]
-        self.tagged_vids  = nb_object["tagged_vids"]
+        self.tagged_vids  = set(nb_object["tagged_vids"])
         self.untagged_vid = nb_object["untagged_vid"]
 
 
