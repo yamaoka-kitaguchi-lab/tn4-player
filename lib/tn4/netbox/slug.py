@@ -32,6 +32,7 @@ class Slug:
         CoreSuzukakeMaster     = "mclag-master-cs"
         CoreSuzukakeSlave      = "mclag-slave-cs"
         EdgeUpstream           = "uplink"
+        Hosting                = "hosting"
         MgmtVlanBorderOokayama = "mgmt-vlan-bo"
         MgmtVlanBorderSuzukake = "mgmt-vlan-bs"
         MgmtVlanCoreOokayama   = "mgmt-vlan-co"

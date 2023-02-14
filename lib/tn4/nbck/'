@@ -9,9 +9,10 @@ class Condition(Flag):
 
 
 class ConditionalValue:
-    def __init__(self, value=None, condition=Condition.DONTCARE):
+    def __init__(self, value=None, condition=Condition.DONTCARE, argument=None):
         self.value     = value
         self.condition = condition
+        self.argument  = argument
 
 
 class StateBase:
@@ -63,18 +64,13 @@ class InterfaceState(StateBase):
         self.untagged_vid = nb_object["untagged_vid"]
 
 
-class InterfaceCondition:
-    def __init__(self, argument, priority=100):
-        self.argument            = argument
-        self.priority            = priority
-        self.remove_from_nb      = ConditionalValue()
-
-        self.is_enabled          = ConditionalValue()
-        self.description         = ConditionalValue()
-        self.tags                = ConditionalValue()
-        self.is_tagged_vlan_mode = ConditionalValue()
-        self.tagged_vids         = ConditionalValue()
-        self.untagged_vid        = ConditionalValue()
+class InterfaceCondition():
+    is_enabled = ConditionalValue()
+    description = ConditionalValue()
+    tags = ConditionalValue()
+    is_tagged_vlan_mode = ConditionalValue()
+    tagged_vids = ConditionalValue()
+    untagged_vid = ConditionalValue()
 
 
 class ReportCategory(Flag):
