@@ -19,6 +19,8 @@ class Diagnosis(Base):
         wifi_o_dplane_vids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.VlanOokayama).vids
         wifi_s_dplane_vids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.Suzukake).vids
 
+        local_report = {}
+
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             device = self.nb_devices.all[hostname]
 
@@ -41,7 +43,9 @@ class Diagnosis(Base):
                 desired.untagged_vid = cplane_vid     # must be C-Plane VLAN
 
                 ok = desired.is_equal(current)
-
+                if not ok:
+                    local_report.setdefault(hostname, {})[ifname] = \
+                        NbckReport(Category.UPDATE, current, desired, "Wi-Fi")
 
 
     def check_hosting_tag_consistency(self):
