@@ -65,9 +65,10 @@ class InterfaceState(StateBase):
 
 
 class InterfaceCondition:
-    def __init__(self, argument, priority=100):
+    def __init__(self, argument, priority=100, manual_repair=False):
         self.argument            = argument
         self.priority            = priority
+        self.manual_repair       = manual_repair  # if true, nbck skips repairing but just present messages
         self.remove_from_nb      = ConditionalValue()
 
         self.is_enabled          = ConditionalValue()

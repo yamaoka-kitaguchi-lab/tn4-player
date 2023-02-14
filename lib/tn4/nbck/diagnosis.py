@@ -85,7 +85,7 @@ class Diagnosis(Base):
 
 
             for ifname, interface in device_interfaces.items():
-                condition = InterfaceCondition("VLAN Group Violation")
+                condition = InterfaceCondition("VLAN Group Violation", force_abort=True)
 
                 ## must be included in the Titanet VLAN group
                 condition.tagged_vids  = CV(titanet_vids, Cond.INCLUDED)
