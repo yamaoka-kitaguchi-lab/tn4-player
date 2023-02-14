@@ -1,18 +1,27 @@
 from enum import Flag, auto
 
 
-class VlanState:
-    tags = None
+class StateBase:
+    def __init__(self, nb_object=None):
+        self.nb_object = nb_object
 
-    def __init__(self, nb_vlan_obj=None):
-        self.tags = nb_vlan_obj["tags"]
+
+    def has(self, flag):
+        return flag in self.nb_object
+
+
+    def has_tag(self, tag):
+        return tag in self.nb_object["tags"]
+
+
+class VlanState(StateBase):
+    def __init__(self, nb_object=None):
+        super().__init__(nb_object)
 
 
 class DeviceState:
-    tags = None
-
-    def __init__(self, nb_device_obj=None):
-        self.tags = nb_device_obj["tags"]
+    def __init__(self, nb_object=None):
+        super().__init__(nb_object)
 
 
 class InterfaceState:
@@ -25,20 +34,21 @@ class InterfaceState:
     tagged_vids         = None  # 802.1q VLAN IDs
     untagged_vid        = None
 
-    def __init__(self, nb_interface_obj=None):
-        self.is_enabled  = nb_interface_obj["enabled"]
-        self.description = nb_interface_obj["description"]
-        self.tags        = nb_interface_obj["tags"]
+    def __init__(self, nb_object=None):
+        super().__init__(nb_object)
+        self.is_enabled  = nb_object["enabled"]
+        self.description = nb_object["description"]
+        self.tags        = nb_object["tags"]
 
         try:
-            self.is_tagged_vlan_mode = nb_interface_obj["mode"]["value"] == "tagged"
+            self.is_tagged_vlan_mode = nb_object["mode"]["value"] == "tagged"
         except KeyError:
             self.is_tagged_vlan_mode = False
 
-        self.tagged_vlanids  = nb_interface_obj["tagged_vlanids"]
-        self.untagged_vlanid = nb_interface_obj["untagged_vlanid"]
-        self.tagged_vids  = nb_interface_obj["tagged_vids"]
-        self.untagged_vid = nb_interface_obj["untagged_vid"]
+        self.tagged_vlanids  = nb_object["tagged_vlanids"]
+        self.untagged_vlanid = nb_object["untagged_vlanid"]
+        self.tagged_vids  = nb_object["tagged_vids"]
+        self.untagged_vid = nb_object["untagged_vid"]
 
 
 class Category(Flag):

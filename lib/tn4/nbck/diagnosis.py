@@ -9,6 +9,8 @@ class Diagnosis(Base):
         self.nb_devices    = Devices(ctx.devices)
         self.nb_interfaces = Interfaces(ctx.interfaces)
 
+        self.diagnosis_report = {}
+
 
     def check_wifi_tag_consistency(self):
         wifi_o1_cplane_vid = self.nb_vlans.with_tags(Slug.Tag.WifiMgmtVlanOokayama1).vids
@@ -17,7 +19,7 @@ class Diagnosis(Base):
         wifi_o_dplane_vids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.VlanOokayama).vids
         wifi_s_dplane_vids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.Suzukake).vids
 
-        for hostname, interfaces in self.nb_interfaces.all.items():
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
             device = self.nb_devices.all[hostname]
 
             cplane_vid, dplane_vids = None, None
@@ -29,10 +31,10 @@ class Diagnosis(Base):
                 case "S":
                     cplane_vid, dplane_vids = wifi_s_cplane_vid, wifi_s_dplane_vids
 
-            for ifname, interface in interfaces.items():
-                not interface["is_to_ap"] and continue  # skip if the interface is not for AP
+            for ifname, interface in device_interfaces.items():
+                current, desired = InterfaceState(interface), InterfaceState(interface)
 
-
+                not current.has("is_to_ap") and continue  # skip if the interface is not for AP
 
 
 

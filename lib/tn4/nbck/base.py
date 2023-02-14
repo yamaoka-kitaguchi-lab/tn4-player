@@ -29,27 +29,33 @@ class NetBoxObjectBase:
 class Vlans(NetBoxObjectBase):
     def __init__(self, nb_objs):
         super().__init__(nb_objs)
-        vids = [ obj["vid"] for obj in nb_objs ]
+        self.vids = [ obj["vid"] for obj in nb_objs ]
 
 
     def with_vids(self, *vids):
-        vlans = sorted(super().__with_key(["vid"], *vids), key=lambda v: v["vid"], reverse=False)
-        return Vlans(vlans)
+        objs = sorted(super().__with_key(["vid"], *vids), key=lambda v: v["vid"], reverse=False)
+        return Vlans(objs)
 
 
     def with_tags(self, *tags):
-        vlans = sorted(super().with_tags(*tags), key=lambda v: v["vid"], reverse=False))
-        return Vlans(vlans)
+        objs = sorted(super().with_tags(*tags), key=lambda v: v["vid"], reverse=False))
+        return Vlans(objs)
 
 
 class Devices(NetBoxObjectBase):
     def __init__(self, nb_objs):
         super().__init__(nb_objs)
+        self.hostnames = [ obj["name"] for obj in nb_objs ]
+
+
+    def with_hostnames(self, *hostnames):
+        objs = sorted(super().with_names(*hostnames), key=lambda d: d["name"], reverse=False))
+        return Devices(objs)
 
 
     def with_sites(self, *sites):
-        devices = sorted(super().__with_key(["site", "slug"], *sites), key=lambda d: d["name"], reverse=False)
-        return Devices(devices)
+        objs = sorted(super().__with_key(["site", "slug"], *sites), key=lambda d: d["name"], reverse=False)
+        return Devices(objs)
 
 
 class Interfaces(NetBoxObjectBase):
