@@ -75,3 +75,21 @@ class Diagnosis(Base):
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
+
+    def check_vlan_group(self):
+        titanet_vids = self.nb_vlans.with_groups(Slug.VLANGroup.Titanet).vids
+
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
+            ## skip if the device is not Core SW or Edge SW
+            self.nb_devices[hostname]["role"] in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ] or continue
+
+
+            for ifname, interface in device_interfaces.items():
+                condition = InterfaceCondition("VLAN Group Violation")
+
+                ## must be included in the Titanet VLAN group
+                condition.tagged_vids  = CV(titanet_vids, Cond.INCLUDED)
+                condition.untagged_vid = CV(titanet_vids, Cond.INCLUDED)
+
+                self.interface_conditions[hostname][ifname].append(condition)
+

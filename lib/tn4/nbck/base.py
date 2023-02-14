@@ -5,6 +5,7 @@ import operator
 class NetBoxObjectBase:
     def __init__(self, nb_objs):
         self.all = nb_objs
+        self.oids = [ obj["id"] for obj in nb_objs ]
 
 
     def __with_key(self, keylst, *values):
@@ -34,6 +35,11 @@ class Vlans(NetBoxObjectBase):
 
     def with_vids(self, *vids):
         objs = sorted(super().__with_key(["vid"], *vids), key=lambda v: v["vid"], reverse=False)
+        return Vlans(objs)
+
+
+    def with_groups(self, *group_slugs):
+        objs = sorted(super().__with_key(["group", "slug"], *group_slugs), key=lambda v: v["vid"], reverse=False)
         return Vlans(objs)
 
 

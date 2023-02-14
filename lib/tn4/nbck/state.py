@@ -5,6 +5,7 @@ class Condition(Flag):
     DONTCARE = auto()
     IS       = auto()
     INCLUDE  = auto()
+    INCLUDED = auto()
     EXCLUDE  = auto()
 
 
@@ -78,6 +79,7 @@ class InterfaceCondition:
 
 
 class ReportCategory(Flag):
+    WARN   = auto()
     CREATE = auto()
     UPDATE = auto()
     DELETE = auto()

@@ -21,6 +21,9 @@ class Slug:
         OokayamaWest   = "ookayama-w"
         Tamachi        = "tamachi"
 
+    class VLANGroup:
+        Titanet = "titanet"
+
     class Tag:
         Ansible                = "ansible"
         BPDUFilter             = "bpdu-filter"
