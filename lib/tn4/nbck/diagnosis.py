@@ -168,3 +168,11 @@ class Diagnosis(Base):
                 ## remove empty irb inteface from NetBox
                 condition.remove_from_nb = CV(True, Cond.IS)
 
+
+    def check_edge_core_consistency(self):
+        pass
+
+
+    def check_master_slave_tag_consistency(self):
+        pass
+
