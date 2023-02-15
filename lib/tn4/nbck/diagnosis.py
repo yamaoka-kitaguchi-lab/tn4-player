@@ -182,7 +182,15 @@ class Diagnosis(Base):
                 uplink_vids[hostname] |= set(current.tagged_vids)
                 uplink_vids[hostname] |= set(current.untagged_vid)
 
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
+            self.nb_devices[hostname]["role"] == Slug.Role.CoreSW or continue
 
+            for _, interface in device_interfaces.items():
+                current = InterfaceState(interface)
+                condition = InterfaceCondition("uplink/downlink inconsistency")
+
+                current.has_tag(Slug.Tag.CoreDownstream) or continue
+                edgename = current.description
 
 
 
