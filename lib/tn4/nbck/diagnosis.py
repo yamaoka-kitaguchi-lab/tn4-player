@@ -170,7 +170,20 @@ class Diagnosis(Base):
 
 
     def check_edge_core_consistency(self):
-        pass
+        uplink_vids = {}
+
+        ## collect all active VLANs of each edge
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
+            self.nb_devices[hostname]["role"] == Slug.Role.EdgeSW or continue
+            uplink_vids[hostname] = set()
+
+            for _, interface in device_interfaces.items():
+                current = InterfaceState(interface)
+                uplink_vids[hostname] |= set(current.tagged_vids)
+                uplink_vids[hostname] |= set(current.untagged_vid)
+
+
+
 
 
     def check_master_slave_tag_consistency(self):
