@@ -13,10 +13,15 @@ class Diagnosis(Base):
         self.nb_devices    = Devices(ctx.devices)
         self.nb_interfaces = Interfaces(ctx.interfaces)
 
+        self.device_annotations = {}
+        self.interface_annotations = {}
         self.interface_conditions = {}
+
         for hostname, device_interfaces in self.nb_interfaces.all.items():
+            self.device_annotations[hostname] = []
             for ifname, interface in device_interfaces.items():
                 self.interface_conditions.setdefault(hostname, {})[ifname] = []
+                self.interface_annotations.setdefault(hostname, {})[ifname] = []
 
 
     def check_among_tag_consistency(self):
@@ -191,7 +196,6 @@ class Diagnosis(Base):
 
                 current.has_tag(Slug.Tag.CoreDownstream) or continue
                 edgename = current.description
-
 
 
     def check_master_slave_tag_consistency(self):
