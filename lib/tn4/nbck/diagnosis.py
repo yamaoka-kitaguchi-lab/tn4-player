@@ -176,6 +176,7 @@ class Diagnosis(Base):
 
     def check_edge_core_consistency(self):
         uplink_vids = {}
+        edges = set()
 
         ## collect all active VLANs of each edge
         for hostname, device_interfaces in self.nb_interfaces.all.items():
@@ -196,6 +197,21 @@ class Diagnosis(Base):
 
                 current.has_tag(Slug.Tag.CoreDownstream) or continue
                 edgename = current.description
+                edges.add(edgename)
+
+                ## pass only in-used VLANs
+                condition.is_enabled     = CV(True, Cond.IS)
+                condition.interface_mode = CV("tagged", Cond.IS)
+                condition.tagged_vids    = CV(uplink_vids[edgename], Cond.IS)
+                condition.untagged_vid   = CV(None, Cond.IS)
+
+                self.interface_conditions[hostname][ifname].append(condition)
+
+        ## edges registered in NB but not appeared in cores' downlinks
+        neglected_edges = set(uplink_vids.keys()) - edges
+        for edgename in neglected_edges:
+            annotation = Annotation(f"neglected edge ({edgename})")
+            self.interface_annotations.append(annotation)
 
 
     def check_master_slave_tag_consistency(self):
