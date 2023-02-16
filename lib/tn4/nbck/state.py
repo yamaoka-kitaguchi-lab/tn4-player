@@ -59,6 +59,11 @@ class InterfaceState(StateBase):
         self.untagged_vid   = nb_object["untagged_vid"]
 
 
+class Annotation:
+    def __init__(self, message, severity=1):
+        self.message = message
+
+
 class InterfaceCondition:
     def __init__(self, argument, priority=100, manual_repair=False):
         self.argument            = argument

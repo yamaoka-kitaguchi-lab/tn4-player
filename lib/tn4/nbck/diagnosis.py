@@ -30,8 +30,8 @@ class Diagnosis(Base):
                 current = InterfaceState(interface)
 
                 if Slug.Tag.Keep in current.tags and Slug.Tag.Obsoleted in current.tags:
-                    condition = InterfaceCondition("tag contradiction (Keep/Obsoleted)", manual_repair=True)
-                    self.interface_conditions[hostname][ifname].append(condition)
+                    annotation = Annotation("tag contradiction (Keep/Obsoleted)")
+                    self.interface_annotations[hostname][ifname].append(annotation)
 
 
     def check_keep_tag_consistency(self):
