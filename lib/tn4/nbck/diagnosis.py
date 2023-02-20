@@ -221,5 +221,4 @@ class Diagnosis(Base):
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             self.nb_devices[hostname]["role"] == Slug.Role.EdgeSW or continue
-            current
 
