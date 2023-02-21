@@ -16,26 +16,43 @@ class ConditionalValue:
         self.value     = value
         self.condition = condition
 
+
     def __add__(self, other):
         conflicted = False
 
         conflicted |= self.condition == Condition.IS and (
             other.condition == Condition.IS       and self.value != other.value
             or
-            other.condition == Condition.INCLUDE  and other.value not in self.value
+            other.condition == Condition.INCLUDE  and other.value not in self.value  # need fix
             or
-            other.condition == Condition.EXCLUDE  and self.value in other.value
+            other.condition == Condition.INCLUDED and self.value not in other.value  # need fix
+            or
+            other.condition == Condition.EXCLUDE  and self.value in other.value  # need fix
         )
 
         conflicted |= self.condition == Condition.INCLUDE and (
-            other.condition == Condition.IS       and self.value not in other.value
+            other.condition == Condition.IS       and self.value not in other.value  # need fix
             or
-            other.condition == Condition.EXCLUDE  and self.value in other.value
+            other.condition == Condition.INCLUDED and self.value not in other.value  # need fix
+            or
+            other.condition == Condition.EXCLUDE  and self.value in other.value  # need fix
+        )
+
+        conflicted |= self.condition == Condition.INCLUDED and (
+            other.condition == Condition.IS       and self.value not in other.value  # need fix
+            or
+            other.condition == Condition.INCLUDE  and other.value not in self.value  # need fix
+        )
+
+        conflicted |= self.condition == Condition.EXCLUDE and (
+            other.condition == Condition.IS       and other.value not in self.value  # need fix
+            or
+            other.condition == Condition.INCLUDE  and other.value not in self.value  # need fix
         )
 
         if conflicted:
             self.value     = None
-            self.condition = Condition.FAIL
+            self.condition = Condition.CONFLICT
 
 
 class NetBoxObjectBase:
