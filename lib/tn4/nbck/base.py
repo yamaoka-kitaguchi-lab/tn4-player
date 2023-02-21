@@ -22,15 +22,13 @@ class ConditionalValue:
         conflicted |= self.condition == Condition.IS and (
             other.condition == Condition.IS       and self.value != other.value
             or
-            other.condition == Condition.INCLUDED and self.value not in other.value
+            other.condition == Condition.INCLUDE  and other.value not in self.value
             or
             other.condition == Condition.EXCLUDE  and self.value in other.value
         )
 
-        conflicted |= self.condition == Condition.IS and (
-            other.condition == Condition.IS       and self.value != other.value
-            or
-            other.condition == Condition.INCLUDED and self.value not in other.value
+        conflicted |= self.condition == Condition.INCLUDE and (
+            other.condition == Condition.IS       and self.value not in other.value
             or
             other.condition == Condition.EXCLUDE  and self.value in other.value
         )
