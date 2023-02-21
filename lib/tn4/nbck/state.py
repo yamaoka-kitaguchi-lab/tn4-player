@@ -1,20 +1,6 @@
 from enum import Flag, auto
 
 
-class Condition(Flag):
-    DONTCARE = auto()
-    IS       = auto()
-    INCLUDE  = auto()
-    INCLUDED = auto()
-    EXCLUDE  = auto()
-
-
-class ConditionalValue:
-    def __init__(self, value=None, condition=Condition.DONTCARE):
-        self.value     = value
-        self.condition = condition
-
-
 class StateBase:
     def __init__(self, nb_object=None):
         self.nb_object = nb_object

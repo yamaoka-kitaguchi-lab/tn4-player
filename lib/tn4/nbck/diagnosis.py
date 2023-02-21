@@ -2,8 +2,8 @@ from copy import deepcopy
 
 from tn4.netbox.slug import Slug
 from tn4.nbck.base import Base, Vlans, Devices, Interfaces
-from tn4.nbck.state import ConditionalValue as CV
-from tn4.nbck.state import Condition as Cond
+from tn4.nbck.base import Condition as Cond
+from tn4.nbck.base import ConditionalValue as CV
 from tn4.nbck.state import InterfaceCondition
 from tn4.nbck.state import DeviceState, InterfaceState
 from tn4.nbck.state import NbckReport, ReportCategory
@@ -293,7 +293,7 @@ class Diagnosis(Base):
                 if has_annotation(hostname, ifname):
                     annotations = self.interface_annotations[hostname][ifname]
 
-
+                has_condition(hostname, ifname) or continue
 
                 interface_reports.append(NbckReport(
                 ))

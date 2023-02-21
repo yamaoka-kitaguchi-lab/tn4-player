@@ -2,6 +2,44 @@ from functools import reduce
 import operator
 
 
+class Condition(Flag):
+    DONTCARE  = auto()
+    IS        = auto()
+    INCLUDE   = auto()
+    INCLUDED  = auto()
+    EXCLUDE   = auto()
+    CONFLICT  = auto()
+
+
+class ConditionalValue:
+    def __init__(self, value=None, condition=Condition.DONTCARE):
+        self.value     = value
+        self.condition = condition
+
+    def __add__(self, other):
+        conflicted = False
+
+        conflicted |= self.condition == Condition.IS and (
+            other.condition == Condition.IS       and self.value != other.value
+            or
+            other.condition == Condition.INCLUDED and self.value not in other.value
+            or
+            other.condition == Condition.EXCLUDE  and self.value in other.value
+        )
+
+        conflicted |= self.condition == Condition.IS and (
+            other.condition == Condition.IS       and self.value != other.value
+            or
+            other.condition == Condition.INCLUDED and self.value not in other.value
+            or
+            other.condition == Condition.EXCLUDE  and self.value in other.value
+        )
+
+        if conflicted:
+            self.value     = None
+            self.condition = Condition.FAIL
+
+
 class NetBoxObjectBase:
     def __init__(self, nb_objs):
         self.all = nb_objs
@@ -79,5 +117,3 @@ class Base:
         for k in keys:
             return False if s[k] != t[k]
         return True
-
-
