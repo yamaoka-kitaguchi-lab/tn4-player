@@ -241,19 +241,30 @@ class Diagnosis(Base):
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
+                desired = None
 
                 try:
                     if current.has_tag(Slug.Tag.CoreSlave):
-                        desired_slave[ifname] = deepcopy(current)
+                        desired = desired_slave[ifname]
 
                     if current.has_tag(Slug.Tag.CoreOokayamaSlave):
-                        desired_slave_o[ifname] = deepcopy(current)
+                        desired = desired_slave_o[ifname]
 
                     if current.has_tag(Slug.Tag.CoreSuzukakeSlave):
-                        desired_slave_s[ifname] = deepcopy(current)
+                        desired = desired_slave_s[ifname]
 
                 except KeyError:
                     annotation = Annotation("'slave' specified but no 'master' found")
                     self.interface_annotations[hostname][ifname].append(annotation)
+                    continue
 
+                desired is not None or continue
 
+                condition = InterfaceCondition("master/slave inconsistency")
+
+                ## copy interface settings but keep original tags
+                condition.is_enabled     = desired.is_enabled
+                condition.description    = desired.description
+                condition.interface_mode = desired.interface_mode
+                condition.tagged_vids    = desired.tagged_vids
+                condition.untagged_vid   = desired.untagged_vid
