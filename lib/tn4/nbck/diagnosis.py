@@ -271,8 +271,11 @@ class Diagnosis(Base):
 
 
     def generate_nbck_report(self):
-        device_reports = []
+        device_reports    = []
         interface_reports = []
+
+        has_annotation = lambda h, i: h in self.interface_annotations and i in self.interface_annotations[h]
+        has_condition  = lambda h, i: h in self.interface_conditions and i in self.interface_conditions[h]
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
@@ -286,9 +289,10 @@ class Diagnosis(Base):
                 ))
 
             for ifname, interface in device_interfaces.items():
+                annotations = None
+                if has_annotation(hostname, ifname):
+                    annotations = self.interface_annotations[hostname][ifname]
 
-                if hostname in self.interface_annotations and ifname in self.interface_annotations[hostname]:
-                    annotation = self.interface_annotations[hostname][ifname]
 
 
                 interface_reports.append(NbckReport(
