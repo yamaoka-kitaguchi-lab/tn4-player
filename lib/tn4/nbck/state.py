@@ -87,9 +87,10 @@ class ReportCategory(Flag):
 
 
 class NbckReport:
-    def __init__(self, category, current, desired, argument=[], message=None):
+    def __init__(self, category, current, desired, arguments=[], annotations=[]):
         self.category      = category
         self.current_state = current
         self.desired_state = desired
-        self.argument      = argument
-        self.message       = message
+        self.arguments     = arguments
+        self.annotations   = annotations
+

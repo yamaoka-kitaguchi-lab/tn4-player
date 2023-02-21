@@ -269,3 +269,30 @@ class Diagnosis(Base):
                 condition.tagged_vids    = CV(desired.tagged_vids, Cond.IS)
                 condition.untagged_vid   = CV(desired.untagged_vid, Cond.IS)
 
+
+    def generate_nbck_report(self):
+        device_reports = []
+        interface_reports = []
+
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
+
+            if hostname in self.device_annotations:
+                for annotation in self.device_annotations[hostname]:
+                    device_reports.append(NbckReport(
+                        category=ReportCategory.WARN,
+                        current=DeviceState(self.nb_devices.all[hostname]),
+                        desired=None,
+                        argument=None,
+                        message=annotation.message,
+                    ))
+
+            for ifname, interface in device_interfaces.items():
+
+                if hostname in self.interface_annotations and ifname in self.interface_annotations[hostname]:
+                    annotation = self.interface_annotations[hostname][ifname]
+
+
+                interface_reports.append(NbckReport(
+                ))
+
+
