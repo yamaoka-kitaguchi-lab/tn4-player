@@ -213,7 +213,7 @@ class Diagnosis(Base):
         neglected_edges = set(uplink_vids.keys()) - edges
         for edgename in neglected_edges:
             annotation = Annotation(f"neglected edge ({edgename})")
-            self.interface_annotations[edgename]["_"].append(annotation)
+            self.device_annotations[edgename].append(annotation)
 
 
     def check_master_slave_tag_consistency(self):
