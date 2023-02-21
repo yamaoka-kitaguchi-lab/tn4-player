@@ -260,11 +260,12 @@ class Diagnosis(Base):
 
                 desired is not None or continue
 
-                condition = InterfaceCondition("master/slave inconsistency")
+                condition = InterfaceCondition("master/slave inconsistency", priority=20)
 
                 ## copy interface settings but keep original tags
-                condition.is_enabled     = desired.is_enabled
-                condition.description    = desired.description
-                condition.interface_mode = desired.interface_mode
-                condition.tagged_vids    = desired.tagged_vids
-                condition.untagged_vid   = desired.untagged_vid
+                condition.is_enabled     = CV(desired.is_enabled, Cond.IS)
+                condition.description    = CV(desired.description, Cond.IS)
+                condition.interface_mode = CV(desired.interface_mode, Cond.IS)
+                condition.tagged_vids    = CV(desired.tagged_vids, Cond.IS)
+                condition.untagged_vid   = CV(desired.untagged_vid, Cond.IS)
+
