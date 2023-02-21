@@ -295,7 +295,14 @@ class Diagnosis(Base):
 
                 has_condition(hostname, ifname) or continue
 
+                condition = sum(self.interface_conditions[hostname][ifname])
+
                 interface_reports.append(NbckReport(
+                    category=ReportCategory.WARN,
+                    current=DeviceState(self.nb_devices.all[hostname]),
+                    desired=None,
+                    arguments=None,
+                    annotations=self.device_annotations[hostname],
                 ))
 
 
