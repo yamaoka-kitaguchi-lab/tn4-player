@@ -277,14 +277,13 @@ class Diagnosis(Base):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
             if hostname in self.device_annotations:
-                for annotation in self.device_annotations[hostname]:
-                    device_reports.append(NbckReport(
-                        category=ReportCategory.WARN,
-                        current=DeviceState(self.nb_devices.all[hostname]),
-                        desired=None,
-                        argument=None,
-                        message=annotation.message,
-                    ))
+                device_reports.append(NbckReport(
+                    category=ReportCategory.WARN,
+                    current=DeviceState(self.nb_devices.all[hostname]),
+                    desired=None,
+                    arguments=None,
+                    annotations=self.device_annotations[hostname],
+                ))
 
             for ifname, interface in device_interfaces.items():
 
