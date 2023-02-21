@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from tn4.netbox.slug import Slug
 from tn4.nbck.base import Base, Vlans, Devices, Interfaces
 from tn4.nbck.state import ConditionalValue as CV
@@ -211,7 +213,7 @@ class Diagnosis(Base):
         neglected_edges = set(uplink_vids.keys()) - edges
         for edgename in neglected_edges:
             annotation = Annotation(f"neglected edge ({edgename})")
-            self.interface_annotations.append(annotation)
+            self.interface_annotations[edgename]["_"].append(annotation)
 
 
     def check_master_slave_tag_consistency(self):
@@ -220,5 +222,38 @@ class Diagnosis(Base):
         desired_slave_s = {}
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
-            self.nb_devices[hostname]["role"] == Slug.Role.EdgeSW or continue
+            self.nb_devices[hostname]["role"] == Slug.Role.CoreSW or continue
+
+            for ifname, interface in device_interfaces.items():
+                current = InterfaceState(interface)
+
+                if current.has_tag(Slug.Tag.CoreMaster):
+                    desired_slave[ifname] = deepcopy(current)
+
+                if current.has_tag(Slug.Tag.CoreOokayamaMaster):
+                    desired_slave_o[ifname] = deepcopy(current)
+
+                if current.has_tag(Slug.Tag.CoreSuzukakeMaster):
+                    desired_slave_s[ifname] = deepcopy(current)
+
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
+            self.nb_devices[hostname]["role"] == Slug.Role.CoreSW or continue
+
+            for ifname, interface in device_interfaces.items():
+                current = InterfaceState(interface)
+
+                try:
+                    if current.has_tag(Slug.Tag.CoreSlave):
+                        desired_slave[ifname] = deepcopy(current)
+
+                    if current.has_tag(Slug.Tag.CoreOokayamaSlave):
+                        desired_slave_o[ifname] = deepcopy(current)
+
+                    if current.has_tag(Slug.Tag.CoreSuzukakeSlave):
+                        desired_slave_s[ifname] = deepcopy(current)
+
+                except KeyError:
+                    annotation = Annotation("'slave' specified but no 'master' found")
+                    self.interface_annotations[hostname][ifname].append(annotation)
+
 
