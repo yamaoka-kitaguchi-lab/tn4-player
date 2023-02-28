@@ -189,6 +189,7 @@ def print_common_usage():
                 tn4 deploy -vv
                 tn4 deploy --dryrun
                 tn4 deploy --tags test --no-vendors cisco --commit-confirm 1
+                tn4 deploy --tags test --no-vendors cisco --early-exit
                 tn4 deploy --vendors juniper --no-roles core_sw --overwrite /tmp/junos.j2
 
         `tn4 --help` list all optional command line arguments
@@ -279,6 +280,12 @@ if __name__ == "__main__":
         "--dryrun",
         action="store_true",
         help="simulate a command's result without actually running it",
+    )
+
+    deploy_parser.add_argument(
+        "--early-exit",
+        action="store_true",
+        help="just show the list of deploy targets and exit. most preferred",
     )
 
     deploy_parser.add_argument(

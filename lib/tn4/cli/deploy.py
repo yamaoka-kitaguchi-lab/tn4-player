@@ -11,6 +11,7 @@ class Deploy(CommandBase):
     def __init__(self, args):
         self.flg_use_cache         = args.use_cache
         self.flg_dryrun            = args.dryrun
+        self.flg_early_exit        = args.early_exit
         self.flg_debug             = args.debug
         self.custom_template_path  = args.overwrite_j2_path
         self.commit_confirm_min    = 0 if args.commit_confirm_min is None else args.commit_confirm_min
@@ -51,6 +52,9 @@ class Deploy(CommandBase):
         ok = self.fetch_inventory(*self.fetch_inventory_opts, debug=self.flg_debug)
         if not ok:
             return 100
+
+        if self.flg_early_exit:
+            self.console.log(f"exit.")
 
         self.append_ansible_common_vars()
 
