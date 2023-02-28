@@ -212,11 +212,13 @@ if __name__ == "__main__":
         prog="tn4",
         description="Run without arguments to see common usage",
     )
+
     subparsers = parser.add_subparsers(
         title="commands",
         description="COMMAND [ARGS]",
         dest="command",
     )
+
     add_args_to_parser(parser, DEFAULT_CLI_ARGS["generic_args"])
 
     config_parser = subparsers.add_parser(
@@ -225,24 +227,29 @@ if __name__ == "__main__":
        help="render Jinja2 templates or fetch running configs using Ansible",
        aliases=["c"],
     )
+
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+
     config_parser.add_argument(
         "--remote-fetch",
         action="store_true",
         help="fetch and save running configs using Ansible and exit",
     )
+
     config_parser.add_argument(
         "--template",
         type=jinja_path,
         help="use custom Jinja2 template instead of the defautls",
         dest="custom_j2_path"
     )
+
     config_parser.add_argument(
         "--as-ansible-inventory",
         action="store_true",
         help="export the raw inventory json instead of rendered configs",
         dest="as_inventory",
     )
+
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["positional_args"])
 
     deploy_parser = subparsers.add_parser(
@@ -251,24 +258,29 @@ if __name__ == "__main__":
         help="provisioning Titanet4 with Ansible",
         aliases=["d"],
     )
+
     add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+
     deploy_parser.add_argument(
         "--overwrite",
         type=jinja_path,
         help="use custom Jinja2 template instead of the defautls to overwrite configs",
         dest="overwrite_j2_path"
     )
+
     deploy_parser.add_argument(
         "--commit-confirm",
         type=int,
         help="set the time (minutes) to use in ```commit confirm```. only effective on juniper hosts",
         dest="commit_confirm_min",
     )
+
     deploy_parser.add_argument(
         "--dryrun",
         action="store_true",
         help="simulate a command's result without actually running it",
     )
+
     deploy_parser.add_argument(
         "-v",
         action="count",
@@ -281,12 +293,15 @@ if __name__ == "__main__":
         help="TBD: shutting down Titanet4 for the campus-wide blackout",
         aliases=["s"],
     )
+
     add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+
     #shutdown_parser.add_argument(
     #    "--reboot",
     #    action="store_true",
     #    help="request reboot instead of system halt",
     #)
+
     #shutdown_parser.add_argument(
     #    "--force",
     #    action="store_true",
