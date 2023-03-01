@@ -54,7 +54,8 @@ class Deploy(CommandBase):
             return 100
 
         if self.flg_early_exit:
-            self.console.log(f"exit.")
+            self.console.log(f"[yellow]Bye.")
+            return 0
 
         self.append_ansible_common_vars()
 
