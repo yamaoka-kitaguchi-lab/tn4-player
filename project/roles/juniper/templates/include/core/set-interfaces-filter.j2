@@ -2,6 +2,8 @@
 {% if interface.is_bpdu_filtered %}
 set interfaces {{ interface.name }} unit 0 family ethernet-switching filter input-list BPDU
 set interfaces {{ interface.name }} unit 0 family ethernet-switching filter output-list BPDU
+set interfaces {{ interface.name }} unit 0 family ethernet-switching filter input-list DEFAULT
+set interfaces {{ interface.name }} unit 0 family ethernet-switching filter output-list DEFAULT
 {% endif %}
 
 {% endif %}
