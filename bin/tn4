@@ -9,7 +9,7 @@ A command-line utility to deploy Titanet4 with Ansible and repair NetBox consist
   * tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files
   * tn4 deploy - Provisioning Titanet4 with Ansible using NetBox as inventory
   * tn4 shutdown - Shutting down Titanet4 for the campus-wide blackout
-  * tn4 netbox - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation
+  * tn4 doctor - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation
 
 Since:   October 2022
 Source:  https://github.com/yamaoka-kitaguchi-lab/tn4-player
@@ -294,30 +294,30 @@ if __name__ == "__main__":
         help="increase the verbosity with multiple v's (up to 5)",
     )
 
-    shutdown_parser = subparsers.add_parser(
-        "shutdown",
-        description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
-        help="TBD: shutting down Titanet4 for the campus-wide blackout",
-        aliases=["s"],
-    )
+    # shutdown_parser = subparsers.add_parser(
+    #     "shutdown",
+    #     description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
+    #     help="TBD: shutting down Titanet4 for the campus-wide blackout",
+    #     aliases=["s"],
+    # )
 
-    add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+    # add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
 
-    #shutdown_parser.add_argument(
-    #    "--reboot",
-    #    action="store_true",
-    #    help="request reboot instead of system halt",
-    #)
+    # shutdown_parser.add_argument(
+    #     "--reboot",
+    #     action="store_true",
+    #     help="request reboot instead of system halt",
+    # )
 
-    #shutdown_parser.add_argument(
-    #    "--force",
-    #    action="store_true",
-    #    help="ignore all warnings and skip confirmation",
-    #)
+    # shutdown_parser.add_argument(
+    #     "--force",
+    #     action="store_true",
+    #     help="ignore all warnings and skip confirmation",
+    # )
 
-    netbox_parser = subparsers.add_parser(
-        "netbox",
-        description="tn4 netbox - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation",
+    doctor_parser = subparsers.add_parser(
+        "doctor",
+        description="tn4 doctor - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation",
         help="TBD: scan and repair NetBox inconsistency with cli-based CRUD operation",
         aliases=["n"],
     )
@@ -325,7 +325,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     match args.command:
-        case "config" | "deploy" | "shutdown" | "c" | "d" | "s":
+        # case "config" | "deploy" | "shutdown" | "c" | "d" | "s":
+        case "config" | "deploy" | "doctor" | "c" | "d" | "n":
             args.hosts = csv_to_list(args.hosts)
             args.no_hosts = csv_to_list(args.no_hosts)
             args.areas = csv_to_list(args.areas)
@@ -349,9 +350,9 @@ if __name__ == "__main__":
             code = Config(args).exec()
         case "deploy" | "d":
             code = Deploy(args).exec()
-        case "shutdown" | "s":
-            code = Shutdown(args).exec()
-        case "netbox" | "n":
+        # case "shutdown" | "s":
+        #     code = Shutdown(args).exec()
+        case "doctor" | "n":
             code = NetBox(args).exec()
         case None:
             print_common_usage()
