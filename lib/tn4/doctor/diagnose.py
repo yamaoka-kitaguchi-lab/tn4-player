@@ -269,7 +269,7 @@ class Diagnose(Base):
                 condition.untagged_vid   = CV(desired.untagged_vid, Cond.IS)
 
 
-    def generate_nbck_report(self):
+    def write_karte(self):
         device_reports    = []
         interface_reports = []
 
