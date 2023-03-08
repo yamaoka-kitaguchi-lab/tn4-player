@@ -26,11 +26,17 @@ class TestCV(unittest.TestCase):
         x = CV({1,2,3}, Cond.IS)
         self.__add_and_assert(a, b, x)
 
+        c = CV({1,2}, Cond.IS)
+        self.__add_and_assert(a, c, CV(None, Cond.CONFLICT))
+
     def test_add_is_to_include(self):
         a = CV({1,2,3}, Cond.IS)
         b = CV({1,3}, Cond.INCLUDE)
         x = CV({1,2,3}, Cond.IS)
         self.__add_and_assert(a, b, x)
+
+        c = CV({1,4}, Cond.INCLUDE)
+        self.__add_and_assert(a, c, CV(None, Cond.CONFLICT))
 
     def test_add_is_to_included(self):
         a = CV({1,3}, Cond.IS)
@@ -38,11 +44,17 @@ class TestCV(unittest.TestCase):
         x = CV({1,3}, Cond.IS)
         self.__add_and_assert(a, b, x)
 
+        c = CV({2,3}, Cond.INCLUDED)
+        self.__add_and_assert(a, c, CV(None, Cond.CONFLICT))
+
     def test_add_is_to_exclude(self):
         a = CV({1,3}, Cond.IS)
         b = CV({2}, Cond.EXCLUDE)
         x = CV({1,3}, Cond.IS)
         self.__add_and_assert(a, b, x)
+
+        c = CV({1}, Cond.EXCLUDE)
+        self.__add_and_assert(a, c, CV(None, Cond.CONFLICT))
 
     def test_add_include_to_include(self):
         a = CV({1,2}, Cond.INCLUDE)
@@ -56,11 +68,17 @@ class TestCV(unittest.TestCase):
         x = CV({1,3}, Cond.INCLUDE)
         self.__add_and_assert(a, b, x)
 
+        c = CV({1,2}, Cond.INCLUDED)
+        self.__add_and_assert(a, c, CV(None, Cond.CONFLICT))
+
     def test_add_include_to_exclude(self):
         a = CV({1,3}, Cond.INCLUDE)
         b = CV({2}, Cond.EXCLUDE)
         x = CV({1,3}, Cond.INCLUDE)
         self.__add_and_assert(a, b, x)
+
+        c = CV({1,2}, Cond.EXCLUDE)
+        self.__add_and_assert(a, c, CV(None, Cond.CONFLICT))
 
     def test_add_included_to_included(self):
         a = CV({1,3}, Cond.INCLUDED)

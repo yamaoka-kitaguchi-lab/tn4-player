@@ -19,7 +19,7 @@ class ConditionalValue:
 
 
     def __add__(self, other):
-        is_subset_of = lambda a, b: len(b - a) > 0
+        is_subset_of = lambda a, b: len(a - b) == 0
         is_independent_of = lambda a, b: len(a & b) == 0
 
         ## DONTCARE
@@ -116,3 +116,10 @@ class ConditionalValue:
 
         return ConditionalValue(None, Condition.CONFLICT)
 
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+
+    def __iadd__(self, other):
+        return self.__add__(other)
