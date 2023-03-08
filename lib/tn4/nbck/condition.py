@@ -78,21 +78,35 @@ class ConditionalValue:
 
         ## INCLUDE-EXCLUDE
 
+        if self.condition == Condition.INCLUDE and other.condition == Condition.EXCLUDE:
+            if is_independent_of(other.value, self.value):
+                return ConditionalValue(self.value, self.condition)
+
+        if other.condition == Condition.INCLUDE and self.condition == Condition.EXCLUDE:
+            if is_independent_of(self.value, other.value):
+                return ConditionalValue(other.value, other.condition)
+
         ## INCLUDED-INCLUDED
+
+        if self.condition == Condition.INCLUDED and other.condition == Condition.INCLUDED:
+            v = self.value | other.value
+            return ConditionalValue(v, Condition.INCLUDED)
 
         ## INCLUDED-EXCLUDE
 
+        if self.condition == Condition.INCLUDED and other.condition == Condition.EXCLUDE:
+            v = self.value - other.value
+            return ConditionalValue(v, Condition.INCLUDED)
+
+        if other.condition == Condition.INCLUDED and self.condition == Condition.EXCLUDE:
+            v = other.value - self.value
+            return ConditionalValue(v, Condition.INCLUDED)
+
         ## EXCLUDE-EXCLUDE
 
-
-
-
-
-
+        if self.condition == Condition.EXCLUDE and other.condition == Condition.EXCLUDE:
+            v = self.value | other.value
+            return ConditionalValue(v, Condition.EXCLUDE)
 
         return ConditionalValue(None, condition.CONFLICT)
-
-
-
-
 
