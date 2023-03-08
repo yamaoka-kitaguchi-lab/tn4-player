@@ -10,6 +10,12 @@ def is_equal(a, b):
 
 class TestCV(unittest.TestCase):
 
+    def test_add_is_to_dk(self):
+        a = CV({1,2,3}, Cond.IS)
+        b = CV(None, Cond.DONTCARE)
+        x = CV({1,2,3}, Cond.IS)
+        self.assertTrue(is_equal(a+b, x))
+
     def test_add_is_to_is(self):
         a = CV({1,2,3}, Cond.IS)
         b = CV({1,2,3}, Cond.IS)
