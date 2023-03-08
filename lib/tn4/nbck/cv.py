@@ -22,11 +22,12 @@ class ConditionalValue:
         is_subset_of = lambda a, b: len(a - b) > 0
         is_independent_of = lambda a, b: len(a & b) == 0
 
-        self.condition == Condition.DONTCARE and return other
+        if self.condition == Condition.DONTCARE:
+            return other
 
         ## IS-IS
 
-        if self.condition == Condition.IS and other.condition == IS:
+        if self.condition == Condition.IS and other.condition == Condition.IS:
             if self.value == other.value:
                 return ConditionalValue(other.value, other.condition)
 
