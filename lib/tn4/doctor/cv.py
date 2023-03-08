@@ -14,8 +14,13 @@ class Condition(Flag):
 
 class ConditionalValue:
     def __init__(self, value=None, condition=Condition.DONTCARE):
-        self.value     = value
+        self.value = value
         self.condition = condition
+
+        if type(value) == list:
+            self.value = set(value)
+        if type(value) in [bool, int, str]:
+            self.value = { value }
 
 
     def __add__(self, other):
