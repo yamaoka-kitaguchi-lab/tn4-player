@@ -21,15 +21,15 @@ class InterfaceCondition:
         self.untagged_vid        = ConditionalValue()
 
 
-class ReportCategory(Flag):
+class Category(Flag):
     WARN   = auto()
     CREATE = auto()
     UPDATE = auto()
     DELETE = auto()
 
 
-class NbckReport:
-    def __init__(self, category, current, desired, arguments=[], annotations=[]):
+class Assessment:
+    def __init__(self, category, current=None, desired=None, arguments=[], annotations=[]):
         self.category      = category
         self.current_state = current
         self.desired_state = desired

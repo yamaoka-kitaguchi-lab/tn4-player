@@ -1,12 +1,11 @@
 from copy import deepcopy
 
 from tn4.netbox.slug import Slug
-from tn4.nbck.base import Base, Vlans, Devices, Interfaces
-from tn4.nbck.base import Condition as Cond
-from tn4.nbck.base import ConditionalValue as CV
-from tn4.nbck.state import InterfaceCondition
-from tn4.nbck.state import DeviceState, InterfaceState
-from tn4.nbck.state import NbckReport, ReportCategory
+from tn4.doctor.cv import Condition as Cond
+from tn4.doctor.cv import ConditionalValue as CV
+from tn4.doctor.base import Base, Vlans, Devices, Interfaces
+from tn4.doctor.state import DeviceState, InterfaceState
+from tn4.doctor.karte import InterfaceCondition, Category, Assessment
 
 
 class Diagnose(Base):
