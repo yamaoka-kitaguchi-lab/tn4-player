@@ -19,7 +19,7 @@ class ConditionalValue:
 
 
     def __add__(self, other):
-        is_subset_of = lambda a, b: len(a - b) > 0
+        is_subset_of = lambda a, b: len(b - a) > 0
         is_independent_of = lambda a, b: len(a & b) == 0
 
         ## DONTCARE
@@ -34,37 +34,37 @@ class ConditionalValue:
 
         if self.condition == Condition.IS and other.condition == Condition.IS:
             if self.value == other.value:
-                return ConditionalValue(other.value, other.condition)
+                return ConditionalValue(other.value, Condition.IS)
 
         ## IS-INCLUDE
 
         if self.condition == Condition.IS and other.condition == Condition.INCLUDE:
             if is_subset_of(other.value, self.value):
-                return ConditionalValue(self.value, self.condition)
+                return ConditionalValue(self.value, Condition.IS)
 
         if other.condition == Condition.IS and self.condition == Condition.INCLUDE:
             if is_subset_of(self.value, other.value):
-                return ConditionalValue(other.value, other.condition)
+                return ConditionalValue(other.value, Condition.IS)
 
         ## IS-INCLUDED
 
         if self.condition == Condition.IS and other.condition == Condition.INCLUDED:
             if is_subset_of(self.value, other.value):
-                return ConditionalValue(self.value, self.condition)
+                return ConditionalValue(self.value, Condition.IS)
 
         if other.condition == Condition.IS and self.condition == Condition.INCLUDED:
             if is_subset_of(other.value, self.value):
-                return ConditionalValue(other.value, other.condition)
+                return ConditionalValue(other.value, Condition.IS)
 
         ## IS-EXCLUDE
 
         if self.condition == Condition.IS and other.condition == Condition.EXCLUDE:
             if is_independent_of(self.value, other.value):
-                return ConditionalValue(self.value, self.condition)
+                return ConditionalValue(self.value, Condition.IS)
 
         if other.condition == Condition.IS and self.condition == Condition.EXCLUDE:
             if is_independent_of(other.value, self.value):
-                return ConditionalValue(other.value, other.condition)
+                return ConditionalValue(other.value, Condition.IS)
 
         ## INCLUDE-INCLUDE
 
@@ -75,22 +75,22 @@ class ConditionalValue:
         ## INCLUDE-INCLUDED
 
         if self.condition == Condition.INCLUDE and other.condition == Condition.INCLUDED:
-            if is_subset_of(other.value, self.value):
-                return ConditionalValue(self.value, self.condition)
+            if is_subset_of(self.value, other.value):
+                return ConditionalValue(self.value, Condition.INCLUDE)
 
         if other.condition == Condition.INCLUDE and self.condition == Condition.INCLUDED:
-            if is_subset_of(self.value, other.value):
-                return ConditionalValue(other.value, other.condition)
+            if is_subset_of(other.value, self.value):
+                return ConditionalValue(other.value, Condition.INCLUDE)
 
         ## INCLUDE-EXCLUDE
 
         if self.condition == Condition.INCLUDE and other.condition == Condition.EXCLUDE:
             if is_independent_of(other.value, self.value):
-                return ConditionalValue(self.value, self.condition)
+                return ConditionalValue(self.value, Condition.INCLUDE)
 
         if other.condition == Condition.INCLUDE and self.condition == Condition.EXCLUDE:
             if is_independent_of(self.value, other.value):
-                return ConditionalValue(other.value, other.condition)
+                return ConditionalValue(other.value, Condition.INCLUDE)
 
         ## INCLUDED-INCLUDED
 
