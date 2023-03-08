@@ -25,6 +25,42 @@ class Diagnose(Base):
                 self.interface_annotations.setdefault(hostname, {})[ifname] = []
 
 
+    def write_karte(self):
+        device_reports    = []
+        interface_reports = []
+
+        has_annotation = lambda h, i: h in self.interface_annotations and i in self.interface_annotations[h]
+        has_condition  = lambda h, i: h in self.interface_conditions and i in self.interface_conditions[h]
+
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
+
+            if hostname in self.device_annotations:
+                device_reports.append(NbckReport(
+                    category=ReportCategory.WARN,
+                    current=DeviceState(self.nb_devices.all[hostname]),
+                    desired=None,
+                    arguments=None,
+                    annotations=self.device_annotations[hostname],
+                ))
+
+            for ifname, interface in device_interfaces.items():
+                annotations = None
+                if has_annotation(hostname, ifname):
+                    annotations = self.interface_annotations[hostname][ifname]
+
+                has_condition(hostname, ifname) or continue
+
+                condition = sum(self.interface_conditions[hostname][ifname])
+
+                interface_reports.append(NbckReport(
+                    category=ReportCategory.WARN,
+                    current=DeviceState(self.nb_devices.all[hostname]),
+                    desired=None,
+                    arguments=None,
+                    annotations=self.device_annotations[hostname],
+                ))
+
+
     def check_among_tag_consistency(self):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             for ifname, interface in device_interfaces.items():
@@ -267,41 +303,4 @@ class Diagnose(Base):
                 condition.interface_mode = CV(desired.interface_mode, Cond.IS)
                 condition.tagged_vids    = CV(desired.tagged_vids, Cond.IS)
                 condition.untagged_vid   = CV(desired.untagged_vid, Cond.IS)
-
-
-    def write_karte(self):
-        device_reports    = []
-        interface_reports = []
-
-        has_annotation = lambda h, i: h in self.interface_annotations and i in self.interface_annotations[h]
-        has_condition  = lambda h, i: h in self.interface_conditions and i in self.interface_conditions[h]
-
-        for hostname, device_interfaces in self.nb_interfaces.all.items():
-
-            if hostname in self.device_annotations:
-                device_reports.append(NbckReport(
-                    category=ReportCategory.WARN,
-                    current=DeviceState(self.nb_devices.all[hostname]),
-                    desired=None,
-                    arguments=None,
-                    annotations=self.device_annotations[hostname],
-                ))
-
-            for ifname, interface in device_interfaces.items():
-                annotations = None
-                if has_annotation(hostname, ifname):
-                    annotations = self.interface_annotations[hostname][ifname]
-
-                has_condition(hostname, ifname) or continue
-
-                condition = sum(self.interface_conditions[hostname][ifname])
-
-                interface_reports.append(NbckReport(
-                    category=ReportCategory.WARN,
-                    current=DeviceState(self.nb_devices.all[hostname]),
-                    desired=None,
-                    arguments=None,
-                    annotations=self.device_annotations[hostname],
-                ))
-
 
