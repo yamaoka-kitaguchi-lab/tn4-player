@@ -44,39 +44,3 @@ class InterfaceState(StateBase):
         self.tagged_vids    = nb_object["tagged_vids"]
         self.untagged_vid   = nb_object["untagged_vid"]
 
-
-class Annotation:
-    def __init__(self, message, severity=1):
-        self.message = message
-
-
-class InterfaceCondition:
-    def __init__(self, argument, priority=100, manual_repair=False):
-        self.argument            = argument
-        self.priority            = priority
-        self.manual_repair       = manual_repair  # if true, nbck skips repairing but just present messages
-        self.remove_from_nb      = ConditionalValue()
-
-        self.is_enabled          = ConditionalValue()
-        self.description         = ConditionalValue()
-        self.tags                = ConditionalValue()
-        self.is_tagged_vlan_mode = ConditionalValue()
-        self.tagged_vids         = ConditionalValue()
-        self.untagged_vid        = ConditionalValue()
-
-
-class ReportCategory(Flag):
-    WARN   = auto()
-    CREATE = auto()
-    UPDATE = auto()
-    DELETE = auto()
-
-
-class NbckReport:
-    def __init__(self, category, current, desired, arguments=[], annotations=[]):
-        self.category      = category
-        self.current_state = current
-        self.desired_state = desired
-        self.arguments     = arguments
-        self.annotations   = annotations
-

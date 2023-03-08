@@ -9,7 +9,7 @@ from tn4.nbck.state import DeviceState, InterfaceState
 from tn4.nbck.state import NbckReport, ReportCategory
 
 
-class Diagnosis(Base):
+class Diagnose(Base):
     def __init__(self, ctx):
         self.nb_vlans      = Vlans(ctx.vlans)
         self.nb_devices    = Devices(ctx.devices)
