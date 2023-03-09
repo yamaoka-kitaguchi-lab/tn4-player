@@ -1,4 +1,6 @@
+from functools import reduce
 import unittest
+import operator
 
 from cv import Condition as Cond
 from cv import ConditionalValue as CV
@@ -98,6 +100,18 @@ class TestCV(unittest.TestCase):
         x = CV({1,2,3}, Cond.EXCLUDE)
         self.__add_and_assert(a, b, x)
 
+    def test_summation(self):
+        a = CV({1,2}, Cond.INCLUDE)
+        b = CV({2,3}, Cond.INCLUDE)
+        c = CV({1,2,3,4}, Cond.INCLUDED)
+        d = CV({4}, Cond.EXCLUDE)
+        x = CV({1,2,3}, Cond.INCLUDE)
+        self.assertTrue(is_equal(a+b+c+d, x))
+        self.assertTrue(is_equal(reduce(operator.add, [a,b,c,d]), x))
+
 
 if __name__ == "__main__":
     unittest.main()
+
+
+

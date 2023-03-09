@@ -26,8 +26,8 @@ class Diagnose(Base):
 
 
     def write_karte(self):
-        device_reports    = []
-        interface_reports = []
+        device_karte    = []
+        interface_karte = []
 
         has_annotation = lambda h, i: h in self.interface_annotations and i in self.interface_annotations[h]
         has_condition  = lambda h, i: h in self.interface_conditions and i in self.interface_conditions[h]
@@ -35,8 +35,8 @@ class Diagnose(Base):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
             if hostname in self.device_annotations:
-                device_reports.append(NbckReport(
-                    category=ReportCategory.WARN,
+                device_karte.append(Assessment(
+                    category=Category.WARN,
                     current=DeviceState(self.nb_devices.all[hostname]),
                     desired=None,
                     arguments=None,
@@ -52,8 +52,8 @@ class Diagnose(Base):
 
                 condition = sum(self.interface_conditions[hostname][ifname])
 
-                interface_reports.append(NbckReport(
-                    category=ReportCategory.WARN,
+                interface_karte.append(Assessment(
+                    category=Category.WARN,
                     current=DeviceState(self.nb_devices.all[hostname]),
                     desired=None,
                     arguments=None,
@@ -61,7 +61,7 @@ class Diagnose(Base):
                 ))
 
 
-    def check_among_tag_consistency(self):
+    def check_tag_to_tag_consistency(self):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
