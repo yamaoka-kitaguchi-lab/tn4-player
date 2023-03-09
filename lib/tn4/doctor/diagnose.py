@@ -1,4 +1,6 @@
 from copy import deepcopy
+from functools import reduce
+import operator
 
 from tn4.netbox.slug import Slug
 from tn4.doctor.cv import Condition as Cond
@@ -50,7 +52,7 @@ class Diagnose(Base):
 
                 has_condition(hostname, ifname) or continue
 
-                condition = sum(self.interface_conditions[hostname][ifname])
+                condition = reduce(operator.add, self.interface_conditions[hostname][ifname])
 
                 interface_karte.append(Assessment(
                     category=Category.WARN,
