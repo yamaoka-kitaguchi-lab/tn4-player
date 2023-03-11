@@ -52,10 +52,6 @@ class Diagnose(Base):
 
                 has_condition(hostname, ifname) or continue
 
-                self.interface_conditions[hostname][ifname]
-
-
-
                 condition = reduce(operator.add, self.interface_conditions[hostname][ifname])
 
                 desired = ...
