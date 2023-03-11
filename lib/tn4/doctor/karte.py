@@ -9,12 +9,11 @@ class Annotation:
 
 
 class InterfaceCondition:
-    def __init__(self, argument, priority=100, manual_repair=False):
+    def __init__(self, argument, manual_repair=False):
         self.argument            = argument
-        self.priority            = priority
         self.manual_repair       = manual_repair  # if true, nbck skips repairing but just present messages
-        self.remove_from_nb      = ConditionalValue()
 
+        self.remove_from_nb      = ConditionalValue()
         self.is_enabled          = ConditionalValue()
         self.description         = ConditionalValue()
         self.tags                = ConditionalValue()
@@ -25,10 +24,10 @@ class InterfaceCondition:
 
     def __add__(self, other):
         argument      = flatten([self.argument, other.argument])  # concatinate as list
-        priority      = min(self.priority, other.priority)        # lower is prior
         manual_repair = self.manual_repair | other.manual_repair
 
         condition = InterfaceCondition(argument, priority, manual_repair)
+        condition.remove_from_nb      = self.remove_from_nb + other.remove_from_nb
         condition.is_enabled          = self.is_enabled + other.is_enabled
         condition.description         = self.description + other.description
         condition.tags                = self.tags + other.tags

@@ -27,6 +27,9 @@ class Diagnose(Base):
                 self.interface_annotations.setdefault(hostname, {})[ifname] = []
 
 
+    def __
+
+
     def write_karte(self):
         device_karte    = []
         interface_karte = []
@@ -54,13 +57,16 @@ class Diagnose(Base):
 
                 condition = reduce(operator.add, self.interface_conditions[hostname][ifname])
 
-                desired = ...
+                desired = InterfaceState(self.nb_interfaces.all[hostname][ifname])
+                desired.is_enabled = condition.is_enabled.value
+
+
 
                 interface_karte.append(Assessment(
                     category=Category.WARN,
-                    current=DeviceState(self.nb_devices.all[hostname]),
-                    desired=None,
-                    arguments=None,
+                    current=InterfaceState(self.nb_interfaces.all[hostname][ifname]),
+                    desired=desired,
+                    arguments=condition.argument,
                     annotations=self.device_annotations[hostname],
                 ))
 
@@ -79,16 +85,16 @@ class Diagnose(Base):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("tag operation (Keep)", priority=10)
+                condition = InterfaceCondition("tag operation (Keep)")
 
                 ## skip if the interface does not have 'keep' tag
                 current.has_tag(Slug.Tag.Keep) or continue
 
                 ## must be disabled
-                condition.is_enabled = CV(False, Cond.IS)
+                condition.is_enabled = CV(False, Cond.IS, priority=10)
 
                 ## must not have 'keep' tag
-                condition.tags = CV(Slug.Tag.Keep, Cond.EXCLUDE)
+                condition.tags = CV(Slug.Tag.Keep, Cond.EXCLUDE, priority=10)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
@@ -97,18 +103,18 @@ class Diagnose(Base):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("tag operation (Obsoleted)", priority=11)
+                condition = InterfaceCondition("tag operation (Obsoleted)")
 
                 ## skip if the interface does not have 'obsoleted' tag
                 current.has_tag(Slug.Tag.Obsoleted) or continue
 
                 ## must be cleared
-                condition.is_enabled = CV(False, Cond.IS)
-                condition.description = CV(None, Cond.IS)
-                condition.tags = CV(None, Cond.IS)
-                condition.interface_mode = CV(None, Cond.IS)
-                condition.tagged_vids = CV(None, Cond.IS)
-                condition.untagged_vid = CV(None, Cond.IS)
+                condition.is_enabled     = CV(False, Cond.IS, priority=11)
+                condition.description    = CV(None, Cond.IS, priority=11)
+                condition.tags           = CV(None, Cond.IS, priority=11)
+                condition.interface_mode = CV(None, Cond.IS, priority=11)
+                condition.tagged_vids    = CV(None, Cond.IS, priority=11)
+                condition.untagged_vid   = CV(None, Cond.IS, priority=11)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
@@ -299,12 +305,12 @@ class Diagnose(Base):
 
                 desired is not None or continue
 
-                condition = InterfaceCondition("master/slave inconsistency", priority=20)
+                condition = InterfaceCondition("master/slave inconsistency")
 
                 ## copy interface settings but keep original tags
-                condition.is_enabled     = CV(desired.is_enabled, Cond.IS)
-                condition.description    = CV(desired.description, Cond.IS)
-                condition.interface_mode = CV(desired.interface_mode, Cond.IS)
-                condition.tagged_vids    = CV(desired.tagged_vids, Cond.IS)
-                condition.untagged_vid   = CV(desired.untagged_vid, Cond.IS)
+                condition.is_enabled     = CV(desired.is_enabled, Cond.IS, priority=20)
+                condition.description    = CV(desired.description, Cond.IS, priority=20)
+                condition.interface_mode = CV(desired.interface_mode, Cond.IS, priority=20)
+                condition.tagged_vids    = CV(desired.tagged_vids, Cond.IS, priority=20)
+                condition.untagged_vid   = CV(desired.untagged_vid, Cond.IS, priority=20)
 
