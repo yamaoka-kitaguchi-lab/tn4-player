@@ -5,8 +5,6 @@ import operator
 class NetBoxObjectBase:
     def __init__(self, nb_objs):
         self.all = nb_objs
-        self.oids = [ obj["id"] for obj in nb_objs ]
-
 
     def __with_key(self, keylst, *values):
         matched = set()
@@ -30,7 +28,7 @@ class NetBoxObjectBase:
 class Vlans(NetBoxObjectBase):
     def __init__(self, nb_objs):
         super().__init__(nb_objs)
-        self.vids = [ obj["vid"] for obj in nb_objs ]
+        self.vids = [ obj["vid"] for obj in nb_objs.values() ]
 
 
     def with_vids(self, *vids):
@@ -51,7 +49,7 @@ class Vlans(NetBoxObjectBase):
 class Devices(NetBoxObjectBase):
     def __init__(self, nb_objs):
         super().__init__(nb_objs)
-        self.hostnames = [ obj["name"] for obj in nb_objs ]
+        self.hostnames = [ obj["name"] for obj in nb_objs.values() ]
 
 
     def with_hostnames(self, *hostnames):

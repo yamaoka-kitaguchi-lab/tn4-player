@@ -37,7 +37,7 @@ class Doctor(CommandBase):
             diag.check_tag_to_tag_consistency()
             self.console.log(f"[yellow]Checked inter-tag consistency")
 
-        if flg_diagnosis_only:
+        if self.flg_diagnosis_only:
             return 0
 
         return 0
