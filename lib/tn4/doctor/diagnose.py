@@ -154,6 +154,7 @@ class Diagnose(Base):
         wifi_s_dplane_vids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.VlanSuzukake).vids
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
+            print(self.nb_devices.all.keys())
             device = self.nb_devices.all[hostname]
 
             cplane_vid, dplane_vids = None, None
