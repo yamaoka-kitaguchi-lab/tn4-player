@@ -1,4 +1,5 @@
 from pprint import pprint
+from datetime import datetime
 import time
 import os
 
@@ -8,9 +9,10 @@ from tn4.doctor.diagnose import Diagnose
 
 class Doctor(CommandBase):
     def __init__(self, args):
-        self.flg_diagnosis_only    = args.diagnosis_only
-        self.flg_force_repair      = args.force_repair
-        self.flg_debug             = args.debug
+        self.flg_diagnosis_only = args.diagnosis_only
+        self.flg_force_repair   = args.force_repair
+        self.flg_use_cache      = args.use_cache
+        self.flg_debug          = args.debug
 
         n = datetime.now()
         ts = n.strftime("%Y-%m-%d@%H-%M-%S")
@@ -18,7 +20,7 @@ class Doctor(CommandBase):
 
 
     def exec(self):
-        ok = self.fetch_inventory(debug=self.flg_debug)
+        ok = self.fetch_inventory(use_cache=self.flg_use_cache, debug=self.flg_debug)
         if not ok:
             return 100
 

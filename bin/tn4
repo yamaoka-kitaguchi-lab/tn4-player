@@ -74,6 +74,15 @@ DEFAULT_CLI_ARGS = {
             ),
         ),
         (
+            ("--debug",),
+            dict(
+                action="store_true",
+                help="enable tn4-cli debug mode. only for developers and should NOT be set if you don't know what to expect",
+            ),
+        ),
+    ),
+    "netbox_args": (
+        (
             ("--netbox-url",),
             dict(
                 type=str,
@@ -85,6 +94,13 @@ DEFAULT_CLI_ARGS = {
             dict(
                 type=str,
                 help="custom NetBox API token",
+            ),
+        ),
+        (
+            ("--use-cache",),
+            dict(
+                action="store_true",
+                help="skip NetBox fetching and use local cache if available (~/.cache/tn4-player/*.cache)",
             ),
         ),
     ),
@@ -159,13 +175,13 @@ DEFAULT_CLI_ARGS = {
                 help="inverted option of ```--tags```",
             ),
         ),
-        (
-            ("--use-cache",),
-            dict(
-                action="store_true",
-                help="skip NetBox fetching and use local cache if available (~/.cache/tn4-player/*.cache)",
-            ),
-        ),
+        #(
+        #    ("--use-cache",),
+        #    dict(
+        #        action="store_true",
+        #        help="skip NetBox fetching and use local cache if available (~/.cache/tn4-player/*.cache)",
+        #    ),
+        #),
     )
 
 }
@@ -236,6 +252,7 @@ if __name__ == "__main__":
        #aliases=["c"],
     )
 
+    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["netbox_args"])
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
 
     config_parser.add_argument(
@@ -267,6 +284,7 @@ if __name__ == "__main__":
         #aliases=["d"],
     )
 
+    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["netbox_args"])
     add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
 
     deploy_parser.add_argument(
@@ -328,6 +346,8 @@ if __name__ == "__main__":
         help="scan and repair NetBox inconsistency with cli-based CRUD operation",
         #aliases=["n"],
     )
+
+    add_args_to_parser(doctor_parser, DEFAULT_CLI_ARGS["netbox_args"])
 
     doctor_parser.add_argument(
         "--diagnosis-only",
