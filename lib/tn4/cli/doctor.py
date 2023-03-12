@@ -40,7 +40,7 @@ class Doctor(CommandBase):
             diag.check_keep_tag_consistency()
             self.console.log(f"[yellow]Checked 'Keep' tag consistency")
 
-            diag.check_obsleted_tag_consistency()
+            diag.check_obsoleted_tag_consistency()
             self.console.log(f"[yellow]Checked 'Obsoleted' tag consistency")
 
             diag.check_wifi_tag_consistency()
@@ -63,5 +63,7 @@ class Doctor(CommandBase):
 
         if self.flg_diagnosis_only:
             return 0
+
+        kartes = diag.write_karte()
 
         return 0

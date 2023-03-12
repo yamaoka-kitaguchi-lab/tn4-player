@@ -6,15 +6,18 @@ class NetBoxObjectBase:
     def __init__(self, nb_objs):
         self.all = nb_objs
 
-    def __with_key(self, keylst, *values):
-        matched = set()
 
-        for obj in self.all:
+    def __with_key(self, keylst, *values):
+        matched = []
+        matched_ids = []
+
+        for obj in self.all.values():
             for value in values:
                 obj_values = reduce(operator.getitem, keylst, obj)
-                value in obj_values and matched.add(obj)
+                if value in obj_values and obj["id"] not in matched_ids:
+                    matched.append(obj)
 
-        return list(matched)
+        return matched
 
 
     def with_names(self, *names):
@@ -22,7 +25,7 @@ class NetBoxObjectBase:
 
 
     def with_tags(self, *tags):
-        return self.__with_key(["tag"], *names)
+        return self.__with_key(["tags"], *tags)
 
 
 class Vlans(NetBoxObjectBase):

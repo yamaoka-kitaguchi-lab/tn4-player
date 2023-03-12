@@ -1,5 +1,6 @@
 from enum import Flag, auto
 
+from tn4.doctor.cv import ConditionalValue
 from tn4.helper.utils import flatten
 
 

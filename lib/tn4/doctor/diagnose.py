@@ -93,6 +93,8 @@ class Diagnose(Base):
                     annotations=annotations,
                 ))
 
+        return device_karte, interface_karte
+
 
     def check_tag_to_tag_consistency(self):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
