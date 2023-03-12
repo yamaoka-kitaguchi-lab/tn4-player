@@ -74,10 +74,17 @@ DEFAULT_CLI_ARGS = {
             ),
         ),
         (
-            ("--debug",),
+            ("--netbox-url",),
             dict(
-                action="store_true",
-                help="enable tn4-cli debug mode. only for developers and should NOT be set if you don't know what to expect",
+                type=str,
+                help="custom NetBox API endpoint (e.g. http://netbox00.m.noc.titech.ac.jp/api)",
+            ),
+        ),
+        (
+            ("--netbox-token",),
+            dict(
+                type=str,
+                help="custom NetBox API token",
             ),
         ),
     ),
@@ -226,7 +233,7 @@ if __name__ == "__main__":
        "config",
        description="tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files",
        help="render Jinja2 templates or fetch running configs using Ansible",
-       aliases=["c"],
+       #aliases=["c"],
     )
 
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
@@ -257,7 +264,7 @@ if __name__ == "__main__":
         "deploy",
         description="tn4 deploy - Provisioning Titanet4 with Ansible using NetBox as inventory",
         help="provisioning Titanet4 with Ansible",
-        aliases=["d"],
+        #aliases=["d"],
     )
 
     add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
@@ -298,7 +305,7 @@ if __name__ == "__main__":
     #     "shutdown",
     #     description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
     #     help="TBD: shutting down Titanet4 for the campus-wide blackout",
-    #     aliases=["s"],
+    #     #aliases=["s"],
     # )
 
     # add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
@@ -318,15 +325,27 @@ if __name__ == "__main__":
     doctor_parser = subparsers.add_parser(
         "doctor",
         description="tn4 doctor - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation",
-        help="TBD: scan and repair NetBox inconsistency with cli-based CRUD operation",
-        aliases=["n"],
+        help="scan and repair NetBox inconsistency with cli-based CRUD operation",
+        #aliases=["n"],
+    )
+
+    doctor.add_argument(
+        "--diagnosis-only",
+        action="store_true",
+        help="scan NetBox, present diagnosis report, and exit",
+    )
+
+    doctor.add_argument(
+        "--force-repair",
+        action="store_true",
+        help="skip confirmation and perform NetBox repair immediately if needed",
     )
 
     args = parser.parse_args()
 
     match args.command:
-        # case "config" | "deploy" | "shutdown" | "c" | "d" | "s":
-        case "config" | "deploy" | "doctor" | "c" | "d" | "n":
+        # case "config" | "deploy" | "shutdown" | "doctor" | "c" | "d" | "s" | "n":
+        case "config" | "deploy":
             args.hosts = csv_to_list(args.hosts)
             args.no_hosts = csv_to_list(args.no_hosts)
             args.areas = csv_to_list(args.areas)
