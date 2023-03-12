@@ -13,7 +13,7 @@ class Condition(Flag):
 
 
 class ConditionalValue:
-    def __init__(self, value=None, condition=Condition.DONTCARE, priority=100):
+    def __init__(self, value=None, condition=Condition.DONTCARE, priority=0):
         self.value     = value
         self.condition = condition
         self.priority  = priority
@@ -39,9 +39,9 @@ class ConditionalValue:
         ## IS-IS
 
         if self.condition == Condition.IS and other.condition == Condition.IS:
-            if self.value == other.value or self.value != other.value and self.priority < other.priority:
+            if self.value == other.value or self.value != other.value and self.priority > other.priority:
                 return ConditionalValue(other.value, Condition.IS)
-            elif self.value != other.value and self.priority > other.priority:
+            elif self.value != other.value and self.priority < other.priority:
                 return ConditionalValue(self.value, Condition.IS)
 
         ## IS-INCLUDE
@@ -69,14 +69,14 @@ class ConditionalValue:
         if self.condition == Condition.IS and other.condition == Condition.EXCLUDE:
             if is_independent_of(self.value, other.value):
                 return ConditionalValue(self.value, Condition.IS)
-            elif self.priority < other.priority:
+            elif self.priority > other.priority:
                 v = self.value - other.value
                 return ConditionalValue(v, Condition.IS)
 
         if other.condition == Condition.IS and self.condition == Condition.EXCLUDE:
             if is_independent_of(other.value, self.value):
                 return ConditionalValue(other.value, Condition.IS)
-            elif other.priority < self.priority:
+            elif other.priority > self.priority:
                 v = other.value - self.value
                 return ConditionalValue(v, Condition.IS)
 

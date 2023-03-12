@@ -27,7 +27,25 @@ class Diagnose(Base):
                 self.interface_annotations.setdefault(hostname, {})[ifname] = []
 
 
-    def __
+    def __interface_condition_to_desired_state(self, hostname, ifname, condition):
+        is_ok = Cond.CONFLICT in [ condition.is_enabled.condition,
+                                   condition.description.condition,
+                                   condition.tags.condition,
+                                   condition.is_tagged_vlan_mode.condition,
+                                   condition.tagged_vids.condition,
+                                   condition.untagged_vid.condition, ]
+        if not is_ok:
+            return None, is_ok
+
+        desired = InterfaceState(self.nb_interfaces.all[hostname][ifname])
+        desired.is_enabled          = condition.is_enabled.value
+        desired.description         = condition..value
+        desired.tags                = condition.tags.value
+        desired.is_tagged_vlan_mode = condition.is_tagged_vlan_mode.value
+        desired.tagged_vids         = condition.tagged_vids.value
+        desired.untagged_vid        = condition.untagged_vid.value
+
+        return desired, is_ok
 
 
     def write_karte(self):
@@ -56,18 +74,22 @@ class Diagnose(Base):
                 has_condition(hostname, ifname) or continue
 
                 condition = reduce(operator.add, self.interface_conditions[hostname][ifname])
+                desired, ok = self.__interface_condition_to_desired_state(hostname, ifname, condition)
 
-                desired = InterfaceState(self.nb_interfaces.all[hostname][ifname])
-                desired.is_enabled = condition.is_enabled.value
+                category = Category.UPDATE
+                annotations = self.device_annotations[hostname]
 
+                if not ok:
+                    category = Category.WARN
+                    annotations = [ "invalid condition" ]
 
-
+                arguments = condition.argument
                 interface_karte.append(Assessment(
-                    category=Category.WARN,
+                    category=category,
                     current=InterfaceState(self.nb_interfaces.all[hostname][ifname]),
                     desired=desired,
-                    arguments=condition.argument,
-                    annotations=self.device_annotations[hostname],
+                    arguments=arguments,
+                    annotations=annotations,
                 ))
 
 
@@ -91,10 +113,10 @@ class Diagnose(Base):
                 current.has_tag(Slug.Tag.Keep) or continue
 
                 ## must be disabled
-                condition.is_enabled = CV(False, Cond.IS, priority=10)
+                condition.is_enabled = CV(False, Cond.IS, priority=1)
 
                 ## must not have 'keep' tag
-                condition.tags = CV(Slug.Tag.Keep, Cond.EXCLUDE, priority=10)
+                condition.tags = CV(Slug.Tag.Keep, Cond.EXCLUDE, priority=1)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
@@ -109,12 +131,12 @@ class Diagnose(Base):
                 current.has_tag(Slug.Tag.Obsoleted) or continue
 
                 ## must be cleared
-                condition.is_enabled     = CV(False, Cond.IS, priority=11)
-                condition.description    = CV(None, Cond.IS, priority=11)
-                condition.tags           = CV(None, Cond.IS, priority=11)
-                condition.interface_mode = CV(None, Cond.IS, priority=11)
-                condition.tagged_vids    = CV(None, Cond.IS, priority=11)
-                condition.untagged_vid   = CV(None, Cond.IS, priority=11)
+                condition.is_enabled     = CV(False, Cond.IS, priority=2)
+                condition.description    = CV(None, Cond.IS, priority=2)
+                condition.tags           = CV(None, Cond.IS, priority=2)
+                condition.interface_mode = CV(None, Cond.IS, priority=2)
+                condition.tagged_vids    = CV(None, Cond.IS, priority=2)
+                condition.untagged_vid   = CV(None, Cond.IS, priority=2)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
