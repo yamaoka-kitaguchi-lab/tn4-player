@@ -37,6 +37,30 @@ class Doctor(CommandBase):
             diag.check_tag_to_tag_consistency()
             self.console.log(f"[yellow]Checked inter-tag consistency")
 
+            diag.check_keep_tag_consistency()
+            self.console.log(f"[yellow]Checked 'Keep' tag consistency")
+
+            diag.check_obsleted_tag_consistency()
+            self.console.log(f"[yellow]Checked 'Obsoleted' tag consistency")
+
+            diag.check_wifi_tag_consistency()
+            self.console.log(f"[yellow]Checked 'Wi-Fi' tag consistency")
+
+            diag.check_hosting_tag_consistency()
+            self.console.log(f"[yellow]Checked 'Hosting' tag consistency")
+
+            diag.check_vlan_group_consistency()
+            self.console.log(f"[yellow]Checked VLAN group consistency")
+
+            diag.check_and_remove_empty_irb()
+            self.console.log(f"[yellow]Checked empty irb")
+
+            diag.check_edge_core_consistency()
+            self.console.log(f"[yellow]Checked Edge/Core consistency")
+
+            diag.check_master_slave_tag_consistency()
+            self.console.log(f"[yellow]Checked Master/Slave consistency")
+
         if self.flg_diagnosis_only:
             return 0
 
