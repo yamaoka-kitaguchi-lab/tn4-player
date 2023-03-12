@@ -39,7 +39,7 @@ class Diagnose(Base):
 
         desired = InterfaceState(self.nb_interfaces.all[hostname][ifname])
         desired.is_enabled          = condition.is_enabled.value
-        desired.description         = condition..value
+        desired.description         = condition.description.value
         desired.tags                = condition.tags.value
         desired.is_tagged_vlan_mode = condition.is_tagged_vlan_mode.value
         desired.tagged_vids         = condition.tagged_vids.value
@@ -71,7 +71,8 @@ class Diagnose(Base):
                 if has_annotation(hostname, ifname):
                     annotations = self.interface_annotations[hostname][ifname]
 
-                has_condition(hostname, ifname) or continue
+                if not has_condition(hostname, ifname):
+                    continue
 
                 condition = reduce(operator.add, self.interface_conditions[hostname][ifname])
                 desired, ok = self.__interface_condition_to_desired_state(hostname, ifname, condition)
@@ -110,7 +111,8 @@ class Diagnose(Base):
                 condition = InterfaceCondition("tag operation (Keep)")
 
                 ## skip if the interface does not have 'keep' tag
-                current.has_tag(Slug.Tag.Keep) or continue
+                if not current.has_tag(Slug.Tag.Keep):
+                    continue
 
                 ## must be disabled
                 condition.is_enabled = CV(False, Cond.IS, priority=1)
@@ -128,7 +130,8 @@ class Diagnose(Base):
                 condition = InterfaceCondition("tag operation (Obsoleted)")
 
                 ## skip if the interface does not have 'obsoleted' tag
-                current.has_tag(Slug.Tag.Obsoleted) or continue
+                if not current.has_tag(Slug.Tag.Obsoleted):
+                    continue
 
                 ## must be cleared
                 condition.is_enabled     = CV(False, Cond.IS, priority=2)
@@ -165,7 +168,8 @@ class Diagnose(Base):
                 condition = InterfaceCondition("tag violation (Wi-Fi)")
 
                 ## skip if the interface is not for AP
-                current.has("is_to_ap") or continue
+                if not current.has("is_to_ap"):
+                    continue
 
                 ## must be 'tagged' mode
                 condition.interface_mode = CV("tagged", Cond.IS)
@@ -188,7 +192,8 @@ class Diagnose(Base):
                 condition = InterfaceCondition("tag violation (Hosting)")
 
                 ## skip if the interface is not for hosting
-                current.has_tag(Slug.Tag.Hosting) or continue
+                if not current.has_tag(Slug.Tag.Hosting):
+                    continue
 
                 ## must be 'tagged' mode
                 condition.interface_mode = CV("tagged", Cond.IS)
@@ -204,7 +209,8 @@ class Diagnose(Base):
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             ## skip if the device is not Core SW or Edge SW
-            self.nb_devices[hostname]["role"] in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ] or continue
+            if self.nb_devices[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
+                continue
 
             for ifname, interface in device_interfaces.items():
                 condition = InterfaceCondition("VLAN group violation", manual_repair=True)
@@ -222,7 +228,8 @@ class Diagnose(Base):
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("interface mode inconsistency")
 
-                current.interface_mode != None or continue
+                if current.interface_mode is None:
+                    continue
 
                 ## interface mode must be cleared if no VLANs are attached
                 if len(current.tagged_vids) == 0 and untagged_vid == None:
@@ -237,7 +244,8 @@ class Diagnose(Base):
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("obsoleted interface")
 
-                ifname[:4] == "irb." and current.interface_mode is None or continue
+                if ifname[:4] != "irb." or current.interface_mode is not None:
+                    continue
 
                 ## remove empty irb inteface from NetBox
                 condition.remove_from_nb = CV(True, Cond.IS)
@@ -249,7 +257,9 @@ class Diagnose(Base):
 
         ## collect all active VLANs of each edge
         for hostname, device_interfaces in self.nb_interfaces.all.items():
-            self.nb_devices[hostname]["role"] == Slug.Role.EdgeSW or continue
+            if self.nb_devices[hostname]["role"] != Slug.Role.EdgeSW:
+                continue
+
             uplink_vids[hostname] = set()
 
             for _, interface in device_interfaces.items():
@@ -258,13 +268,16 @@ class Diagnose(Base):
                 uplink_vids[hostname] |= set(current.untagged_vid)
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
-            self.nb_devices[hostname]["role"] == Slug.Role.CoreSW or continue
+            if self.nb_devices[hostname]["role"] != Slug.Role.CoreSW:
+                continue
 
             for _, interface in device_interfaces.items():
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("uplink/downlink inconsistency")
 
-                current.has_tag(Slug.Tag.CoreDownstream) or continue
+                if not current.has_tag(Slug.Tag.CoreDownstream):
+                    continue
+
                 edgename = current.description
                 edges.add(edgename)
 
@@ -289,7 +302,8 @@ class Diagnose(Base):
         desired_slave_s = {}
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
-            self.nb_devices[hostname]["role"] == Slug.Role.CoreSW or continue
+            if self.nb_devices[hostname]["role"] != Slug.Role.CoreSW:
+                continue
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
@@ -304,7 +318,8 @@ class Diagnose(Base):
                     desired_slave_s[ifname] = deepcopy(current)
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
-            self.nb_devices[hostname]["role"] == Slug.Role.CoreSW or continue
+            if self.nb_devices[hostname]["role"] != Slug.Role.CoreSW:
+                continue
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
@@ -325,7 +340,8 @@ class Diagnose(Base):
                     self.interface_annotations[hostname][ifname].append(annotation)
                     continue
 
-                desired is not None or continue
+                if desired is None:
+                    continue
 
                 condition = InterfaceCondition("master/slave inconsistency")
 

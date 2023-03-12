@@ -44,7 +44,7 @@ class Vlans(NetBoxObjectBase):
 
 
     def with_tags(self, *tags):
-        objs = sorted(super().with_tags(*tags), key=lambda v: v["vid"], reverse=False))
+        objs = sorted(super().with_tags(*tags), key=lambda v: v["vid"], reverse=False)
         return Vlans(objs)
 
 
@@ -55,7 +55,7 @@ class Devices(NetBoxObjectBase):
 
 
     def with_hostnames(self, *hostnames):
-        objs = sorted(super().with_names(*hostnames), key=lambda d: d["name"], reverse=False))
+        objs = sorted(super().with_names(*hostnames), key=lambda d: d["name"], reverse=False)
         return Devices(objs)
 
 
@@ -70,12 +70,14 @@ class Interfaces(NetBoxObjectBase):
 
 
 class Base:
-    self.nb_vlans      = None
-    self.nb_devices    = None
-    self.nb_interfaces = None
+    def __init__(self):
+        self.nb_vlans      = None
+        self.nb_devices    = None
+        self.nb_interfaces = None
 
 
     def is_equal(self, s, t, **keys):
         for k in keys:
-            return False if s[k] != t[k]
+            if s[k] != t[k]:
+                return False
         return True

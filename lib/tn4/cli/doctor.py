@@ -6,7 +6,7 @@ from tn4.cli.base import CommandBase
 from tn4.doctor.diagnose import Diagnose
 
 
-class Deploy(CommandBase):
+class Doctor(CommandBase):
     def __init__(self, args):
         self.flg_diagnosis_only    = args.diagnosis_only
         self.flg_force_repair      = args.force_repair

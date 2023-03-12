@@ -38,7 +38,7 @@ class InterfaceCondition:
         return condition
 
 
-    def __radd__(self. other):
+    def __radd__(self, other):
         return self.__add__(other)
 
 

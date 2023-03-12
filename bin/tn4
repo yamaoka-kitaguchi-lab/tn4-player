@@ -30,7 +30,7 @@ from tn4.__version__ import __version__ as __libtn4_version__
 from tn4.cli.config import Config
 from tn4.cli.deploy import Deploy
 from tn4.cli.shutdown import Shutdown
-from tn4.cli.netbox import NetBox
+from tn4.cli.doctor import Doctor
 
 
 __version__ = "v2022.10.21"
@@ -329,13 +329,13 @@ if __name__ == "__main__":
         #aliases=["n"],
     )
 
-    doctor.add_argument(
+    doctor_parser.add_argument(
         "--diagnosis-only",
         action="store_true",
         help="scan NetBox, present diagnosis report, and exit",
     )
 
-    doctor.add_argument(
+    doctor_parser.add_argument(
         "--force-repair",
         action="store_true",
         help="skip confirmation and perform NetBox repair immediately if needed",
@@ -372,7 +372,7 @@ if __name__ == "__main__":
         # case "shutdown" | "s":
         #     code = Shutdown(args).exec()
         case "doctor" | "n":
-            code = NetBox(args).exec()
+            code = Doctor(args).exec()
         case None:
             print_common_usage()
             code = 0
