@@ -33,7 +33,7 @@ from tn4.cli.shutdown import Shutdown
 from tn4.cli.doctor import Doctor
 
 
-__version__ = "v2022.10.21"
+__version__ = "v2023.03.31"
 
 
 def jinja_path(string):
@@ -86,7 +86,7 @@ DEFAULT_CLI_ARGS = {
             ("--netbox-url",),
             dict(
                 type=str,
-                help="custom NetBox API endpoint (e.g. http://netbox00.m.noc.titech.ac.jp/api)",
+                help="custom NetBox URL (e.g. http://netbox00.m.noc.titech.ac.jp)",
             ),
         ),
         (

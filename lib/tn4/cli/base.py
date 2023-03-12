@@ -47,8 +47,12 @@ class CommandBase:
 
 
     def fetch_inventory(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[],
-                        vendors=[], no_vendors=[], tags=[], no_tags=[], use_cache=False, debug=False):
-        nb = NetBox()
+                        vendors=[], no_vendors=[], tags=[], no_tags=[],
+                        netbox_url=None, netbox_token=None, use_cache=False, debug=False):
+        nb = NetBox(url=netbox_url, token=netbox_token)
+
+        self.console.log(f"[yellow dim]NetBox API endpoint: {nb.ctx.endpoint}")
+        self.console.log(f"[yellow dim]NetBox API token:    {nb.ctx.token}")
 
         m = "Fetching the latest inventory from NetBox, this may take a while..."
         if use_cache:

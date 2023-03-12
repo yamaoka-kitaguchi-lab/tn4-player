@@ -24,10 +24,16 @@ def timestamp():
 
 
 class NetBox:
-    def __init__(self):
+    def __init__(self, url=None, token=None):
+        secrets = load_encrypted_secrets(VAULT_FILE, VAULT_PASSWORD_FILE)
+
+        if url is None:
+            url = secrets["netbox_url"]
+        if token is None:
+            token = secrets["netbox_api_token"]
+
         self.ts        = timestamp()
-        secrets   = load_encrypted_secrets(VAULT_FILE, VAULT_PASSWORD_FILE)
-        self.ctx       = Context(endpoint=secrets["netbox_url"], token=secrets["netbox_api_token"])
+        self.ctx       = Context(endpoint=url, token=token)
         self.cli       = Client()
         self.nbdata    = None
         self.inventory = None

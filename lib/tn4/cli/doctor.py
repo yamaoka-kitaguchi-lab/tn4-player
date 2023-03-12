@@ -9,6 +9,9 @@ from tn4.doctor.diagnose import Diagnose
 
 class Doctor(CommandBase):
     def __init__(self, args):
+        self.netbox_url   = args.netbox_url
+        self.netbox_token = args.netbox_token
+
         self.flg_diagnosis_only = args.diagnosis_only
         self.flg_force_repair   = args.force_repair
         self.flg_use_cache      = args.use_cache
@@ -20,7 +23,11 @@ class Doctor(CommandBase):
 
 
     def exec(self):
-        ok = self.fetch_inventory(use_cache=self.flg_use_cache, debug=self.flg_debug)
+        ok = self.fetch_inventory(
+            netbox_url=self.netbox_url, netbox_token=self.netbox_token,
+            use_cache=self.flg_use_cache, debug=self.flg_debug
+        )
+
         if not ok:
             return 100
 

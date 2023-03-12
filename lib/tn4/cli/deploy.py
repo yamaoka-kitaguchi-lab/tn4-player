@@ -49,7 +49,12 @@ class Deploy(CommandBase):
 
 
     def exec(self):
-        ok = self.fetch_inventory(*self.fetch_inventory_opts, debug=self.flg_debug)
+        ok = self.fetch_inventory(
+            *self.fetch_inventory_opts,
+            netbox_url=self.netbox_url, netbox_token=self.netbox_token,
+            debug=self.flg_debug
+        )
+
         if not ok:
             return 100
 
