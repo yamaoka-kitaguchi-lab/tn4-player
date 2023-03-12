@@ -31,6 +31,13 @@ class Doctor(CommandBase):
         if not ok:
             return 100
 
-        self.console.log(f"[yellow]Hi")
+        diag = Diagnose(self.ctx)
+
+        with self.console.status(f"[green]Scanning NetBox and checking consistency..."):
+            diag.check_tag_to_tag_consistency()
+            self.console.log(f"[yellow]Checked inter-tag consistency")
+
+        if flg_diagnosis_only:
+            return 0
 
         return 0
