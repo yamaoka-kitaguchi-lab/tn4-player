@@ -12,6 +12,8 @@ class Context:
     addresses  = None
     interfaces = None
 
+    inventory_devices = None  # cached raw data for tn4-doctor
+
     def __init__(self, endpoint=None, token=None):
         self.endpoint = endpoint.rstrip("/")
         if self.endpoint[:4] != "/api":

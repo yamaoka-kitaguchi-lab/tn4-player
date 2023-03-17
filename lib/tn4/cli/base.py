@@ -187,5 +187,7 @@ class CommandBase:
             self.console.log("[red bold]No hosts found. Check the typos of your condition or devices' tags on NetBox")
             ok = False
 
+        self.nbdata = nb.nbdata
         self.ctx = nb.ctx
+
         return ok

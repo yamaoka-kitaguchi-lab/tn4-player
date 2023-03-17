@@ -31,6 +31,10 @@ class Doctor(CommandBase):
         if not ok:
             return 100
 
+        print("ctx.inventory_devices", self.ctx.inventory_devices.keys())
+        print("ctx.interfaces", self.ctx.interfaces.keys())
+        return 0
+
         diag = Diagnose(self.ctx)
 
         with self.console.status(f"[green]Scanning NetBox and checking consistency..."):
