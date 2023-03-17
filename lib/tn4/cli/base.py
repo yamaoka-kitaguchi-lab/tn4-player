@@ -191,6 +191,4 @@ class CommandBase:
         self.nbdata = copy.deepcopy(nb.nbdata)
         self.ctx = copy.deepcopy(nb.ctx)
 
-        print(nb.ctx.inventory_devices)
-
         return ok
