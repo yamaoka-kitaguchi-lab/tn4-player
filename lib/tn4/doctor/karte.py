@@ -6,7 +6,15 @@ from tn4.helper.utils import flatten
 
 class Annotation:
     def __init__(self, message, severity=1):
-        self.message = message
+        self.severity = severity
+        self.message  = message
+
+
+    def dump(self):
+        return {
+            "Severity": self.severity,
+            "Message": self.message,
+        }
 
 
 class InterfaceCondition:
@@ -64,7 +72,7 @@ class Assessment:
         d = {
             "Category":    self.category,
             "Arguments":   self.arguments,
-            "Annotations": self.annotations,
+            "Annotations": [ v.dump() for v in self.annotations ],
         }
 
         if self.current_state is not None:

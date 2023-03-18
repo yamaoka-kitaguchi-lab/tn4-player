@@ -88,7 +88,7 @@ class Diagnose(Base):
 
                 if not ok:
                     category = Category.WARN
-                    annotations = [ "invalid condition" ]
+                    annotations = [ Annotation("invalid condition") ]
 
                 arguments = condition.argument
                 interface_karte.add(Assessment(

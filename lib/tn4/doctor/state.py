@@ -24,6 +24,15 @@ class StateBase:
         return True
 
 
+    def dump(self):
+        ignored = ["dump", "has", "has_tag", "is_equal", "nb_object"]
+
+        return {
+            k: v
+            for k, v in self.__dict__.items() if k not in ignored
+        }
+
+
 class VlanState(StateBase):
     def __init__(self, nb_object=None):
         super().__init__(nb_object)
@@ -46,12 +55,3 @@ class InterfaceState(StateBase):
         self.interface_mode = None
         if nb_object["mode"] is not None:
             self.interface_mode = nb_object["mode"]["value"]  # "access", "tagged", "tagged-all"
-
-    def dump(self):
-        ignored = ["dump", "has", "has_tag", "is_equal", "nb_object"]
-
-        return {
-            k: v
-            for k, v in self.__dict__.items() if k not in ignored
-        }
-
