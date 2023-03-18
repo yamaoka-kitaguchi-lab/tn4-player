@@ -15,13 +15,17 @@ class StateBase:
 
 
     def is_equal(self, state, attrs=[]):
+        ignored = ["nb_object"]
         if len(attrs) == 0:
-            attrs = [ k for k in self.__dict__.keys() if k[:2] != "__" and k[-2:] != "__" ]
+            attrs = [ k for k in self.__dict__.keys() if k not in ignored ]
 
         for attr in attrs:
-            if getattr(self, attr) != getattr(state, attr):
-                return False
-        return True
+            v1, v2 = getattr(self, attr), getattr(state, attr)
+
+            if type(v1) == list:
+                v1, v2 = set(v1), set(v2)
+
+            return v1 == v2
 
 
     def dump(self):
