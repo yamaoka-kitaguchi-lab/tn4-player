@@ -48,7 +48,7 @@ class Diagnose(Base):
         return desired, is_ok
 
 
-    def write_karte(self):
+    def full_check(self):
         device_karte    = []
         interface_karte = []
 

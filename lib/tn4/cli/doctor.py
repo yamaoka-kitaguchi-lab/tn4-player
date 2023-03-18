@@ -64,9 +64,6 @@ class Doctor(CommandBase):
         if self.flg_diagnosis_only:
             return 0
 
-        device_karte, interface_karte = diag.write_karte()
-
-        print("device", device_karte)  # debug
-        print("interface", interface_karte)  # debug
+        device_karte, interface_karte = diag.full_check()
 
         return 0
