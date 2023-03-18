@@ -25,7 +25,10 @@ class StateBase:
             if type(v1) == list:
                 v1, v2 = set(v1), set(v2)
 
-            return v1 == v2
+            if v1 != v2:
+                return False
+
+        return True
 
 
     def dump(self):

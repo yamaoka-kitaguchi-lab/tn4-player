@@ -67,6 +67,7 @@ class Doctor(CommandBase):
         device_karte, interface_karte = diag.summarize()
 
         #pprint(device_karte.dump())  # debug
-        pprint(interface_karte.dump())  # debug
+        #pprint(interface_karte.dump())  # debug
+        pprint(interface_karte.dump()["test-c"])  # debug
 
         return 0
