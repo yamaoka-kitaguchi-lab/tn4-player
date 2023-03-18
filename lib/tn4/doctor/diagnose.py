@@ -214,7 +214,7 @@ class Diagnose(Base):
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             ## skip if the device is not Core SW or Edge SW
-            if self.nb_devices[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
+            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
                 continue
 
             for ifname, interface in device_interfaces.items():
@@ -262,7 +262,7 @@ class Diagnose(Base):
 
         ## collect all active VLANs of each edge
         for hostname, device_interfaces in self.nb_interfaces.all.items():
-            if self.nb_devices[hostname]["role"] != Slug.Role.EdgeSW:
+            if self.nb_devices.all[hostname]["role"] != Slug.Role.EdgeSW:
                 continue
 
             uplink_vids[hostname] = set()
@@ -273,7 +273,7 @@ class Diagnose(Base):
                 uplink_vids[hostname] |= set(current.untagged_vid)
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
-            if self.nb_devices[hostname]["role"] != Slug.Role.CoreSW:
+            if self.nb_devices.all[hostname]["role"] != Slug.Role.CoreSW:
                 continue
 
             for _, interface in device_interfaces.items():
@@ -307,7 +307,7 @@ class Diagnose(Base):
         desired_slave_s = {}
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
-            if self.nb_devices[hostname]["role"] != Slug.Role.CoreSW:
+            if self.nb_devices.all[hostname]["role"] != Slug.Role.CoreSW:
                 continue
 
             for ifname, interface in device_interfaces.items():
@@ -323,7 +323,7 @@ class Diagnose(Base):
                     desired_slave_s[ifname] = deepcopy(current)
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
-            if self.nb_devices[hostname]["role"] != Slug.Role.CoreSW:
+            if self.nb_devices.all[hostname]["role"] != Slug.Role.CoreSW:
                 continue
 
             for ifname, interface in device_interfaces.items():
