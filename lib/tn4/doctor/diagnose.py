@@ -7,7 +7,7 @@ from tn4.doctor.cv import Condition as Cond
 from tn4.doctor.cv import ConditionalValue as CV
 from tn4.doctor.base import Base, Vlans, Devices, Interfaces
 from tn4.doctor.state import DeviceState, InterfaceState
-from tn4.doctor.karte import InterfaceCondition, Category, Assessment, Annotation
+from tn4.doctor.karte import InterfaceCondition, Category, Assessment, Annotation, Karte, KarteType
 
 
 class Diagnose(Base):
@@ -49,8 +49,8 @@ class Diagnose(Base):
 
 
     def full_check(self):
-        device_karte    = []
-        interface_karte = []
+        device_karte    = Karte(karte_type=KarteType.DEVICE)
+        interface_karte = Karte(karte_type=KarteType.INTERFACE)
 
         has_annotation = lambda h, i: h in self.interface_annotations and i in self.interface_annotations[h]
         has_condition  = lambda h, i: h in self.interface_conditions and i in self.interface_conditions[h]
@@ -58,8 +58,9 @@ class Diagnose(Base):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
             if hostname in self.device_annotations:
-                device_karte.append(Assessment(
+                device_karte.add(Assessment(
                     category=Category.WARN,
+                    keys=[hostname],
                     current=DeviceState(self.nb_devices.all[hostname]),
                     desired=None,
                     arguments=None,
@@ -90,8 +91,9 @@ class Diagnose(Base):
                     annotations = [ "invalid condition" ]
 
                 arguments = condition.argument
-                interface_karte.append(Assessment(
+                interface_karte.add(Assessment(
                     category=category,
+                    keys=[hostname, ifname],
                     current=InterfaceState(self.nb_interfaces.all[hostname][ifname]),
                     desired=desired,
                     arguments=arguments,

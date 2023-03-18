@@ -66,4 +66,6 @@ class Doctor(CommandBase):
 
         device_karte, interface_karte = diag.full_check()
 
+        print(device_karte.all)
+
         return 0
