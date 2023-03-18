@@ -55,3 +55,4 @@ class InterfaceState(StateBase):
         self.interface_mode = None
         if nb_object["mode"] is not None:
             self.interface_mode = nb_object["mode"]["value"]  # "access", "tagged", or "tagged-all"
+

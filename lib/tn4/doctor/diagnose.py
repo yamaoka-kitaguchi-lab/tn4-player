@@ -240,6 +240,7 @@ class Diagnose(Base):
 
     def check_vlan_group_consistency(self):
         titanet_oids = self.nb_vlans.with_groups(Slug.VLANGroup.Titanet).oids
+        titanet_oids.append(None)
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
@@ -250,7 +251,7 @@ class Diagnose(Base):
             for ifname, interface in device_interfaces.items():
                 condition = InterfaceCondition("VLAN group violation", manual_repair=True)
 
-                ## must be included in the Titanet VLAN group
+                ## must be included in the VLAN group "Titanet"
                 condition.tagged_oids  = CV(titanet_oids, Cond.INCLUDED)
                 condition.untagged_oid = CV(titanet_oids, Cond.INCLUDED)
 

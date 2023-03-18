@@ -73,6 +73,8 @@ class Assessment:
             "Category":    self.category,
             "Arguments":   self.arguments,
             "Annotations": [ v.dump() for v in self.annotations ],
+            "Current":     None,
+            "Desired":     None,
         }
 
         if self.current_state is not None:
