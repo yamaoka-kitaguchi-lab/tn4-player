@@ -7,7 +7,7 @@ from tn4.doctor.cv import Condition as Cond
 from tn4.doctor.cv import ConditionalValue as CV
 from tn4.doctor.base import Base, Vlans, Devices, Interfaces
 from tn4.doctor.state import DeviceState, InterfaceState
-from tn4.doctor.karte import InterfaceCondition, Category, Assessment
+from tn4.doctor.karte import InterfaceCondition, Category, Assessment, Annotation
 
 
 class Diagnose(Base):
@@ -74,7 +74,12 @@ class Diagnose(Base):
                 if not has_condition(hostname, ifname):
                     continue
 
-                condition = reduce(operator.add, self.interface_conditions[hostname][ifname])
+                conditions = self.interface_conditions[hostname][ifname]
+
+                if len(conditions) == 0:
+                    continue
+
+                condition = reduce(operator.add, conditions)
                 desired, ok = self.__interface_condition_to_desired_state(hostname, ifname, condition)
 
                 category = Category.UPDATE
@@ -302,14 +307,18 @@ class Diagnose(Base):
 
             for _, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                uplink_vids[hostname] |= set(current.tagged_vids)
-                uplink_vids[hostname] |= set(current.untagged_vid)
+
+                if current.tagged_vids is not None:
+                    uplink_vids[hostname] |= set(current.tagged_vids)
+
+                if current.untagged_vid is not None:
+                    uplink_vids[hostname] |= { current.untagged_vid }
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             if self.nb_devices.all[hostname]["role"] != Slug.Role.CoreSW:
                 continue
 
-            for _, interface in device_interfaces.items():
+            for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("uplink/downlink inconsistency")
 
@@ -318,6 +327,9 @@ class Diagnose(Base):
 
                 edgename = current.description
                 edges.add(edgename)
+
+                if edgename not in uplink_vids:
+                    continue  # neglected edges
 
                 ## pass only in-used VLANs
                 condition.is_enabled     = CV(True, Cond.IS)

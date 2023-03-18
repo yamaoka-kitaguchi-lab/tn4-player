@@ -27,7 +27,7 @@ class InterfaceCondition:
         argument      = flatten([self.argument, other.argument])  # concatinate as list
         manual_repair = self.manual_repair | other.manual_repair
 
-        condition = InterfaceCondition(argument, priority, manual_repair)
+        condition = InterfaceCondition(argument, manual_repair)
         condition.remove_from_nb      = self.remove_from_nb + other.remove_from_nb
         condition.is_enabled          = self.is_enabled + other.is_enabled
         condition.description         = self.description + other.description
