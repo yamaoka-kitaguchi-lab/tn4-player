@@ -22,13 +22,13 @@ class InterfaceCondition:
         self.argument            = argument
         self.manual_repair       = manual_repair  # if true, nbck skips repairing but just present messages
 
-        self.remove_from_nb      = ConditionalValue()
-        self.is_enabled          = ConditionalValue()
-        self.description         = ConditionalValue()
-        self.tags                = ConditionalValue()
-        self.is_tagged_vlan_mode = ConditionalValue()
-        self.tagged_oids         = ConditionalValue()
-        self.untagged_oid        = ConditionalValue()
+        self.remove_from_nb = ConditionalValue()
+        self.is_enabled     = ConditionalValue()
+        self.description    = ConditionalValue()
+        self.tags           = ConditionalValue()
+        self.interface_mode = ConditionalValue()
+        self.tagged_oids    = ConditionalValue()
+        self.untagged_oid   = ConditionalValue()
 
 
     def __add__(self, other):
@@ -36,13 +36,13 @@ class InterfaceCondition:
         manual_repair = self.manual_repair | other.manual_repair
 
         condition = InterfaceCondition(argument, manual_repair)
-        condition.remove_from_nb      = self.remove_from_nb + other.remove_from_nb
-        condition.is_enabled          = self.is_enabled + other.is_enabled
-        condition.description         = self.description + other.description
-        condition.tags                = self.tags + other.tags
-        condition.is_tagged_vlan_mode = self.is_tagged_vlan_mode + other.is_tagged_vlan_mode
-        condition.tagged_oids         = self.tagged_oids + other.tagged_oids
-        condition.untagged_oid        = self.untagged_oid + other.untagged_oid
+        condition.remove_from_nb = self.remove_from_nb + other.remove_from_nb
+        condition.is_enabled     = self.is_enabled + other.is_enabled
+        condition.description    = self.description + other.description
+        condition.tags           = self.tags + other.tags
+        condition.interface_mode = self.interface_mode + other.interface_mode
+        condition.tagged_oids    = self.tagged_oids + other.tagged_oids
+        condition.untagged_oid   = self.untagged_oid + other.untagged_oid
 
         return condition
 

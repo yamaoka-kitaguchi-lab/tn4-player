@@ -14,18 +14,47 @@ class Condition(Flag):
 
 class ConditionalValue:
     def __init__(self, value=None, condition=Condition.DONTCARE, priority=0):
-        self.value     = value
+        self.value     = self.__to_set(value)
         self.condition = condition
         self.priority  = priority
 
+
+    def __to_set(self, value):
         if type(value) == list:
-            self.value = set(value)
+            return set(value)
 
         if type(value) in [bool, int, str]:
-            self.value = { value }
+            return { value }
 
         if value is None:
-            self.value = set()
+            return set()
+
+        return value
+
+
+    def is_satisfied_by(self, value):
+        value = self.__to_set(value)
+        is_subset_of = lambda a, b: len(a - b) == 0
+        is_independent_of = lambda a, b: len(a & b) == 0
+
+        match self.condition:
+            case Condition.DONTCARE:
+                return True
+
+            case Condition.IS:
+                return self.value == value
+
+            case Condition.INCLUDE:
+                return is_subset_of(value, self.value)
+
+            case Condition.INCLUDED:
+                return is_subset_of(self.value, value)
+
+            case Condition.EXCLUDE:
+                return is_independent_of(self.value, value)
+
+            case Condition.CONFLICT:
+                return False
 
 
     def __add__(self, other):

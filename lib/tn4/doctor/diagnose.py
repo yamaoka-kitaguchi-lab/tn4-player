@@ -31,21 +31,38 @@ class Diagnose(Base):
         is_ok = Cond.CONFLICT in [ condition.is_enabled.condition,
                                    condition.description.condition,
                                    condition.tags.condition,
-                                   condition.is_tagged_vlan_mode.condition,
+                                   condition.interface_mode.condition,
                                    condition.tagged_oids.condition,
                                    condition.untagged_oid.condition, ]
         if not is_ok:
             return None, is_ok
 
         desired = InterfaceState(self.nb_interfaces.all[hostname][ifname])
-        desired.is_enabled          = condition.is_enabled.value
-        desired.description         = condition.description.value
-        desired.tags                = condition.tags.value
-        desired.is_tagged_vlan_mode = condition.is_tagged_vlan_mode.value
-        desired.tagged_oids         = condition.tagged_oids.value
-        desired.untagged_oid        = condition.untagged_oid.value
+        desired.is_enabled     = condition.is_enabled.value
+        desired.description    = condition.description.value
+        desired.tags           = condition.tags.value
+        desired.interface_mode = condition.interface_mode.value
+        desired.tagged_oids    = condition.tagged_oids.value
+        desired.untagged_oid   = condition.untagged_oid.value
 
         return desired, is_ok
+
+
+    def __list_interface_violations(self, current, conditions):
+        arguments = []
+
+        for condition in conditions:
+            is_ok = condition.is_enabled.is_satisfied_by(current.is_enabled) \
+                and condition.description.is_satisfied_by(current.description) \
+                and condition.tags.is_satisfied_by(current.tags) \
+                and condition.interface_mode.is_satisfied_by(current.interface_mode) \
+                and condition.tagged_oids.is_satisfied_by(current.tagged_oids) \
+                and condition.untagged_oid.is_satisfied_by(current.untagged_oid)
+
+            if not is_ok:
+                arguments.append(condition.argument)
+
+        return arguments
 
 
     def full_check(self):
@@ -80,21 +97,24 @@ class Diagnose(Base):
                 if len(conditions) == 0:
                     continue
 
-                condition = reduce(operator.add, conditions)
+                current   = InterfaceState(self.nb_interfaces.all[hostname][ifname])
+                arguments = self.__list_interface_violations(current, conditions)
+
+                condition   = reduce(operator.add, conditions)
                 desired, ok = self.__interface_condition_to_desired_state(hostname, ifname, condition)
 
-                category = Category.UPDATE
+                category    = Category.UPDATE
                 annotations = self.device_annotations[hostname]
 
                 if not ok:
-                    category = Category.WARN
-                    annotations = [ Annotation("invalid condition") ]
+                    category    = Category.WARN
+                    annotations = [ Annotation("CONFLICTED!") ]
 
                 arguments = condition.argument
                 interface_karte.add(Assessment(
                     category=category,
                     keys=[hostname, ifname],
-                    current=InterfaceState(self.nb_interfaces.all[hostname][ifname]),
+                    current=current,
                     desired=desired,
                     arguments=arguments,
                     annotations=annotations,
