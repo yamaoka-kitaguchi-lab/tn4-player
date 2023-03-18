@@ -60,6 +60,26 @@ class Assessment:
         self.annotations   = annotations
 
 
+    def dump(self):
+        d = {
+            "Category":    self.category,
+            "Arguments":   self.arguments,
+            "Annotations": self.annotations,
+        }
+
+        if self.current_state is not None:
+            d |= {
+                "Current": self.current_state.dump()
+            }
+
+        if self.desired_state is not None:
+            d |= {
+                "Desired": self.desired_state.dump()
+            }
+
+        return d
+
+
 class KarteType(Flag):
     DEVICE    = auto()
     INTERFACE = auto()
@@ -81,4 +101,21 @@ class Karte:
 
         v.append(assessment)
 
+
+    def dump(self):
+        v = {}
+
+        for hostname in self.all:
+            v[hostname] = {}
+
+            if type(self.all[hostname]) != dict:
+                assess = self.all[hostname][0]
+                v[hostname] = assess.dump()
+
+            else:
+                for ifname in self.all[hostname]:
+                    assess = self.all[hostname][ifname][0]
+                    v[hostname][ifname] = assess.dump()
+
+        return v
 
