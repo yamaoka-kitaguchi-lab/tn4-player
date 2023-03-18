@@ -75,6 +75,8 @@ class ConditionalValue:
                 rt = value - self.value
 
         if value_type == list:
+            if len(rt) == 0:
+                return None
             return list(rt)
 
         if value_type in [ bool, str, int ]:
