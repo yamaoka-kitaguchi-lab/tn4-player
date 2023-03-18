@@ -85,6 +85,13 @@ class Devices(ClientBase):
     def fetch_as_inventory(self, ctx, use_cache=False):
         devices = self.fetch_devices(ctx, use_cache=use_cache)
         ctx.inventory_devices = {
+            device["hostname"]: device
+            for device in devices.values() if device["is_ansible_target"]
+        }
+
+        return {
+            "_hostnames": [ d["hostname"] for d in devices.values() if d["is_ansible_target"] ],
+            "_roles":     [ d["role"] for d in devices.values() if d["is_ansible_target"] ],
             **{
                 device["hostname"]: {
                     "manufacturer":    device["device_type"]["manufacturer"]["slug"],  # manufacturer slug
@@ -96,12 +103,6 @@ class Devices(ClientBase):
                     "ansible_host":    device["mgmt_ip"],                              # device ip address without mask, or 'None'
                 }
                 for device in devices.values() if device["is_ansible_target"]
-            }
-        }
-
-        return {
-            "_hostnames": [ d["hostname"] for d in devices.values() if d["is_ansible_target"] ],
-            "_roles":     [ d["role"] for d in devices.values() if d["is_ansible_target"] ],
-            **ctx.inventory_devices,
+            },
         }
 

@@ -57,7 +57,12 @@ class Vlans(NetBoxObjectBase):
 class Devices(NetBoxObjectBase):
     def __init__(self, nb_objs):
         super().__init__(nb_objs)
-        self.hostnames = [ obj["name"] for obj in nb_objs.values() ]
+
+        if type(nb_objs) == dict:
+            self.hostnames = [ obj["name"] for obj in nb_objs.values() ]
+
+        if type(nb_objs) == list:
+            self.hostnames = [ obj["name"] for obj in nb_objs ]
 
 
     def with_hostnames(self, *hostnames):

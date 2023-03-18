@@ -13,7 +13,7 @@ from tn4.doctor.karte import InterfaceCondition, Category, Assessment
 class Diagnose(Base):
     def __init__(self, ctx):
         self.nb_vlans      = Vlans(ctx.vlans)
-        self.nb_devices    = Devices(ctx.devices)
+        self.nb_devices    = Devices(ctx.inventory_devices)
         self.nb_interfaces = Interfaces(ctx.interfaces)
 
         self.device_annotations = {}

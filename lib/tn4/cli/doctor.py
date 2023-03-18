@@ -31,10 +31,6 @@ class Doctor(CommandBase):
         if not ok:
             return 100
 
-        print("ctx.inventory_devices", self.ctx.inventory_devices.keys())
-        print("ctx.interfaces", self.ctx.interfaces.keys())
-        return 0
-
         diag = Diagnose(self.ctx)
 
         with self.console.status(f"[green]Scanning NetBox and checking consistency..."):
@@ -68,6 +64,9 @@ class Doctor(CommandBase):
         if self.flg_diagnosis_only:
             return 0
 
-        kartes = diag.write_karte()
+        device_karte, interface_karte = diag.write_karte()
+
+        print("device", device_karte)  # debug
+        print("interface", interface_karte)  # debug
 
         return 0
