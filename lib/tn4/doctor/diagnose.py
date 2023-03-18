@@ -87,9 +87,6 @@ class Diagnose(Base):
                 ))
 
             for ifname, interface in device_interfaces.items():
-                annotations = None
-                if has_annotation(hostname, ifname):
-                    annotations = self.interface_annotations[hostname][ifname]
 
                 if not has_condition(hostname, ifname):
                     continue
@@ -106,7 +103,9 @@ class Diagnose(Base):
                 desired, ok = self.__build_desired(current, condition)
 
                 category    = Category.UPDATE
-                annotations = self.device_annotations[hostname]
+                annotations = None
+                if has_annotation(hostname, ifname):
+                    annotations = self.interface_annotations[hostname][ifname]
 
                 if not ok:
                     category    = Category.WARN
