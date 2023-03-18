@@ -32,14 +32,6 @@ class ConditionalValue:
         return value
 
 
-    def dump(self):
-        return {
-            "Condition": self.condition,
-            "Value":     self.value,
-            "Priority":  self.priority,
-        }
-
-
     def is_satisfied_by(self, value):
         value = self.__to_set(value)
         is_subset_of = lambda a, b: len(a - b) == 0
@@ -63,6 +55,34 @@ class ConditionalValue:
 
             case Condition.CONFLICT:
                 return False
+
+
+    def to_value(self, value, value_type=list):
+        value = self.__to_set(value)
+        rt = None
+
+        if self.is_satisfied_by(value):
+            rt = value
+
+        match self.condition:
+            case Condition.IS | Condition.INCLUDE:
+                rt = self.value
+
+            case Condition.INCLUDED:
+                rt = value & self.value
+
+            case Condition.EXCLUDE:
+                rt = value - self.value
+
+        if value_type == list:
+            return list(rt)
+
+        if value_type in [ bool, str, int ]:
+            if len(rt) == 1:
+                return list(rt)[0]
+            return None
+
+        return rt
 
 
     def __add__(self, other):
@@ -171,6 +191,15 @@ class ConditionalValue:
 
         return ConditionalValue(None, Condition.CONFLICT)
 
+
     def __radd__(self, other):
         return self.__add__(other)
+
+
+    def dump(self):
+        return {
+            "Condition": self.condition,
+            "Value":     self.value,
+            "Priority":  self.priority,
+        }
 

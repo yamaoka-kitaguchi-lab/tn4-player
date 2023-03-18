@@ -28,23 +28,24 @@ class Diagnose(Base):
                 self.interface_annotations.setdefault(hostname, {})[ifname] = []
 
 
-    def __interface_condition_to_desired_state(self, hostname, ifname, condition):
-        is_ok = Cond.CONFLICT in [ condition.is_enabled.condition,
-                                   condition.description.condition,
-                                   condition.tags.condition,
-                                   condition.interface_mode.condition,
-                                   condition.tagged_oids.condition,
-                                   condition.untagged_oid.condition, ]
+    def __build_desired(self, current, condition):
+        is_ok = Cond.CONFLICT not in [ condition.is_enabled.condition,
+                                       condition.description.condition,
+                                       condition.tags.condition,
+                                       condition.interface_mode.condition,
+                                       condition.tagged_oids.condition,
+                                       condition.untagged_oid.condition, ]
         if not is_ok:
             return None, is_ok
 
-        desired = InterfaceState(self.nb_interfaces.all[hostname][ifname])
-        desired.is_enabled     = condition.is_enabled.value
-        desired.description    = condition.description.value
-        desired.tags           = condition.tags.value
-        desired.interface_mode = condition.interface_mode.value
-        desired.tagged_oids    = condition.tagged_oids.value
-        desired.untagged_oid   = condition.untagged_oid.value
+        desired = deepcopy(current)
+
+        desired.is_enabled     = condition.is_enabled.to_value(current.is_enabled, value_type=bool)
+        desired.description    = condition.description.to_value(current.description, value_type=str)
+        desired.tags           = condition.tags.to_value(current.tags)
+        desired.interface_mode = condition.interface_mode.to_value(current.interface_mode, value_type=str)
+        desired.tagged_oids    = condition.tagged_oids.to_value(current.tagged_oids)
+        desired.untagged_oid   = condition.untagged_oid.to_value(current.untagged_oid, value_type=int)
 
         return desired, is_ok
 
@@ -66,7 +67,7 @@ class Diagnose(Base):
         return arguments
 
 
-    def full_check(self):
+    def summarize(self):
         device_karte    = Karte(karte_type=KarteType.DEVICE)
         interface_karte = Karte(karte_type=KarteType.INTERFACE)
 
@@ -101,11 +102,8 @@ class Diagnose(Base):
                 current   = InterfaceState(self.nb_interfaces.all[hostname][ifname])
                 arguments = self.__list_interface_violations(current, conditions)
 
-
-
                 condition   = reduce(operator.add, conditions)
-                pprint(condition.dump())
-                desired, ok = self.__interface_condition_to_desired_state(hostname, ifname, condition)
+                desired, ok = self.__build_desired(current, condition)
 
                 category    = Category.UPDATE
                 annotations = self.device_annotations[hostname]

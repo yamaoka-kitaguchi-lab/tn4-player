@@ -58,14 +58,8 @@ class InterfaceCondition:
         ]
 
         return {
-            **{
-                k: v
-                for k, v in self.__dict__.items() if k not in [*items]
-            },
-            **{
-                k: self.__dict__[k].dump()
-                for k in items
-            }
+            **{ k: v for k, v in self.__dict__.items() if k not in [*items] },
+            **{ k: self.__dict__[k].dump() for k in items }
         }
 
 
