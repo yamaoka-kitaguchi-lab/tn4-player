@@ -7,7 +7,7 @@ class NetBoxObjectBase:
         self.all = nb_objs
 
 
-    def __with_key(self, keylst, *values):
+    def with_key(self, keylst, *values):
         matched = []
         matched_ids = []
 
@@ -21,11 +21,11 @@ class NetBoxObjectBase:
 
 
     def with_names(self, *names):
-        return self.__with_key(["name"], *names)
+        return self.with_key(["name"], *names)
 
 
     def with_tags(self, *tags):
-        return self.__with_key(["tags"], *tags)
+        return self.with_key(["tags"], *tags)
 
 
 class Vlans(NetBoxObjectBase):
@@ -40,12 +40,12 @@ class Vlans(NetBoxObjectBase):
 
 
     def with_vids(self, *vids):
-        objs = sorted(super().__with_key(["vid"], *vids), key=lambda v: v["vid"], reverse=False)
+        objs = sorted(super().with_key(["vid"], *vids), key=lambda v: v["vid"], reverse=False)
         return Vlans(objs)
 
 
     def with_groups(self, *group_slugs):
-        objs = sorted(super().__with_key(["group", "slug"], *group_slugs), key=lambda v: v["vid"], reverse=False)
+        objs = sorted(super().with_key(["group", "slug"], *group_slugs), key=lambda v: v["vid"], reverse=False)
         return Vlans(objs)
 
 
@@ -71,7 +71,7 @@ class Devices(NetBoxObjectBase):
 
 
     def with_sites(self, *sites):
-        objs = sorted(super().__with_key(["site", "slug"], *sites), key=lambda d: d["name"], reverse=False)
+        objs = sorted(super().with_key(["site", "slug"], *sites), key=lambda d: d["name"], reverse=False)
         return Devices(objs)
 
 
