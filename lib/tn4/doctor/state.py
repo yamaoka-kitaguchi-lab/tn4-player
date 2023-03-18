@@ -27,10 +27,10 @@ class StateBase:
     def dump(self):
         ignored = ["dump", "has", "has_tag", "is_equal", "nb_object"]
 
-        return {
+        return sorted({
             k: v
             for k, v in self.__dict__.items() if k not in ignored
-        }
+        })
 
 
 class VlanState(StateBase):
