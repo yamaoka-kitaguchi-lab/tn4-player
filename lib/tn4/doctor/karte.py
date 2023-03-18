@@ -51,6 +51,24 @@ class InterfaceCondition:
         return self.__add__(other)
 
 
+    def dump(self):
+        items = [
+            "remove_from_nb", "is_enabled", "description", "tags",
+            "interface_mode", "tagged_oids", "untagged_oid",
+        ]
+
+        return {
+            **{
+                k: v
+                for k, v in self.__dict__.items() if k not in [*items]
+            },
+            **{
+                k: self.__dict__[k].dump()
+                for k in items
+            }
+        }
+
+
 class Category(Flag):
     WARN   = auto()
     CREATE = auto()

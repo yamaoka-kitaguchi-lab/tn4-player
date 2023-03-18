@@ -32,6 +32,14 @@ class ConditionalValue:
         return value
 
 
+    def dump(self):
+        return {
+            "Condition": self.condition,
+            "Value":     self.value,
+            "Priority":  self.priority,
+        }
+
+
     def is_satisfied_by(self, value):
         value = self.__to_set(value)
         is_subset_of = lambda a, b: len(a - b) == 0

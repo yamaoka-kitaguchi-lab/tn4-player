@@ -1,5 +1,6 @@
 from copy import deepcopy
 from functools import reduce
+from pprint import pprint
 import operator
 
 from tn4.netbox.slug import Slug
@@ -100,7 +101,10 @@ class Diagnose(Base):
                 current   = InterfaceState(self.nb_interfaces.all[hostname][ifname])
                 arguments = self.__list_interface_violations(current, conditions)
 
+
+
                 condition   = reduce(operator.add, conditions)
+                pprint(condition.dump())
                 desired, ok = self.__interface_condition_to_desired_state(hostname, ifname, condition)
 
                 category    = Category.UPDATE
@@ -261,7 +265,6 @@ class Diagnose(Base):
     def check_vlan_group_consistency(self):
         titanet_oids = self.nb_vlans.with_groups(Slug.VLANGroup.Titanet).oids
         titanet_oids.append(None)
-        print(titanet_oids)
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
