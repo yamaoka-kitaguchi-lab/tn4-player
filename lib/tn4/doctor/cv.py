@@ -201,7 +201,7 @@ class ConditionalValue:
     def dump(self):
         return {
             "Condition": self.condition,
-            "Value":     self.value,
+            "Value":     sorted(self.value) if type(self.value) is list else self.value,
             "Priority":  self.priority,
         }
 

@@ -19,8 +19,8 @@ class Annotation:
 
 class InterfaceCondition:
     def __init__(self, argument, manual_repair=False):
-        self.argument            = argument
-        self.manual_repair       = manual_repair  # if true, nbck skips repairing but just present messages
+        self.argument       = argument
+        self.manual_repair  = manual_repair  # if true, nbck skips repairing but just present messages
 
         self.remove_from_nb = ConditionalValue()
         self.is_enabled     = ConditionalValue()
