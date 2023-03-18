@@ -57,7 +57,7 @@ class Diagnose(Base):
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
-            if hostname in self.device_annotations:
+            if len(self.device_annotations[hostname]) > 0:
                 device_karte.add(Assessment(
                     category=Category.WARN,
                     keys=[hostname],
