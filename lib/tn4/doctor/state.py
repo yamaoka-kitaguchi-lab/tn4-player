@@ -49,9 +49,9 @@ class InterfaceState(StateBase):
         self.is_enabled     = nb_object["enabled"]
         self.description    = nb_object["description"]
         self.tags           = nb_object["tags"]
-        self.tagged_vids    = nb_object["tagged_vids"]
-        self.untagged_vid   = nb_object["untagged_vid"]
+        self.tagged_oids    = nb_object["tagged_vlanids"]   # NB object ID
+        self.untagged_oid   = nb_object["untagged_vlanid"]  # NB object ID
 
         self.interface_mode = None
         if nb_object["mode"] is not None:
-            self.interface_mode = nb_object["mode"]["value"]  # "access", "tagged", "tagged-all"
+            self.interface_mode = nb_object["mode"]["value"]  # "access", "tagged", or "tagged-all"

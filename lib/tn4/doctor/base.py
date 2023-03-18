@@ -34,9 +34,11 @@ class Vlans(NetBoxObjectBase):
 
         if type(nb_objs) == dict:
             self.vids = [ obj["vid"] for obj in nb_objs.values() ]
+            self.oids = [ obj["id"] for obj in nb_objs.values() ]
 
         if type(nb_objs) == list:
             self.vids = [ obj["vid"] for obj in nb_objs ]
+            self.oids = [ obj["id"] for obj in nb_objs ]
 
 
     def with_vids(self, *vids):

@@ -32,8 +32,8 @@ class Diagnose(Base):
                                    condition.description.condition,
                                    condition.tags.condition,
                                    condition.is_tagged_vlan_mode.condition,
-                                   condition.tagged_vids.condition,
-                                   condition.untagged_vid.condition, ]
+                                   condition.tagged_oids.condition,
+                                   condition.untagged_oid.condition, ]
         if not is_ok:
             return None, is_ok
 
@@ -42,8 +42,8 @@ class Diagnose(Base):
         desired.description         = condition.description.value
         desired.tags                = condition.tags.value
         desired.is_tagged_vlan_mode = condition.is_tagged_vlan_mode.value
-        desired.tagged_vids         = condition.tagged_vids.value
-        desired.untagged_vid        = condition.untagged_vid.value
+        desired.tagged_oids         = condition.tagged_oids.value
+        desired.untagged_oid        = condition.untagged_oid.value
 
         return desired, is_ok
 
@@ -162,18 +162,18 @@ class Diagnose(Base):
                 condition.description    = CV(None, Cond.IS, priority=2)
                 condition.tags           = CV(None, Cond.IS, priority=2)
                 condition.interface_mode = CV(None, Cond.IS, priority=2)
-                condition.tagged_vids    = CV(None, Cond.IS, priority=2)
-                condition.untagged_vid   = CV(None, Cond.IS, priority=2)
+                condition.tagged_oids    = CV(None, Cond.IS, priority=2)
+                condition.untagged_oid   = CV(None, Cond.IS, priority=2)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
 
     def check_wifi_tag_consistency(self):
-        wifi_o1_cplane_vid = self.nb_vlans.with_tags(Slug.Tag.WifiMgmtVlanOokayama1).vids
-        wifi_o2_cplane_vid = self.nb_vlans.with_tags(Slug.Tag.WifiMgmtVlanOokayama2).vids
-        wifi_s_cplane_vid  = self.nb_vlans.with_tags(Slug.Tag.WifiMgmtVlanSuzukake).vids
-        wifi_o_dplane_vids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.VlanOokayama).vids
-        wifi_s_dplane_vids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.VlanSuzukake).vids
+        wifi_o1_cplane_oid = self.nb_vlans.with_tags(Slug.Tag.WifiMgmtVlanOokayama1).oids
+        wifi_o2_cplane_oid = self.nb_vlans.with_tags(Slug.Tag.WifiMgmtVlanOokayama2).oids
+        wifi_s_cplane_oid  = self.nb_vlans.with_tags(Slug.Tag.WifiMgmtVlanSuzukake).oids
+        wifi_o_dplane_oids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.VlanOokayama).oids
+        wifi_s_dplane_oids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.VlanSuzukake).oids
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
@@ -183,14 +183,14 @@ class Diagnose(Base):
 
             device = self.nb_devices.all[hostname]
 
-            cplane_vid, dplane_vids = None, None
+            cplane_oid, dplane_oids = None, None
             match device["wifi_area_group"]:
                 case "O1":
-                    cplane_vid, dplane_vids = wifi_o1_cplane_vid, set(wifi_o_dplane_vids)
+                    cplane_oid, dplane_oids = wifi_o1_cplane_oid, set(wifi_o_dplane_oids)
                 case "O2":
-                    cplane_vid, dplane_vids = wifi_o2_cplane_vid, set(wifi_o_dplane_vids)
+                    cplane_oid, dplane_oids = wifi_o2_cplane_oid, set(wifi_o_dplane_oids)
                 case "S":
-                    cplane_vid, dplane_vids = wifi_s_cplane_vid, set(wifi_s_dplane_vids)
+                    cplane_oid, dplane_oids = wifi_s_cplane_oid, set(wifi_s_dplane_oids)
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
@@ -204,16 +204,16 @@ class Diagnose(Base):
                 condition.interface_mode = CV("tagged", Cond.IS)
 
                 ## must have all D-Plane VLANs
-                condition.tagged_vids = CV(dplane_vids, Cond.INCLUDE)
+                condition.tagged_oids = CV(dplane_oids, Cond.INCLUDE)
 
                 ## must be C-Plane VLAN
-                condition.untagged_vid = CV(cplane_vid, Cond.IS)
+                condition.untagged_oid = CV(cplane_oid, Cond.IS)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
 
     def check_hosting_tag_consistency(self):
-        hosting_vids = self.nb_vlans.with_tags(Slug.Tag.Hosting).vids
+        hosting_oids = self.nb_vlans.with_tags(Slug.Tag.Hosting).oids
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
@@ -233,13 +233,13 @@ class Diagnose(Base):
                 condition.interface_mode = CV("tagged", Cond.IS)
 
                 ## must have all hosting VLANs
-                condition.tagged_vids = CV(hosting_vids, Cond.INCLUDE)
+                condition.tagged_oids = CV(hosting_oids, Cond.INCLUDE)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
 
     def check_vlan_group_consistency(self):
-        titanet_vids = self.nb_vlans.with_groups(Slug.VLANGroup.Titanet).vids
+        titanet_oids = self.nb_vlans.with_groups(Slug.VLANGroup.Titanet).oids
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
@@ -251,8 +251,8 @@ class Diagnose(Base):
                 condition = InterfaceCondition("VLAN group violation", manual_repair=True)
 
                 ## must be included in the Titanet VLAN group
-                condition.tagged_vids  = CV(titanet_vids, Cond.INCLUDED)
-                condition.untagged_vid = CV(titanet_vids, Cond.INCLUDED)
+                condition.tagged_oids  = CV(titanet_oids, Cond.INCLUDED)
+                condition.untagged_oid = CV(titanet_oids, Cond.INCLUDED)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
@@ -272,7 +272,7 @@ class Diagnose(Base):
                     continue
 
                 ## interface mode must be cleared if no VLANs are attached
-                if len(current.tagged_vids) == 0 and untagged_vid == None:
+                if len(current.tagged_oids) == 0 and untagged_oid == None:
                     condition.interface_mode = CV(None, Cond.IS)
 
                 self.interface_conditions[hostname][ifname].append(condition)
@@ -297,7 +297,7 @@ class Diagnose(Base):
 
 
     def check_edge_core_consistency(self):
-        uplink_vids = {}
+        uplink_oids = {}
         edges = set()
 
         ## collect all active VLANs of each edge
@@ -305,16 +305,16 @@ class Diagnose(Base):
             if self.nb_devices.all[hostname]["role"] != Slug.Role.EdgeSW:
                 continue
 
-            uplink_vids[hostname] = set()
+            uplink_oids[hostname] = set()
 
             for _, interface in device_interfaces.items():
                 current = InterfaceState(interface)
 
-                if current.tagged_vids is not None:
-                    uplink_vids[hostname] |= set(current.tagged_vids)
+                if current.tagged_oids is not None:
+                    uplink_oids[hostname] |= set(current.tagged_oids)
 
-                if current.untagged_vid is not None:
-                    uplink_vids[hostname] |= { current.untagged_vid }
+                if current.untagged_oid is not None:
+                    uplink_oids[hostname] |= { current.untagged_oid }
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             if self.nb_devices.all[hostname]["role"] != Slug.Role.CoreSW:
@@ -330,19 +330,19 @@ class Diagnose(Base):
                 edgename = current.description
                 edges.add(edgename)
 
-                if edgename not in uplink_vids:
+                if edgename not in uplink_oids:
                     continue  # neglected edges
 
                 ## pass only in-used VLANs
                 condition.is_enabled     = CV(True, Cond.IS)
                 condition.interface_mode = CV("tagged", Cond.IS)
-                condition.tagged_vids    = CV(uplink_vids[edgename], Cond.IS)
-                condition.untagged_vid   = CV(None, Cond.IS)
+                condition.tagged_oids    = CV(uplink_oids[edgename], Cond.IS)
+                condition.untagged_oid   = CV(None, Cond.IS)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
         ## edges registered in NB but not appeared in cores' downlinks
-        neglected_edges = set(uplink_vids.keys()) - edges
+        neglected_edges = set(uplink_oids.keys()) - edges
         for edgename in neglected_edges:
             annotation = Annotation(f"neglected edge ({edgename})")
             self.device_annotations[edgename].append(annotation)
@@ -401,6 +401,6 @@ class Diagnose(Base):
                 condition.is_enabled     = CV(desired.is_enabled, Cond.IS, priority=20)
                 condition.description    = CV(desired.description, Cond.IS, priority=20)
                 condition.interface_mode = CV(desired.interface_mode, Cond.IS, priority=20)
-                condition.tagged_vids    = CV(desired.tagged_vids, Cond.IS, priority=20)
-                condition.untagged_vid   = CV(desired.untagged_vid, Cond.IS, priority=20)
+                condition.tagged_oids    = CV(desired.tagged_oids, Cond.IS, priority=20)
+                condition.untagged_oid   = CV(desired.untagged_oid, Cond.IS, priority=20)
 

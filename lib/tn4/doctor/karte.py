@@ -27,8 +27,8 @@ class InterfaceCondition:
         self.description         = ConditionalValue()
         self.tags                = ConditionalValue()
         self.is_tagged_vlan_mode = ConditionalValue()
-        self.tagged_vids         = ConditionalValue()
-        self.untagged_vid        = ConditionalValue()
+        self.tagged_oids         = ConditionalValue()
+        self.untagged_oid        = ConditionalValue()
 
 
     def __add__(self, other):
@@ -41,8 +41,8 @@ class InterfaceCondition:
         condition.description         = self.description + other.description
         condition.tags                = self.tags + other.tags
         condition.is_tagged_vlan_mode = self.is_tagged_vlan_mode + other.is_tagged_vlan_mode
-        condition.tagged_vids         = self.tagged_vids + other.tagged_vids
-        condition.untagged_vid        = self.untagged_vid + other.untagged_vid
+        condition.tagged_oids         = self.tagged_oids + other.tagged_oids
+        condition.untagged_oid        = self.untagged_oid + other.untagged_oid
 
         return condition
 
