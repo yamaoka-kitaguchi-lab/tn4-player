@@ -52,6 +52,9 @@ class InterfaceState(StateBase):
         self.tagged_oids    = nb_object["tagged_vlanids"]   # NB object ID
         self.untagged_oid   = nb_object["untagged_vlanid"]  # NB object ID
 
+        if "native_vlanid" in nb_object:
+            self.untagged_oid = nb_object["native_vlanid"]  # NB object ID
+
         self.interface_mode = None
         if nb_object["mode"] is not None:
             self.interface_mode = nb_object["mode"]["value"]  # "access", "tagged", or "tagged-all"

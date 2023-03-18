@@ -182,7 +182,8 @@ class Interfaces(ClientBase):
                 all_vids.extend(interface["tagged_vids"])
 
                 if interface["untagged_vlan"] is not None:
-                    interface["native_vid"] = interface["untagged_vlan"]["vid"]
+                    interface["native_vlanid"] = interface["untagged_vlan"]["id"]
+                    interface["native_vid"]    = interface["untagged_vlan"]["vid"]
                     all_vlanids.append(interface["untagged_vlan"]["id"])
                     all_vids.append(interface["untagged_vlan"]["vid"])
 
