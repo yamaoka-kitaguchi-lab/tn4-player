@@ -112,7 +112,6 @@ class Diagnose(Base):
                     category    = Category.WARN
                     annotations = [ Annotation("CONFLICTED!") ]
 
-                arguments = condition.argument
                 interface_karte.add(Assessment(
                     category=category,
                     keys=[hostname, ifname],

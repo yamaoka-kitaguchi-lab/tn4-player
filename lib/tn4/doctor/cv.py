@@ -45,10 +45,10 @@ class ConditionalValue:
                 return self.value == value
 
             case Condition.INCLUDE:
-                return is_subset_of(value, self.value)
+                return is_subset_of(self.value, value)
 
             case Condition.INCLUDED:
-                return is_subset_of(self.value, value)
+                return is_subset_of(value, self.value)
 
             case Condition.EXCLUDE:
                 return is_independent_of(self.value, value)
