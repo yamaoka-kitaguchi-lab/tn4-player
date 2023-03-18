@@ -98,6 +98,11 @@ class Diagnose(Base):
 
     def check_tag_to_tag_consistency(self):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
+
+            ## skip if the device is not Core SW or Edge SW
+            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
+                continue
+
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
 
@@ -108,6 +113,11 @@ class Diagnose(Base):
 
     def check_keep_tag_consistency(self):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
+
+            ## skip if the device is not Core SW or Edge SW
+            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
+                continue
+
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("tag operation (Keep)")
@@ -127,6 +137,11 @@ class Diagnose(Base):
 
     def check_obsoleted_tag_consistency(self):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
+
+            ## skip if the device is not Core SW or Edge SW
+            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
+                continue
+
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("tag operation (Obsoleted)")
@@ -154,7 +169,9 @@ class Diagnose(Base):
         wifi_s_dplane_vids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.VlanSuzukake).vids
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
-            if hostname not in self.nb_devices.all:
+
+            ## skip if the device is not Core SW or Edge SW
+            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
                 continue
 
             device = self.nb_devices.all[hostname]
@@ -192,6 +209,11 @@ class Diagnose(Base):
         hosting_vids = self.nb_vlans.with_tags(Slug.Tag.Hosting).vids
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
+
+            ## skip if the device is not Core SW or Edge SW
+            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
+                continue
+
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("tag violation (Hosting)")
@@ -213,6 +235,7 @@ class Diagnose(Base):
         titanet_vids = self.nb_vlans.with_groups(Slug.VLANGroup.Titanet).vids
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
+
             ## skip if the device is not Core SW or Edge SW
             if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
                 continue
@@ -229,6 +252,11 @@ class Diagnose(Base):
 
     def check_interface_mode_consistency(self):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
+
+            ## skip if the device is not Core SW or Edge SW
+            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
+                continue
+
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("interface mode inconsistency")
@@ -245,6 +273,11 @@ class Diagnose(Base):
 
     def check_and_remove_empty_irb(self):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
+
+            ## skip if the device is not Core SW or Edge SW
+            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
+                continue
+
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("obsoleted interface")
