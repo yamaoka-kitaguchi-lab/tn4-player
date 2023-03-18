@@ -42,7 +42,7 @@ class Diagnose(Base):
 
         desired.is_enabled     = condition.is_enabled.to_value(current.is_enabled, value_type=bool)
         desired.description    = condition.description.to_value(current.description, value_type=str)
-        desired.tags           = condition.tags.to_value(current.tags)
+        desired.tags           = condition.tags.to_value(current.tags, default=[])
         desired.interface_mode = condition.interface_mode.to_value(current.interface_mode, value_type=str)
         desired.tagged_oids    = condition.tagged_oids.to_value(current.tagged_oids)
         desired.untagged_oid   = condition.untagged_oid.to_value(current.untagged_oid, value_type=int)
@@ -112,14 +112,15 @@ class Diagnose(Base):
                     category    = Category.WARN
                     annotations = [ Annotation("CONFLICTED!") ]
 
-                interface_karte.add(Assessment(
-                    category=category,
-                    keys=[hostname, ifname],
-                    current=current,
-                    desired=desired,
-                    arguments=arguments,
-                    annotations=annotations,
-                ))
+                if not current.is_equal(desired) or len(annotations) > 0:
+                    interface_karte.add(Assessment(
+                        category=category,
+                        keys=[hostname, ifname],
+                        current=current,
+                        desired=desired,
+                        arguments=arguments,
+                        annotations=annotations,
+                    ))
 
         return device_karte, interface_karte
 

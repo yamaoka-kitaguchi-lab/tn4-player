@@ -57,7 +57,7 @@ class ConditionalValue:
                 return False
 
 
-    def to_value(self, value, value_type=list):
+    def to_value(self, value, value_type=list, default=None):
         value = self.__to_set(value)
         rt = None
 
@@ -76,13 +76,13 @@ class ConditionalValue:
 
         if value_type == list:
             if len(rt) == 0:
-                return None
+                return default
             return list(rt)
 
         if value_type in [ bool, str, int ]:
             if len(rt) == 1:
                 return list(rt)[0]
-            return None
+            return default
 
         return rt
 
