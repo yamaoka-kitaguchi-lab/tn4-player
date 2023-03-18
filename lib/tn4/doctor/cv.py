@@ -20,8 +20,12 @@ class ConditionalValue:
 
         if type(value) == list:
             self.value = set(value)
+
         if type(value) in [bool, int, str]:
             self.value = { value }
+
+        if value is None:
+            self.value = set()
 
 
     def __add__(self, other):

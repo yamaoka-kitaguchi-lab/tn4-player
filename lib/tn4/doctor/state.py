@@ -7,7 +7,7 @@ class StateBase:
 
 
     def has(self, flag):
-        return flag in self.nb_object
+        return flag in self.nb_object and self.nb_object[flag]
 
 
     def has_tag(self, tag):
