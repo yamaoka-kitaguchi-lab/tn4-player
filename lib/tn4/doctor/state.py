@@ -15,7 +15,7 @@ class StateBase:
 
 
     def is_equal(self, state, attrs=[]):
-        ignored = ["nb_object"]
+        ignored = [ "nb_object", "is_lag_member" ]
         if len(attrs) == 0:
             attrs = [ k for k in self.__dict__.keys() if k not in ignored ]
 
@@ -59,7 +59,9 @@ class InterfaceState(StateBase):
         self.tagged_oids  = nb_object["tagged_vlanids"]   # NB object ID
         self.untagged_oid = nb_object["untagged_vlanid"]  # NB object ID
 
-        self.description  = nb_object["description"]
+        self.is_lag_member = nb_object["is_lag_member"]
+
+        self.description = nb_object["description"]
         if self.description == '':
             self.description = None
 

@@ -169,7 +169,7 @@ class Diagnose(Base):
 
 
     def check_and_clear_interface(self):
-        has_empty_vlan = lambda s: s.tagged_oids is None or s.untagged_oid is None
+        has_empty_vlan = lambda s: s.tagged_oids is None and s.untagged_oid is None
         has_empty_desc = lambda s: s.description in [ None, '' ]
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
@@ -182,8 +182,8 @@ class Diagnose(Base):
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("clear configs")
 
-                ## skip if the interface has 'Keep' tag
-                if current.has_tag(Slug.Tag.Keep):
+                ## skip if the interface has 'Keep' tag or has LAG parent
+                if current.has_tag(Slug.Tag.Keep) or current.is_lag_member:
                     continue
 
                 is_to_reset  = not current.is_enabled
