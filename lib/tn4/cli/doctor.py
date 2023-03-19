@@ -65,9 +65,7 @@ class Doctor(CommandBase):
         device_karte, interface_karte = diag.summarize()
 
         #pprint(device_karte.dump(), sort_dicts=True)  # debug
-        #pprint(interface_karte.dump(), sort_dicts=True)  # debug
-        pprint(interface_karte.dump()["tamachi"], sort_dicts=True)  # debug
-
-
+        pprint(interface_karte.dump(), sort_dicts=True)  # debug
+        #pprint(interface_karte.dump()["tamachi"], sort_dicts=True)  # debug
 
         return 0
