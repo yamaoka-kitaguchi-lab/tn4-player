@@ -19,13 +19,6 @@ class NetBoxObjectBase:
 
         for obj in self.all.values():
             obj_values = reduce(operator.getitem, keylst, obj)
-
-            if obj_values is None:
-                obj_values = []
-
-            if type(obj_values) is not list:
-                obj_values = [ obj_values ]
-
             if obj["id"] not in matched_ids:
                 if len(set(values) - set(obj_values)) == 0:
                     matched.append(obj)  # AND

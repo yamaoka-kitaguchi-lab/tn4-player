@@ -1,4 +1,5 @@
 from pprint import pprint
+from collections import OrderedDict
 from datetime import datetime
 import time
 import os
@@ -68,6 +69,6 @@ class Doctor(CommandBase):
 
         #pprint(device_karte.dump())  # debug
         #pprint(interface_karte.dump())  # debug
-        pprint(interface_karte.dump()["test-c"])  # debug
+        pprint(OrderedDict(sorted(interface_karte.dump()["test-c"].items())))  # debug
 
         return 0

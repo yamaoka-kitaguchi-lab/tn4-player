@@ -22,8 +22,9 @@ class StateBase:
         for attr in attrs:
             v1, v2 = getattr(self, attr), getattr(state, attr)
 
-            if type(v1) == list:
-                v1, v2 = set(v1), set(v2)
+            if list in [ type(v1), type(v2) ]:
+                v1 = set() if v1 is None else set(v1)
+                v2 = set() if v2 is None else set(v2)
 
             if v1 != v2:
                 return False

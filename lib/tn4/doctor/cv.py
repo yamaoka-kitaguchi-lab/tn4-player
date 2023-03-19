@@ -1,6 +1,7 @@
 from enum import Flag, auto
 from functools import reduce
 import operator
+import sys
 
 
 class Condition(Flag):
@@ -190,6 +191,11 @@ class ConditionalValue:
         if self.condition == Condition.EXCLUDE and other.condition == Condition.EXCLUDE:
             v = self.value | other.value
             return ConditionalValue(v, Condition.EXCLUDE)
+
+        ## deleteme
+        print("--", file=sys.stderr)
+        print(f"CONFLICT: self  {self.value}, {self.condition}", file=sys.stderr)
+        print(f"CONFLICT: other {other.value}, {other.condition}", file=sys.stderr)
 
         return ConditionalValue(None, Condition.CONFLICT)
 

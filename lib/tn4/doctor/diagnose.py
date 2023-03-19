@@ -35,8 +35,17 @@ class Diagnose(Base):
                                        condition.interface_mode.condition,
                                        condition.tagged_oids.condition,
                                        condition.untagged_oid.condition, ]
+
+        ## deleteme
+        # print("1", condition.is_enabled.condition)
+        # print("2", condition.description.condition)
+        # print("3", condition.tags.condition)
+        # print("4", condition.interface_mode.condition)
+        # print("5", condition.tagged_oids.condition)
+        # print("6", condition.untagged_oid.condition)
+
         if not is_ok:
-            return None, is_ok
+            return None, False
 
         desired = deepcopy(current)
 
@@ -47,7 +56,7 @@ class Diagnose(Base):
         desired.tagged_oids    = condition.tagged_oids.to_value(current.tagged_oids)
         desired.untagged_oid   = condition.untagged_oid.to_value(current.untagged_oid, value_type=int)
 
-        return desired, is_ok
+        return desired, True
 
 
     def __list_interface_violations(self, current, conditions):
@@ -101,17 +110,28 @@ class Diagnose(Base):
 
                 condition   = reduce(operator.add, conditions)
                 desired, ok = self.__build_desired(current, condition)
+                skip        = False
 
-                category    = Category.UPDATE
-                annotations = None
-                if has_annotation(hostname, ifname):
-                    annotations = self.interface_annotations[hostname][ifname]
+                ## deleteme
+                #if hostname == "test-c":
+                #    print()
+                #    print(ifname)
+                #    pprint(current.dump())
+                #    pprint(desired.dump())
 
-                if not ok:
+                if ok:
+                    category    = Category.UPDATE
+                    annotations = []
+                    if has_annotation(hostname, ifname):
+                        annotations = self.interface_annotations[hostname][ifname]
+
+                    skip = current.is_equal(desired) and len(annotations) == 0
+
+                else:
                     category    = Category.WARN
                     annotations = [ Annotation("CONFLICTED!") ]
 
-                if not current.is_equal(desired) or len(annotations) > 0:
+                if not skip:
                     interface_karte.add(Assessment(
                         category=category,
                         keys=[hostname, ifname],
@@ -157,6 +177,9 @@ class Diagnose(Base):
                 ## must be disabled
                 condition.is_enabled = CV(False, Cond.IS, priority=1)
 
+                ## must be cleared
+                condition.interface_mode = CV(None, Cond.IS, priority=1)
+
                 ## must not have 'keep' tag
                 condition.tags = CV(Slug.Tag.Keep, Cond.EXCLUDE, priority=1)
 
@@ -195,9 +218,6 @@ class Diagnose(Base):
         wifi_s_cplane_oid  = self.nb_vlans.with_tags(Slug.Tag.WifiMgmtVlanSuzukake).oids
         wifi_o_dplane_oids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.VlanOokayama).oids
         wifi_s_dplane_oids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.VlanSuzukake).oids
-
-        print("dplane o", wifi_o_dplane_oids)
-        print("dplane s", wifi_s_dplane_oids)
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
@@ -241,8 +261,8 @@ class Diagnose(Base):
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
-            ## skip if the device is not Core SW or Edge SW
-            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
+            ## skip if the device is not Edge SW
+            if self.nb_devices.all[hostname]["role"] != Slug.Role.EdgeSW:
                 continue
 
             for ifname, interface in device_interfaces.items():
@@ -258,6 +278,9 @@ class Diagnose(Base):
 
                 ## must have all hosting VLANs
                 condition.tagged_oids = CV(hosting_oids, Cond.INCLUDE)
+
+                ## must not have untagged VLAN
+                condition.untagged_oid = CV(None, Cond.IS)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
