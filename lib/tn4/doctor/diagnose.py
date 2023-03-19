@@ -6,12 +6,12 @@ import operator
 from tn4.netbox.slug import Slug
 from tn4.doctor.cv import Condition as Cond
 from tn4.doctor.cv import ConditionalValue as CV
-from tn4.doctor.base import Base, Vlans, Devices, Interfaces
+from tn4.doctor.base import Vlans, Devices, Interfaces
 from tn4.doctor.state import DeviceState, InterfaceState
 from tn4.doctor.karte import InterfaceCondition, Category, Assessment, Annotation, Karte, KarteType
 
 
-class Diagnose(Base):
+class Diagnose():
     def __init__(self, ctx):
         self.nb_vlans      = Vlans(ctx.vlans)
         self.nb_devices    = Devices(ctx.inventory_devices)

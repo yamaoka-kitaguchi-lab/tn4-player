@@ -94,16 +94,3 @@ class Interfaces(NetBoxObjectBase):
     def __init__(self, nb_objs):
         super().__init__(nb_objs)
 
-
-class Base:
-    def __init__(self):
-        self.nb_vlans      = None
-        self.nb_devices    = None
-        self.nb_interfaces = None
-
-
-    def is_equal(self, s, t, **keys):
-        for k in keys:
-            if s[k] != t[k]:
-                return False
-        return True

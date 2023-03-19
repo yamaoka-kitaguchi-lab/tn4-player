@@ -42,7 +42,7 @@ class Interfaces(ClientBase):
 
 
     def update(self, device_name, interface_name,
-                         description=None, enabled=None, mode=None, untagged_vlanid=None, tagged_vlanids=None, tags=None):
+               description=None, enabled=None, mode=None, untagged_vlanid=None, tagged_vlanids=None, tags=None):
         data = []
         body = {
             "id": self.all_interfaces[device_name][interface_name]["id"]

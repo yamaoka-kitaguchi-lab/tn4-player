@@ -6,18 +6,26 @@ import os
 
 from tn4.cli.base import CommandBase
 from tn4.doctor.diagnose import Diagnose
-from tn4.doctor.repair import Repair
+from tn4.doctor.repair import InterfaceRepair
 
 
 class Doctor(CommandBase):
     def __init__(self, args):
-        self.netbox_url   = args.netbox_url
-        self.netbox_token = args.netbox_token
+        self.netbox_url         = args.netbox_url
+        self.netbox_token       = args.netbox_token
 
         self.flg_diagnosis_only = args.diagnosis_only
         self.flg_force_repair   = args.force_repair
         self.flg_use_cache      = args.use_cache
         self.flg_debug          = args.debug
+
+        self.fetch_inventory_opts = [
+            args.hosts,   args.no_hosts,
+            args.areas,   args.no_areas,
+            args.roles,   args.no_roles,
+            args.vendors, args.no_vendors,
+            args.tags,    args.no_tags,
+        ]
 
         n = datetime.now()
         ts = n.strftime("%Y-%m-%d@%H-%M-%S")
@@ -26,6 +34,7 @@ class Doctor(CommandBase):
 
     def exec(self):
         ok = self.fetch_inventory(
+            *self.fetch_inventory_opts,
             netbox_url=self.netbox_url, netbox_token=self.netbox_token,
             use_cache=self.flg_use_cache, debug=self.flg_debug
         )

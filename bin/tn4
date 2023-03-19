@@ -8,7 +8,7 @@ A command-line utility to deploy Titanet4 with Ansible and repair NetBox consist
 
   * tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files
   * tn4 deploy - Provisioning Titanet4 with Ansible using NetBox as inventory
-  * tn4 shutdown - Shutting down Titanet4 for the campus-wide blackout
+  * tn4 shutdown - Shutting down Titanet4 for the campus-wide blackout (not yet implemented)
   * tn4 doctor - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation
 
 Since:   October 2022
@@ -249,7 +249,7 @@ if __name__ == "__main__":
        "config",
        description="tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files",
        help="render Jinja2 templates or fetch running configs using Ansible",
-       #aliases=["c"],
+       aliases=["c"],
     )
 
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["netbox_args"])
@@ -281,7 +281,7 @@ if __name__ == "__main__":
         "deploy",
         description="tn4 deploy - Provisioning Titanet4 with Ansible using NetBox as inventory",
         help="provisioning Titanet4 with Ansible",
-        #aliases=["d"],
+        aliases=["d"],
     )
 
     add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["netbox_args"])
@@ -344,10 +344,11 @@ if __name__ == "__main__":
         "doctor",
         description="tn4 doctor - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation",
         help="scan and repair NetBox inconsistency with cli-based CRUD operation",
-        #aliases=["n"],
+        aliases=["x"],
     )
 
     add_args_to_parser(doctor_parser, DEFAULT_CLI_ARGS["netbox_args"])
+    add_args_to_parser(doctor_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
 
     doctor_parser.add_argument(
         "--diagnosis-only",
@@ -364,8 +365,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     match args.command:
-        # case "config" | "deploy" | "shutdown" | "doctor" | "c" | "d" | "s" | "n":
-        case "config" | "deploy":
+        case "config" | "deploy" | "doctor" | "c" | "d" | "x":
             args.hosts = csv_to_list(args.hosts)
             args.no_hosts = csv_to_list(args.no_hosts)
             args.areas = csv_to_list(args.areas)
@@ -389,9 +389,7 @@ if __name__ == "__main__":
             code = Config(args).exec()
         case "deploy" | "d":
             code = Deploy(args).exec()
-        # case "shutdown" | "s":
-        #     code = Shutdown(args).exec()
-        case "doctor" | "n":
+        case "doctor" | "x":
             code = Doctor(args).exec()
         case None:
             print_common_usage()

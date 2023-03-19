@@ -22,7 +22,6 @@ class Deploy(CommandBase):
             args.roles,   args.no_roles,
             args.vendors, args.no_vendors,
             args.tags,    args.no_tags,
-            args.use_cache,
         ]
 
         self.flg_fetch_only = False
@@ -52,7 +51,7 @@ class Deploy(CommandBase):
         ok = self.fetch_inventory(
             *self.fetch_inventory_opts,
             netbox_url=self.netbox_url, netbox_token=self.netbox_token,
-            debug=self.flg_debug
+            use_cache=self.flg_use_cache, debug=self.flg_debug
         )
 
         if not ok:
