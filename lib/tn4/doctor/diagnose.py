@@ -191,12 +191,12 @@ class Diagnose(Base):
                 if not is_to_reset:
                     continue
 
-                condition.is_enabled     = CV(False, Cond.IS, priority=1)
-                condition.description    = CV(None, Cond.IS, priority=1)
-                condition.tags           = CV(None, Cond.IS, priority=1)
-                condition.interface_mode = CV(None, Cond.IS, priority=1)
-                condition.tagged_oids    = CV(None, Cond.IS, priority=1)
-                condition.untagged_oid   = CV(None, Cond.IS, priority=1)
+                condition.is_enabled     = CV(False, Cond.IS, priority=999)
+                condition.description    = CV(None, Cond.IS, priority=999)
+                condition.tags           = CV(None, Cond.IS, priority=999)
+                condition.interface_mode = CV(None, Cond.IS, priority=999)
+                condition.tagged_oids    = CV(None, Cond.IS, priority=999)
+                condition.untagged_oid   = CV(None, Cond.IS, priority=999)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
