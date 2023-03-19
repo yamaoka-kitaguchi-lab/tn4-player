@@ -159,21 +159,6 @@ class Diagnose(Base):
                     self.interface_annotations[hostname][ifname].append(annotation)
 
 
-    def check_tag_to_tag_consistency(self):
-        for hostname, device_interfaces in self.nb_interfaces.all.items():
-
-            ## skip if the device is not Core SW or Edge SW
-            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
-                continue
-
-            for ifname, interface in device_interfaces.items():
-                current = InterfaceState(interface)
-
-                if Slug.Tag.Keep in current.tags and Slug.Tag.Obsoleted in current.tags:
-                    annotation = Annotation("tag contradiction (Keep/Obsoleted)")
-                    self.interface_annotations[hostname][ifname].append(annotation)
-
-
     def check_keep_tag_consistency(self):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
