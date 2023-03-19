@@ -191,4 +191,14 @@ class CommandBase:
         self.nbdata = copy.deepcopy(nb.nbdata)
         self.ctx = copy.deepcopy(nb.ctx)
 
+        self.ctx.inventory_devices = {
+            hostname: device
+            for hostname, device in self.ctx.inventory_devices.items() if hostname in target_hosts
+        }
+
+        self.ctx.interfaces = {
+            hostname: interfaces
+            for hostname, interfaces in self.ctx.interfaces.items() if hostname in target_hosts
+        }
+
         return ok
