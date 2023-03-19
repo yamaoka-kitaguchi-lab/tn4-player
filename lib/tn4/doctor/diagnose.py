@@ -182,8 +182,12 @@ class Diagnose(Base):
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("clear configs")
 
-                ## skip if the interface has 'Keep' tag or has LAG parent
-                if current.has_tag(Slug.Tag.Keep) or current.is_lag_member:
+                ## skip if the interface has 'Keep' tag or 'Protect' tag
+                if current.has_tag(Slug.Tag.Keep) or current.has_tag(Slug.Tag.Protect):
+                    continue
+
+                ## skip if the interface has LAG parent
+                if current.is_lag_member:
                     continue
 
                 is_to_reset  = not current.is_enabled
