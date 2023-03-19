@@ -55,10 +55,13 @@ class InterfaceState(StateBase):
     def __init__(self, nb_object=None):
         super().__init__(nb_object)
         self.is_enabled   = nb_object["enabled"]
-        self.description  = nb_object["description"]
         self.tags         = nb_object["tags"]
         self.tagged_oids  = nb_object["tagged_vlanids"]   # NB object ID
         self.untagged_oid = nb_object["untagged_vlanid"]  # NB object ID
+
+        self.description  = nb_object["description"]
+        if self.description == '':
+            self.description = None
 
         if "native_vlanid" in nb_object:
             self.untagged_oid = nb_object["native_vlanid"]  # NB object ID
