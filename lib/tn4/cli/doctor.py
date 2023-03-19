@@ -70,12 +70,9 @@ class Doctor(CommandBase):
 
         device_karte, interface_karte = diag.summarize()
 
-        #pprint(device_karte.dump())  # debug
-        #pprint(interface_karte.dump())  # debug
-        pprint({
-            k: interface_karte.dump()["test-c"][k]
-            for k in sorted(interface_karte.dump()["test-c"].keys())
-        })
+        #pprint(device_karte.dump(), sort_dicts=True)  # debug
+        #pprint(interface_karte.dump(), sort_dicts=True)  # debug
+        pprint(interface_karte.dump()["test-c"], sort_dicts=True)  # debug
 
 
 

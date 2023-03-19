@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from enum import Flag, auto
 
 from tn4.doctor.cv import ConditionalValue
@@ -81,25 +82,13 @@ class Assessment:
 
 
     def dump(self):
-        d = {
-            "Category":    self.category,
+        return {
             "Arguments":   self.arguments,
             "Annotations": [ v.dump() for v in self.annotations ],
-            "Current":     None,
-            "Desired":     None,
+            "Category":    self.category,
+            "Current":     self.current_state.dump() if self.current_state is not None else None,
+            "Desired":     self.desired_state.dump() if self.desired_state is not None else None,
         }
-
-        if self.current_state is not None:
-            d |= {
-                "Current": self.current_state.dump()
-            }
-
-        if self.desired_state is not None:
-            d |= {
-                "Desired": self.desired_state.dump()
-            }
-
-        return d
 
 
 class KarteType(Flag):
@@ -127,7 +116,7 @@ class Karte:
     def dump(self):
         v = {}
 
-        for hostname in self.all:
+        for hostname in sorted(self.all):
             v[hostname] = {}
 
             if type(self.all[hostname]) != dict:
