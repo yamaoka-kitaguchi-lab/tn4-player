@@ -104,21 +104,21 @@ class ConditionalValue:
 
         if self.condition == Condition.IS and other.condition == Condition.IS:
             if self.value == other.value or self.priority > other.priority:
-                return ConditionalValue(self.value, Condition.IS)
+                return ConditionalValue(self.value, Condition.IS, self.priority)
             if other.priority > self.priority:
-                return ConditionalValue(other.value, Condition.IS)
+                return ConditionalValue(other.value, Condition.IS, other.priority)
 
         ## IS-INCLUDE
 
         if self.condition == Condition.IS and other.condition == Condition.INCLUDE:
             if self.priority > other.priority:
-                return ConditionalValue(self.value, Condition.IS)
+                return ConditionalValue(self.value, Condition.IS, self.priority)
             if is_subset_of(other.value, self.value):
                 return ConditionalValue(self.value, Condition.IS)
 
         if other.condition == Condition.IS and self.condition == Condition.INCLUDE:
             if other.priority > self.priority:
-                return ConditionalValue(other.value, Condition.IS)
+                return ConditionalValue(other.value, Condition.IS, other.priority)
             if is_subset_of(self.value, other.value):
                 return ConditionalValue(other.value, Condition.IS)
 
@@ -126,13 +126,13 @@ class ConditionalValue:
 
         if self.condition == Condition.IS and other.condition == Condition.INCLUDED:
             if self.priority > other.priority:
-                return ConditionalValue(self.value, Condition.IS)
+                return ConditionalValue(self.value, Condition.IS, self.priority)
             if is_subset_of(self.value, other.value):
                 return ConditionalValue(self.value, Condition.IS)
 
         if other.condition == Condition.IS and self.condition == Condition.INCLUDED:
             if other.priority > self.priority:
-                return ConditionalValue(other.value, Condition.IS)
+                return ConditionalValue(other.value, Condition.IS, other.priority)
             if is_subset_of(other.value, self.value):
                 return ConditionalValue(other.value, Condition.IS)
 
@@ -140,7 +140,7 @@ class ConditionalValue:
 
         if self.condition == Condition.IS and other.condition == Condition.EXCLUDE:
             if self.priority > other.priority:
-                return ConditionalValue(self.value, Condition.IS)
+                return ConditionalValue(self.value, Condition.IS, self.priority)
 
             if is_independent_of(self.value, other.value):
                 return ConditionalValue(self.value, Condition.IS)
@@ -150,7 +150,7 @@ class ConditionalValue:
 
         if other.condition == Condition.IS and self.condition == Condition.EXCLUDE:
             if other.priority > self.priority:
-                return ConditionalValue(other.value, Condition.IS)
+                return ConditionalValue(other.value, Condition.IS, other.priority)
 
             if is_independent_of(other.value, self.value):
                 return ConditionalValue(other.value, Condition.IS)
