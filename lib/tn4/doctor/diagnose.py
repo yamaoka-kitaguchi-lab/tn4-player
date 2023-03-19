@@ -164,7 +164,10 @@ class Diagnose(Base):
                     self.interface_annotations[hostname][ifname].append(annotation)
 
 
-    def check_keep_tag_consistency(self):
+    def check_and_clear_interface(self):
+        has_empty_vlan = lambda s: s.tagged_oids is None or s.untagged_oid is None
+        has_empty_desc = lambda s: s.description in [ None, '' ]
+
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
             ## skip if the device is not Core SW or Edge SW
@@ -173,46 +176,27 @@ class Diagnose(Base):
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("tag operation (Keep)")
+                condition = InterfaceCondition("clear configs")
 
-                ## skip if the interface does not have 'keep' tag
-                if not current.has_tag(Slug.Tag.Keep):
+                ## skip if the interface has 'Keep' tag
+                if current.has_tag(Slug.Tag.Keep):
                     continue
 
-                ## must be disabled
-                condition.is_enabled = CV(False, Cond.IS, priority=1)
+                is_to_reset  = not current.is_enabled
+                is_to_reset |= has_empty_desc(current) is None and has_empty_vlan(current)
+                is_to_reset |= current.interface_mode is None and current.is_enabled
+                is_to_reset |= current.interface_mode in ["tagged", "access"] and has_empty_vlan(current)
+                is_to_reset |= current.has_tag(Slug.Tag.Obsoleted)
 
-                ## must be cleared
+                if not is_to_reset:
+                    continue
+
+                condition.is_enabled     = CV(False, Cond.IS, priority=1)
+                condition.description    = CV(None, Cond.IS, priority=1)
+                condition.tags           = CV(None, Cond.IS, priority=1)
                 condition.interface_mode = CV(None, Cond.IS, priority=1)
-
-                ## must not have 'keep' tag
-                condition.tags = CV(Slug.Tag.Keep, Cond.EXCLUDE, priority=1)
-
-                self.interface_conditions[hostname][ifname].append(condition)
-
-
-    def check_obsoleted_tag_consistency(self):
-        for hostname, device_interfaces in self.nb_interfaces.all.items():
-
-            ## skip if the device is not Core SW or Edge SW
-            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
-                continue
-
-            for ifname, interface in device_interfaces.items():
-                current = InterfaceState(interface)
-                condition = InterfaceCondition("tag operation (Obsoleted)")
-
-                ## skip if the interface does not have 'obsoleted' tag
-                if not current.has_tag(Slug.Tag.Obsoleted):
-                    continue
-
-                ## must be cleared
-                condition.is_enabled     = CV(False, Cond.IS, priority=2)
-                condition.description    = CV(None, Cond.IS, priority=2)
-                condition.tags           = CV(None, Cond.IS, priority=2)
-                condition.interface_mode = CV(None, Cond.IS, priority=2)
-                condition.tagged_oids    = CV(None, Cond.IS, priority=2)
-                condition.untagged_oid   = CV(None, Cond.IS, priority=2)
+                condition.tagged_oids    = CV(None, Cond.IS, priority=1)
+                condition.untagged_oid   = CV(None, Cond.IS, priority=1)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
@@ -306,27 +290,6 @@ class Diagnose(Base):
                 ## must be included in the VLAN group "Titanet"
                 condition.tagged_oids  = CV(titanet_oids, Cond.INCLUDED)
                 condition.untagged_oid = CV(titanet_oids, Cond.INCLUDED)
-
-                self.interface_conditions[hostname][ifname].append(condition)
-
-
-    def check_interface_mode_consistency(self):
-        for hostname, device_interfaces in self.nb_interfaces.all.items():
-
-            ## skip if the device is not Core SW or Edge SW
-            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
-                continue
-
-            for ifname, interface in device_interfaces.items():
-                current = InterfaceState(interface)
-                condition = InterfaceCondition("interface mode inconsistency")
-
-                if current.interface_mode in [None, "tagged-all"]:
-                    continue
-
-                ## interface mode must be cleared if no VLANs are attached
-                if current.tagged_oids is None and current.untagged_oid is None:
-                    condition.interface_mode = CV(None, Cond.IS)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 

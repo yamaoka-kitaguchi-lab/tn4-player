@@ -38,11 +38,8 @@ class Doctor(CommandBase):
             diag.check_tag_to_tag_consistency()
             self.console.log(f"[yellow]Checked inter-tag consistency")
 
-            diag.check_keep_tag_consistency()
-            self.console.log(f"[yellow]Checked 'Keep' tag consistency")
-
-            diag.check_obsoleted_tag_consistency()
-            self.console.log(f"[yellow]Checked 'Obsoleted' tag consistency")
+            diag.check_and_clear_interface()
+            self.console.log(f"[yellow]Checked obsoleted interfaces")
 
             diag.check_wifi_tag_consistency()
             self.console.log(f"[yellow]Checked 'Wi-Fi' tag consistency")
@@ -52,9 +49,6 @@ class Doctor(CommandBase):
 
             diag.check_vlan_group_consistency()
             self.console.log(f"[yellow]Checked VLAN group consistency")
-
-            diag.check_interface_mode_consistency()
-            self.console.log(f"[yellow]Checked interface mode consistency")
 
             diag.check_and_remove_empty_irb()
             self.console.log(f"[yellow]Checked empty irb")
