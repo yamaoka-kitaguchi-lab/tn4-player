@@ -125,7 +125,12 @@ class Diagnose(Base):
                     if has_annotation(hostname, ifname):
                         annotations = self.interface_annotations[hostname][ifname]
 
-                    skip = current.is_equal(desired) and len(annotations) == 0
+                    if current.is_equal(desired):
+                        skip = True
+                    elif len(arguments) == 0:
+                        arguments = [ "out-of-use (maybe)" ]
+
+                    skip &= len(annotations) == 0
 
                 else:
                     category    = Category.WARN
