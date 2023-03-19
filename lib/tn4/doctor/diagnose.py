@@ -159,6 +159,21 @@ class Diagnose(Base):
                     self.interface_annotations[hostname][ifname].append(annotation)
 
 
+    def check_tag_to_tag_consistency(self):
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
+
+            ## skip if the device is not Core SW or Edge SW
+            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
+                continue
+
+            for ifname, interface in device_interfaces.items():
+                current = InterfaceState(interface)
+
+                if Slug.Tag.Keep in current.tags and Slug.Tag.Obsoleted in current.tags:
+                    annotation = Annotation("tag contradiction (Keep/Obsoleted)")
+                    self.interface_annotations[hostname][ifname].append(annotation)
+
+
     def check_keep_tag_consistency(self):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
@@ -316,11 +331,11 @@ class Diagnose(Base):
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("interface mode inconsistency")
 
-                if current.interface_mode is None:
+                if current.interface_mode in [None, "tagged-all"]:
                     continue
 
                 ## interface mode must be cleared if no VLANs are attached
-                if len(current.tagged_oids) == 0 and untagged_oid == None:
+                if current.tagged_oids is None and current.untagged_oid is None:
                     condition.interface_mode = CV(None, Cond.IS)
 
                 self.interface_conditions[hostname][ifname].append(condition)

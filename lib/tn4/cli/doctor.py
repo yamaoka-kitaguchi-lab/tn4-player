@@ -53,6 +53,9 @@ class Doctor(CommandBase):
             diag.check_vlan_group_consistency()
             self.console.log(f"[yellow]Checked VLAN group consistency")
 
+            diag.check_interface_mode_consistency()
+            self.console.log(f"[yellow]Checked interface mode consistency")
+
             diag.check_and_remove_empty_irb()
             self.console.log(f"[yellow]Checked empty irb")
 
