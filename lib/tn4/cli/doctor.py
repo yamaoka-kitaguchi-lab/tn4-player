@@ -47,8 +47,8 @@ class Doctor(CommandBase):
             # diag.check_hosting_tag_consistency()
             # self.console.log(f"[yellow]Checked 'Hosting' tag consistency")
 
-            # diag.check_vlan_group_consistency()
-            # self.console.log(f"[yellow]Checked VLAN group consistency")
+            diag.check_vlan_group_consistency()
+            self.console.log(f"[yellow]Checked VLAN group consistency")
 
             # diag.check_and_remove_empty_irb()
             # self.console.log(f"[yellow]Checked empty irb")

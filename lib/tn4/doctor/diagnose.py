@@ -112,12 +112,16 @@ class Diagnose(Base):
                 desired, ok = self.__build_desired(current, condition)
                 skip        = False
 
+
                 ## deleteme
                 #if hostname == "test-c":
                 #    print()
                 #    print(ifname)
                 #    pprint(current.dump())
                 #    pprint(desired.dump())
+                #print()
+                #print(hostname, ifname)
+                #pprint(condition.dump())  # deleteme
 
                 if ok:
                     category    = Category.UPDATE
