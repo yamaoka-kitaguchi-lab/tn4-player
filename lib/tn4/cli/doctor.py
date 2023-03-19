@@ -6,6 +6,7 @@ import os
 
 from tn4.cli.base import CommandBase
 from tn4.doctor.diagnose import Diagnose
+from tn4.doctor.repair import Repair
 
 
 class Doctor(CommandBase):
