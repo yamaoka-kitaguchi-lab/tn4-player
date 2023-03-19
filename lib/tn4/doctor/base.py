@@ -11,11 +11,17 @@ class NetBoxObjectBase:
         matched = []
         matched_ids = []
 
+        # for obj in self.all.values():
+        #     for value in values:
+        #         obj_values = reduce(operator.getitem, keylst, obj)
+        #         if value in obj_values and obj["id"] not in matched_ids:
+        #             matched.append(obj)  # OR
+
         for obj in self.all.values():
-            for value in values:
-                obj_values = reduce(operator.getitem, keylst, obj)
-                if value in obj_values and obj["id"] not in matched_ids:
-                    matched.append(obj)
+            obj_values = reduce(operator.getitem, keylst, obj)
+            if obj["id"] not in matched_ids:
+                if len(set(values) - set(obj_values)) == 0:
+                    matched.append(obj)  # AND
 
         return matched
 

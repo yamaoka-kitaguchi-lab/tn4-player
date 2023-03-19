@@ -196,6 +196,9 @@ class Diagnose(Base):
         wifi_o_dplane_oids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.VlanOokayama).oids
         wifi_s_dplane_oids = self.nb_vlans.with_tags(Slug.Tag.Wifi, Slug.Tag.VlanSuzukake).oids
 
+        print("dplane o", wifi_o_dplane_oids)
+        print("dplane s", wifi_s_dplane_oids)
+
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
             ## skip if the device is not Core SW or Edge SW
@@ -207,11 +210,11 @@ class Diagnose(Base):
             cplane_oid, dplane_oids = None, None
             match device["wifi_area_group"]:
                 case "O1":
-                    cplane_oid, dplane_oids = wifi_o1_cplane_oid, set(wifi_o_dplane_oids)
+                    cplane_oid, dplane_oids = wifi_o1_cplane_oid, wifi_o_dplane_oids
                 case "O2":
-                    cplane_oid, dplane_oids = wifi_o2_cplane_oid, set(wifi_o_dplane_oids)
+                    cplane_oid, dplane_oids = wifi_o2_cplane_oid, wifi_o_dplane_oids
                 case "S":
-                    cplane_oid, dplane_oids = wifi_s_cplane_oid, set(wifi_s_dplane_oids)
+                    cplane_oid, dplane_oids = wifi_s_cplane_oid,  wifi_s_dplane_oids
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
