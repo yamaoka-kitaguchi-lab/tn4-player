@@ -69,6 +69,11 @@ class Doctor(CommandBase):
 
         #pprint(device_karte.dump())  # debug
         #pprint(interface_karte.dump())  # debug
-        pprint(sorted(interface_karte.dump()["test-c"].items()))  # debug
+        pprint({
+            k: interface_karte.dump()["test-c"][k]
+            for k in sorted(interface_karte.dump()["test-c"].keys())
+        })
+
+
 
         return 0
