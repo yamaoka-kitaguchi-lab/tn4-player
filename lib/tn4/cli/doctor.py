@@ -125,9 +125,9 @@ class Doctor(CommandBase):
         kartes = self.cap.diagnose.summarize()
 
         # deleteme
-        for karte in kartes:
-            pprint(karte.dump())
-        print()
+        #for karte in kartes:
+        #    pprint(karte.dump())
+        #print()
 
 
 
