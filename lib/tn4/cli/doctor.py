@@ -52,7 +52,7 @@ class Doctor(CommandBase):
 
 
     def show_kartes_as_table(self, kartes, use_panel=False):
-        table = Table(show_header=True, header_style="bold red")
+        table = Table(show_header=True, header_style="bold white")
         table.box = box.SIMPLE
 
         table.add_column("#",           style="dim")
@@ -77,7 +77,7 @@ class Doctor(CommandBase):
                 table.add_row()
 
         if use_panel:
-            self.console.print(Panel.fit(table, title="Karte"))
+            self.console.print(Panel.fit(table, title="Device Interface Karte"))
         else:
             self.console.print(table)
 
@@ -123,13 +123,6 @@ class Doctor(CommandBase):
             return 0
 
         kartes = self.cap.diagnose.summarize()
-
-        # deleteme
-        #for karte in kartes:
-        #    pprint(karte.dump())
-        #print()
-
-
 
         self.show_kartes_as_table(kartes, use_panel=True)
 
