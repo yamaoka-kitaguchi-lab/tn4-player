@@ -84,7 +84,7 @@ class InterfaceState(StateBase):
         mode    = "-" if self.interface_mode is None else self.interface_mode
         vlan_t  = "-" if self.tagged_oids is None else ", ".join(resolver(*self.tagged_oids))
         vlan_u  = "-" if self.untagged_oid is None else resolver(self.untagged_oid)[0]
-        tags    = ", ".join(self.tags)
+        tags    = "-" if len(self.tags) == 0 else ", ".join(self.tags)
         desc    = "-" if self.description is None else self.description
 
         return "\n".join([
