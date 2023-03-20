@@ -12,7 +12,7 @@ class Context:
     addresses  = None
     interfaces = None
 
-    inventory_devices = None  # cached raw data for tn4-doctor
+    devices_by_hostname = None
 
     def __init__(self, endpoint=None, token=None):
         self.endpoint = endpoint.rstrip("/")

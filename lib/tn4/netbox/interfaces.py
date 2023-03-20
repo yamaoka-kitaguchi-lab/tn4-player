@@ -97,6 +97,10 @@ class Interfaces(ClientBase):
             interface["tags"] = [tag["slug"] for tag in interface["tags"]]
 
             dev_name = interface["device"]["name"]
+
+            if dev_name not in ctx.devices:
+                continue
+
             hostname = ctx.devices[dev_name]["hostname"]
 
             is_empty_irb = interface["name"] == "irb" and interface["mode"] is None
@@ -327,8 +331,6 @@ class Interfaces(ClientBase):
         all_lag_members = self.fetch_lag_members(ctx)  # following fetch_interfaces()
         used_vlans, mgmt_vlans = self.fetch_vlans(ctx)
 
-        ansible_targets = [ device["hostname"] for device in ctx.devices.values() if device["is_ansible_target"] ]
-
         target_interfaces = {
             hostname: {
                 name: interface
@@ -352,6 +354,6 @@ class Interfaces(ClientBase):
                 "vlans":       used_vlans[hostname],          # list of extended VLAN object
                 "mgmt_vlan":   mgmt_vlans[hostname],          # a VLAN object
             }
-            for hostname in all_interfaces.keys() if hostname in ansible_targets
+            for hostname in all_interfaces.keys()
         }
 

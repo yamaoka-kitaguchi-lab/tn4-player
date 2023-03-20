@@ -36,7 +36,7 @@ class Doctor(CommandBase):
         ok = self.fetch_inventory(
             *self.fetch_inventory_opts,
             netbox_url=self.netbox_url, netbox_token=self.netbox_token,
-            use_cache=self.flg_use_cache, debug=self.flg_debug
+            use_cache=self.flg_use_cache, debug=self.flg_debug, fetch_all=True
         )
 
         if not ok:

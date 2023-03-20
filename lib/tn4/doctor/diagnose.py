@@ -14,7 +14,7 @@ from tn4.doctor.karte import InterfaceCondition, Category, Assessment, Annotatio
 class Diagnose():
     def __init__(self, ctx):
         self.nb_vlans      = Vlans(ctx.vlans)
-        self.nb_devices    = Devices(ctx.inventory_devices)
+        self.nb_devices    = Devices(ctx.devices_by_hostname)
         self.nb_interfaces = Interfaces(ctx.interfaces)
 
         self.device_annotations = {}
@@ -35,14 +35,6 @@ class Diagnose():
                                        condition.interface_mode.condition,
                                        condition.tagged_oids.condition,
                                        condition.untagged_oid.condition, ]
-
-        ## deleteme
-        # print("1", condition.is_enabled.condition)
-        # print("2", condition.description.condition)
-        # print("3", condition.tags.condition)
-        # print("4", condition.interface_mode.condition)
-        # print("5", condition.tagged_oids.condition)
-        # print("6", condition.untagged_oid.condition)
 
         if not is_ok:
             return None, False
@@ -111,17 +103,6 @@ class Diagnose():
                 condition   = reduce(operator.add, conditions)
                 desired, ok = self.__build_desired(current, condition)
                 skip        = False
-
-
-                ## deleteme
-                #if hostname == "test-c":
-                #    print()
-                #    print(ifname)
-                #    pprint(current.dump())
-                #    pprint(desired.dump())
-                #print()
-                #print(hostname, ifname)
-                #pprint(condition.dump())  # deleteme
 
                 if ok:
                     category    = Category.UPDATE

@@ -39,14 +39,20 @@ class NetBox:
         self.inventory = None
 
 
-    def fetch_inventory(self, use_cache=False):
+    def fetch_inventory(self, use_cache=False, fetch_all=False):
         if self.nbdata is None:
-            self.nbdata = cli.fetch_as_inventory(ctx, use_cache=use_cache)
+            self.nbdata = self.cli.fetch_as_inventory(ctx, use_cache=use_cache)
+
+        host_filter = lambda h: self.nbdata[h]["is_ansible_target"] or fetch_all
 
         self.inventory = {
             **{
                 role: {
-                    "hosts": { h: {} for h in self.nbdata["_hostnames"] if self.nbdata[h]["role"] == role }
+                    "hosts": {
+                        h: {}
+                        for h in self.nbdata["_hostnames"]
+                        if self.nbdata[h]["role"] == role and host_filter(h)
+                    }
                 }
                 for role in self.nbdata["_roles"]
             },
@@ -72,7 +78,7 @@ class NetBox:
                         },
                         "datetime": self.ts,
                     }
-                    for hostname in self.nbdata["_hostnames"]
+                    for hostname in self.nbdata["_hostnames"] if host_filter(hostname)
                 }
             }
         }

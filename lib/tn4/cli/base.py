@@ -49,7 +49,7 @@ class CommandBase:
 
     def fetch_inventory(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[],
                         vendors=[], no_vendors=[], tags=[], no_tags=[],
-                        netbox_url=None, netbox_token=None, use_cache=False, debug=False):
+                        netbox_url=None, netbox_token=None, use_cache=False, debug=False, fetch_all=False):
         nb = NetBox(url=netbox_url, token=netbox_token)
 
         self.console.log(f"[yellow dim]NetBox API endpoint: {nb.ctx.endpoint}")
@@ -87,7 +87,7 @@ class CommandBase:
             self.console.log(f"[yellow]Loading finished from {nb.cli.interfaces.path} in {et} sec {annotation}")
 
             nb.nbdata = nb.cli.merge_inventory(devices, interfaces)
-            inventory = nb.fetch_inventory()
+            inventory = nb.fetch_inventory(fetch_all=fetch_all)
             self.console.log(f"[yellow]Building Titanet4 inventory completed")
 
         ok = True
@@ -190,11 +190,6 @@ class CommandBase:
 
         self.nbdata = copy.deepcopy(nb.nbdata)
         self.ctx = copy.deepcopy(nb.ctx)
-
-        self.ctx.inventory_devices = {
-            hostname: device
-            for hostname, device in self.ctx.inventory_devices.items() if hostname in target_hosts
-        }
 
         self.ctx.interfaces = {
             hostname: interfaces

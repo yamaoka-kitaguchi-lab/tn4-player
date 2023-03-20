@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from tn4.netbox.sites import Sites
 from tn4.netbox.vlans import Vlans
 from tn4.netbox.addresses import Addresses
@@ -16,7 +18,7 @@ class Client:
 
     @staticmethod
     def merge_inventory(*inventories):
-        merged = inventories[0]
+        merged = deepcopy(inventories[0])
         for inventory in inventories[1:]:
             for hostname in inventory.keys():
                 merged[hostname] |= inventory[hostname]
@@ -27,6 +29,7 @@ class Client:
         self.sites.fetch_as_inventory(ctx, use_cache=use_cache)
         self.vlans.fetch_as_inventory(ctx, use_cache=use_cache)
         self.addresses.fetch_as_inventory(ctx, use_cache=use_cache)
+
         return self.merge_inventory(
             self.devices.fetch_as_inventory(ctx, use_cache=use_cache),     # depending on sites
             self.interfaces.fetch_as_inventory(ctx, use_cache=use_cache),  # depending on devices, vlans, and addresses
