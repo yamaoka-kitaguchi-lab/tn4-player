@@ -104,13 +104,15 @@ class Doctor(CommandBase):
 
         else:
             nstr = Prompt.ask("Interfaces to skip repairing (eg: 1 3 5-9)")
+            print()
+
             skipped_indices = self.__flatten_num_string(nstr)
             target_indices  = list(set(indices) - set(skipped_indices))
             target_kartes   = [ k for i, k in enumerate(all_kartes) if i+1 in target_indices ]
 
             if len(target_kartes) < len(all_kartes):
                 m = ', '.join(map(str, skipped_indices))
-                self.console.log(f"\n[yellow]Omitted the following from the above list: [dim]{m}")
+                self.console.log(f"[yellow]Omitted the following from the above list: [dim]{m}")
                 return self.show_karte_and_ask(*target_kartes, use_panel=use_panel, again=True)
 
             is_confirmed = Confirm.ask(
