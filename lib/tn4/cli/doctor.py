@@ -6,7 +6,13 @@ import os
 
 from tn4.cli.base import CommandBase
 from tn4.doctor.diagnose import Diagnose
-from tn4.doctor.repair import InterfaceRepair
+from tn4.doctor.repair import Repair
+
+
+class Capability:
+    def __init__(self, ctx):
+        self.diagnose = Diagnose(ctx)
+        self.repair   = Repair(ctx)
 
 
 class Doctor(CommandBase):
@@ -42,40 +48,46 @@ class Doctor(CommandBase):
         if not ok:
             return 100
 
-        diag = Diagnose(self.ctx)
+        cap = Capability(self.ctx)
 
         with self.console.status(f"[green]Scanning NetBox and checking consistency..."):
-            diag.check_tag_to_tag_consistency()
+            cap.diagnose.check_tag_to_tag_consistency()
             self.console.log(f"[yellow]Checked inter-tag consistency")
 
-            diag.check_and_clear_interface()
+            cap.diagnose.check_and_clear_interface()
             self.console.log(f"[yellow]Checked obsoleted interfaces")
 
-            diag.check_wifi_tag_consistency()
+            cap.diagnose.check_wifi_tag_consistency()
             self.console.log(f"[yellow]Checked 'Wi-Fi' tag consistency")
 
-            diag.check_hosting_tag_consistency()
+            cap.diagnose.check_hosting_tag_consistency()
             self.console.log(f"[yellow]Checked 'Hosting' tag consistency")
 
-            diag.check_vlan_group_consistency()
+            cap.diagnose.check_vlan_group_consistency()
             self.console.log(f"[yellow]Checked VLAN group consistency")
 
-            diag.check_and_remove_empty_irb()
+            cap.diagnose.check_and_remove_empty_irb()
             self.console.log(f"[yellow]Checked empty irb")
 
-            diag.check_edge_core_consistency()
+            cap.diagnose.check_edge_core_consistency()
             self.console.log(f"[yellow]Checked Edge/Core consistency")
 
-            diag.check_master_slave_tag_consistency()
+            cap.diagnose.check_master_slave_tag_consistency()
             self.console.log(f"[yellow]Checked Master/Slave consistency")
 
         if self.flg_diagnosis_only:
             return 0
 
-        device_karte, interface_karte = diag.summarize()
+        device_karte, interface_karte = cap.diagnose.summarize()
 
         #pprint(device_karte.dump(), sort_dicts=True)  # debug
         pprint(interface_karte.dump(), sort_dicts=True)  # debug
-        #pprint(interface_karte.dump()["tamachi"], sort_dicts=True)  # debug
+
+
+
+        for assess in assessments:
+            cap.repair.by_assessment(assess)
+
+
 
         return 0

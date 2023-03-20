@@ -5,20 +5,28 @@ from tn4.doctor.karte import Karte, KarteType
 
 
 class RepairBase():
-    def __init__(self, ctx, karte):
+    def __init__(self, ctx):
         self.ctx   = ctx
-        self.karte = karte
+
+
+    def repair_from_karte(self, karte):
+        rt = 0
+        for assess in karte.all:
+            rt += self.repair(assess)
+
+        return rt
 
 
 class InterfaceRepair(RepairBase):
-    def __init__(self, ctx, karte):
-        super().__init__(ctx, karte)
+    def __init__(self, ctx):
+        super().__init__(ctx)
 
 
-    def repair(self):
+    def repair(self, assessment):
         self.ctx.interfaces.update()
 
 
 class DeviceRepair(RepairBase):
-    def __init__(self, ctx, karte):
-        super().__init__(ctx, karte)
+    def __init__(self, ctx):
+        super().__init__(ctx)
+
