@@ -9,6 +9,8 @@ from tn4.cli.base import CommandBase
 
 class Deploy(CommandBase):
     def __init__(self, args):
+        self.netbox_url            = args.netbox_url
+        self.netbox_token          = args.netbox_token
         self.flg_use_cache         = args.use_cache
         self.flg_dryrun            = args.dryrun
         self.flg_early_exit        = args.early_exit

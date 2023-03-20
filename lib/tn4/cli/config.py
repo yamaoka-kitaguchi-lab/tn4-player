@@ -8,6 +8,8 @@ from tn4.cli.base import CommandBase
 class Config(CommandBase):
     def __init__(self, args):
         self.__args                = vars(args)
+        self.netbox_url            = args.netbox_url
+        self.netbox_token          = args.netbox_token
         self.outdir                = args.private_dir
         self.inventory_json        = f"{self.outdir}/inventory.json"
 
