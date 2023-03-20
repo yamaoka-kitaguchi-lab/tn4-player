@@ -95,10 +95,14 @@ class Doctor(CommandBase):
         self.cap = Capability(self.ctx, self.nb.cli)
 
         with self.console.status(f"[green]Scanning NetBox and checking consistency..."):
-            self.cap.diagnose.check_tag_to_tag_consistency()
-            self.console.log(f"[yellow]Checked inter-tag consistency")
 
-            self.cap.diagnose.check_and_clear_interface()
+            self.cap.diagnose.check_exclusive_tag_conflict()
+            self.console.log(f"[yellow]Checked exclusive tag")
+
+            self.cap.diagnose.check_and_clear_incomplete_interfaces()
+            self.console.log(f"[yellow]Checked incomplete interfaces")
+
+            self.cap.diagnose.check_and_clear_obsoleted_interfaces()
             self.console.log(f"[yellow]Checked obsoleted interfaces")
 
             self.cap.diagnose.check_wifi_tag_consistency()

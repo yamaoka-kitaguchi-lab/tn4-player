@@ -84,8 +84,8 @@ class Karte:
 
 class Annotation:
     def __init__(self, message, severity=1):
-        self.severity = severity
         self.message  = message
+        self.severity = severity
 
 
     def dump(self):

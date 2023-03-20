@@ -112,7 +112,7 @@ class Diagnose():
                     if current.is_equal(desired):
                         skip = True
                     elif len(arguments) == 0:
-                        arguments = [ "out-of-use (maybe)" ]
+                        arguments = [ "Remove out-of-use entries" ]
 
                     skip &= len(annotations) == 0
 
@@ -134,7 +134,7 @@ class Diagnose():
         return kartes
 
 
-    def check_tag_to_tag_consistency(self):
+    def check_exclusive_tag_conflict(self):
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
             ## skip if the device is not Core SW or Edge SW
@@ -144,12 +144,21 @@ class Diagnose():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
 
-                if Slug.Tag.Keep in current.tags and Slug.Tag.Obsoleted in current.tags:
-                    annotation = Annotation("tag contradiction (Keep/Obsoleted)")
-                    self.interface_annotations[hostname][ifname].append(annotation)
+                if len(current.tags) > 2:
+                    if Slug.Tag.Wifi in current.tags:
+                        self.interface_annotations[hostname][ifname].append(Annotation(
+                            message="Wi-Fi tag is exclusive",
+                            severity=3
+                        ))
+
+                    if Slug.Tag.Hosting in current.tags:
+                        self.interface_annotations[hostname][ifname].append(Annotation(
+                            message="Hosting tag is exclusive",
+                            severity=3
+                        ))
 
 
-    def check_and_clear_interface(self):
+    def check_and_clear_incomplete_interfaces(self):
         has_empty_vlan = lambda s: s.tagged_oids is None and s.untagged_oid is None
         has_empty_desc = lambda s: s.description in [ None, '' ]
 
@@ -161,23 +170,56 @@ class Diagnose():
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("clear configs")
+                condition = InterfaceCondition("incomplete interface")
 
                 ## skip if the interface has 'Keep' tag or 'Protect' tag
                 if current.has_tag(Slug.Tag.Keep) or current.has_tag(Slug.Tag.Protect):
                     continue
 
-                ## skip if the interface has LAG parent
+                ## skip if the interface is a LAG child
                 if current.is_lag_member:
                     continue
 
-                is_to_reset  = not current.is_enabled
-                is_to_reset |= has_empty_desc(current) is None and has_empty_vlan(current)
-                is_to_reset |= current.interface_mode is None and current.is_enabled
+                is_to_reset  = current.interface_mode is None and current.is_enabled
                 is_to_reset |= current.interface_mode in ["tagged", "access"] and has_empty_vlan(current)
                 is_to_reset |= current.has_tag(Slug.Tag.Obsoleted)
 
                 if not is_to_reset:
+                    continue
+
+                condition.is_enabled     = CV(False, Cond.IS)
+                condition.description    = CV(None, Cond.IS)
+                condition.tags           = CV(None, Cond.IS)
+                condition.interface_mode = CV(None, Cond.IS)
+                condition.tagged_oids    = CV(None, Cond.IS)
+                condition.untagged_oid   = CV(None, Cond.IS)
+
+                self.interface_conditions[hostname][ifname].append(condition)
+
+
+    def check_and_clear_obsoleted_interfaces(self):
+        has_empty_vlan = lambda s: s.tagged_oids is None and s.untagged_oid is None
+        has_empty_desc = lambda s: s.description in [ None, '' ]
+
+        for hostname, device_interfaces in self.nb_interfaces.all.items():
+
+            ## skip if the device is not Core SW or Edge SW
+            if self.nb_devices.all[hostname]["role"] not in [ Slug.Role.CoreSW, Slug.Role.EdgeSW ]:
+                continue
+
+            for ifname, interface in device_interfaces.items():
+                current = InterfaceState(interface)
+                condition = InterfaceCondition("obsoleted interface")
+
+                ## skip if the interface has 'Keep' tag or 'Protect' tag
+                if current.has_tag(Slug.Tag.Keep) or current.has_tag(Slug.Tag.Protect):
+                    continue
+
+                ## skip if the interface is a LAG child
+                if current.is_lag_member:
+                    continue
+
+                if not current.has_tag(Slug.Tag.Obsoleted):
                     continue
 
                 condition.is_enabled     = CV(False, Cond.IS, priority=999)
@@ -223,13 +265,13 @@ class Diagnose():
                     continue
 
                 ## must be 'tagged' mode
-                condition.interface_mode = CV("tagged", Cond.IS)
+                condition.interface_mode = CV("tagged", Cond.IS, priority=900)
 
                 ## must have all D-Plane VLANs
-                condition.tagged_oids = CV(dplane_oids, Cond.INCLUDE)
+                condition.tagged_oids = CV(dplane_oids, Cond.IS, priority=900)
 
                 ## must be C-Plane VLAN
-                condition.untagged_oid = CV(cplane_oid, Cond.IS)
+                condition.untagged_oid = CV(cplane_oid, Cond.IS, priority=900)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
@@ -252,13 +294,13 @@ class Diagnose():
                     continue
 
                 ## must be 'tagged' mode
-                condition.interface_mode = CV("tagged", Cond.IS)
+                condition.interface_mode = CV("tagged", Cond.IS, priority=900)
 
                 ## must have all hosting VLANs
-                condition.tagged_oids = CV(hosting_oids, Cond.INCLUDE)
+                condition.tagged_oids = CV(hosting_oids, Cond.IS, priority=900)
 
                 ## must not have untagged VLAN
-                condition.untagged_oid = CV(None, Cond.IS)
+                condition.untagged_oid = CV(None, Cond.IS, priority=900)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 
@@ -349,7 +391,7 @@ class Diagnose():
         ## edges registered in NB but not appeared in cores' downlinks
         neglected_edges = set(uplink_oids.keys()) - edges
         for edgename in neglected_edges:
-            annotation = Annotation(f"neglected edge ({edgename})")
+            annotation = Annotation("neglected edge")
             self.device_annotations[edgename].append(annotation)
 
 
