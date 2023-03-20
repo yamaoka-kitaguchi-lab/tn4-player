@@ -384,19 +384,23 @@ if __name__ == "__main__":
         print(f"library: {__libtn4_version__}")
         sys.exit(0)
 
-    match args.command:
-        case "config" | "c":
-            code = Config(args).exec()
-        case "deploy" | "d":
-            code = Deploy(args).exec()
-        case "doctor" | "x":
-            code = Doctor(args).exec()
-        case None:
-            print_common_usage()
-            code = 0
-        case default:
-            parser.print_help()
-            code = 0
+    try:
+        match args.command:
+            case "config" | "c":
+                code = Config(args).exec()
+            case "deploy" | "d":
+                code = Deploy(args).exec()
+            case "doctor" | "x":
+                code = Doctor(args).exec()
+            case None:
+                print_common_usage()
+                code = 0
+            case default:
+                parser.print_help()
+                code = 0
+
+    except KeyboardInterrupt:
+        sys.exit(254)
 
     sys.exit(code)
 
