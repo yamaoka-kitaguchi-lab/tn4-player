@@ -78,7 +78,7 @@ class InterfaceState(StateBase):
 
 
     def to_rich(self, oid_to_vid):
-        resolver = lambda *oids: [ oid_to_vid[oid] for oid in oids ]
+        resolver = lambda *oids: sorted([ oid_to_vid[oid] for oid in oids ])
 
         enabled = "Y" if self.is_enabled else "N"
         mode    = "-" if self.interface_mode is None else self.interface_mode

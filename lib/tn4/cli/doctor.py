@@ -51,12 +51,9 @@ class Doctor(CommandBase):
         self.snapshot_basedir = f"{self.workdir_path}/project/snapshots/config.{ts}"
 
 
-    def show_kartes_as_table(self, kartes, alt_bg=False):
+    def show_kartes_as_table(self, kartes, use_panel=False):
         table = Table(show_header=True, header_style="bold red")
         table.box = box.SIMPLE
-
-        if alt_bg:
-            table.row_styles = ["none", "dim"]
 
         table.add_column("#",           style="dim")
         table.add_column("Device",      style="bold")
@@ -79,7 +76,10 @@ class Doctor(CommandBase):
             if i < len(kartes)-1:
                 table.add_row()
 
-        self.console.print(table)
+        if use_panel:
+            self.console.print(Panel.fit(table, title="Karte"))
+        else:
+            self.console.print(table)
 
 
     def exec(self):
@@ -131,7 +131,7 @@ class Doctor(CommandBase):
 
 
 
-        self.show_kartes_as_table(kartes)
+        self.show_kartes_as_table(kartes, use_panel=True)
 
 
         #with self.console.status(f"[green]Repairing..."):
