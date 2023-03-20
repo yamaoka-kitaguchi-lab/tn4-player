@@ -188,8 +188,9 @@ class CommandBase:
             self.console.log("[red bold]No hosts found. Check the typos of your condition or devices' tags on NetBox")
             ok = False
 
+        self.nb     = nb
         self.nbdata = copy.deepcopy(nb.nbdata)
-        self.ctx = copy.deepcopy(nb.ctx)
+        self.ctx    = copy.deepcopy(nb.ctx)
 
         self.ctx.interfaces = {
             hostname: interfaces

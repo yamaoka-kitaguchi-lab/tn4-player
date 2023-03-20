@@ -10,9 +10,9 @@ from tn4.doctor.repair import Repair
 
 
 class Capability:
-    def __init__(self, ctx):
+    def __init__(self, ctx, nbcli):
         self.diagnose = Diagnose(ctx)
-        self.repair   = Repair(ctx)
+        self.repair   = Repair(ctx, nbcli)
 
 
 class Doctor(CommandBase):
@@ -48,7 +48,7 @@ class Doctor(CommandBase):
         if not ok:
             return 100
 
-        cap = Capability(self.ctx)
+        cap = Capability(self.ctx, self.nb.cli)
 
         with self.console.status(f"[green]Scanning NetBox and checking consistency..."):
             cap.diagnose.check_tag_to_tag_consistency()

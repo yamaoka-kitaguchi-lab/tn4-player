@@ -1,20 +1,26 @@
-from pprint import pprint
-
-from tn4.netbox.slug import Slug
-from tn4.doctor.karte import Karte, KarteType
+from tn4.doctor.karte import KarteType
 
 
 class Repair:
-    def __init__(self, ctx):
-        self.ctx   = ctx
+    def __init__(self, ctx, nb_client):
+        self.ctx = ctx
+        self.cli = nb_client
 
 
     def __interface_repair(self, karte):
-        self.ctx.interfaces.update()
+        if karte.type == KarteType:
+            return self.cli.interfaces.update(karte.hostname, karte.ifname, **{
+                "description":   karte.desired_state.description,
+                "enabled":       karte.desired_state.is_enabled,
+                "tags":          karte.desired_state.tags,
+                "mode":          karte.desired_state.interface_mode,
+                "untagged_vlan": karte.desired_state.untagged_oid,
+                "tagged_vlans":  karte.desired_state.tagged_oids,
+            })
 
 
     def __device_repair(self, karte):
-        pass
+        return
 
 
     def by_karte(self, *kartes):
