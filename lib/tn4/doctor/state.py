@@ -51,6 +51,10 @@ class DeviceState(StateBase):
         super().__init__(nb_object)
 
 
+    def to_rich(self, *args):
+        return "-"
+
+
 class InterfaceState(StateBase):
     def __init__(self, nb_object=None):
         super().__init__(nb_object)
@@ -71,4 +75,24 @@ class InterfaceState(StateBase):
         self.interface_mode = None
         if nb_object["mode"] is not None:
             self.interface_mode = nb_object["mode"]["value"]  # "access", "tagged", or "tagged-all"
+
+
+    def to_rich(self, oid_to_vid):
+        resolver = lambda *oids: [ oid_to_vid[oid] for oid in oids ]
+
+        enabled = "Y" if self.is_enabled else "N"
+        mode    = "-" if self.interface_mode is None else self.interface_mode
+        vlan_t  = "-" if self.tagged_oids is None else ", ".join(resolver(self.tagged_oids))
+        vlan_u  = "-" if self.untagged_oid is None else resolver(self.untagged_oid)
+        tags    = ", ".join(self.tags)
+        desc    = "-" if self.description is None else self.description
+
+        return "\n".join([
+            f"[bold]Enabled:[/bold] {enabled}",
+            f"[bold]Mode:   [/bold] {mode}",
+            f"[bold]VLAN(U):[/bold] {vlan_u}",
+            f"[bold]VLAN(T):[/bold] {vlan_t}",
+            f"[bold]Tags:   [/bold] {tags}",
+            f"[bold]Desc:   [/bold] {desc}",
+        ])
 

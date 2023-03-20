@@ -94,3 +94,17 @@ class Annotation:
             "Message": self.message,
         }
 
+
+    def __str__(self):
+        match self.severity:
+            case 0:
+                severity = "DEBUG"
+            case 1:
+                severity = "INFO"
+            case 2:
+                severity = "WARN"
+            case 3:
+                severity = "CRITICAL"
+
+        return f"{self.message} ({severity})"
+
