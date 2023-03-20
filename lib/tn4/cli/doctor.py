@@ -19,11 +19,13 @@ class Capability:
         self.diagnose = Diagnose(ctx)
         self.repair   = Repair(ctx, nbcli)
 
-        vlans = self.diagnose.nb_vlans
-        self.oid_to_vid = {
-            vlan["id"]: vlan["vid"]
-            for vlan in vlans.all.values() if vlan["group"]["slug"] == Slug.VLANGroup.Titanet
-        }
+        self.oid_to_vid = {}
+
+        for vlan in self.diagnose.nb_vlans.all.values():
+            v = str(vlan["vid"])
+            if vlan["group"]["slug"] != Slug.VLANGroup.Titanet:
+                v += "!"
+            self.oid_to_vid[vlan["id"]] = v
 
 
 class Doctor(CommandBase):
@@ -77,7 +79,7 @@ class Doctor(CommandBase):
             if i < len(kartes)-1:
                 table.add_row()
 
-            self.console.print(table)
+        self.console.print(table)
 
 
     def exec(self):
