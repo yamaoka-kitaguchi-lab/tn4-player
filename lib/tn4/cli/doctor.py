@@ -51,7 +51,7 @@ class Doctor(CommandBase):
         self.snapshot_basedir = f"{self.workdir_path}/project/snapshots/config.{ts}"
 
 
-    def show_kartes_as_table(self, kartes, use_panel=False):
+    def show_karte_and_ask(self, *all_kartes, use_panel=False, skip_confirm=False):
         table = Table(show_header=True, header_style="bold white")
         table.box = box.SIMPLE
 
@@ -63,8 +63,9 @@ class Doctor(CommandBase):
         table.add_column("Arguments",   style="cyan")
         table.add_column("Annotations", style="dim")
 
-        for i, karte in enumerate(kartes):
-            r =  [ str(i+1), karte.hostname ]
+        for i, karte in enumerate(all_kartes):
+            r =  [ str(i+1) if karte.desired_state is not None else "" ]
+            r += [ karte.hostname ]
             r += [ "-" if karte.ifname is None else karte.ifname ]
             r += [ "-" if karte.current_state is None else karte.current_state.to_rich(self.cap.oid_to_vid) ]
             r += [ "-" if karte.desired_state is None else karte.desired_state.to_rich(self.cap.oid_to_vid) ]
@@ -73,13 +74,16 @@ class Doctor(CommandBase):
 
             table.add_row(*r)
 
-            if i < len(kartes)-1:
+            if i < len(all_kartes)-1:
                 table.add_row()
 
         if use_panel:
             self.console.print(Panel.fit(table, title="Device Interface Karte"))
         else:
             self.console.print(table)
+
+
+        return all_kartes
 
 
     def exec(self):
@@ -126,9 +130,8 @@ class Doctor(CommandBase):
         if self.flg_diagnosis_only:
             return 0
 
-        kartes = self.cap.diagnose.summarize()
-
-        self.show_kartes_as_table(kartes, use_panel=True)
+        all_kartes = self.cap.diagnose.summarize()
+        kartes = self.show_karte_and_ask(*all_kartes, use_panel=True, skip_confirm=False)
 
 
         #with self.console.status(f"[green]Repairing..."):
