@@ -4,7 +4,7 @@ from tn4.netbox.slug import Slug
 from tn4.doctor.karte import Karte, KarteType
 
 
-class Repair():
+class Repair:
     def __init__(self, ctx):
         self.ctx   = ctx
 
@@ -17,9 +17,14 @@ class Repair():
         pass
 
 
-    def repair(self, karte):
-        if karte.ifname is None:
-            return self.__device_repair(karte)
-        else:
-            return self.__interface_repair(karte)
+    def by_karte(self, *kartes):
+        rt = 0
+
+        for karte in kartes:
+            if karte.ifname is None:
+                rt += self.__device_repair(karte)
+            else:
+                rt += self.__interface_repair(karte)
+
+        return rt
 

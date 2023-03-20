@@ -88,7 +88,7 @@ class Doctor(CommandBase):
 
         #with self.console.status(f"[green]Repairing..."):
         #    for karte in kartes:
-        #        cap.repair(karte)
+        #        cap.repair.by_karte(karte)
 
 
 
