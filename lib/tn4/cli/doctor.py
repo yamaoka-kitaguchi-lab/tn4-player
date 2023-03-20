@@ -82,11 +82,15 @@ class Doctor(CommandBase):
         table.add_column("Annotations", style="dim")
 
         for i, karte in enumerate(all_kartes):
+            if karte.current_state is not None and karte.desired_state is not None:
+                current = karte.current_state.to_rich_with(self.cap.oid_to_vid, karte.desired_state)
+                desired = karte.desired_state.to_rich_with(self.cap.oid_to_vid, karte.current_state)
+
             r =  [ str(i+1) if karte.desired_state is not None else "" ]
             r += [ karte.hostname ]
             r += [ "-" if karte.ifname is None else karte.ifname ]
-            r += [ "-" if karte.current_state is None else karte.current_state.to_rich(self.cap.oid_to_vid) ]
-            r += [ "-" if karte.desired_state is None else karte.desired_state.to_rich(self.cap.oid_to_vid) ]
+            r += [ "-" if karte.current_state is None else current ]
+            r += [ "-" if karte.desired_state is None else desired ]
             r += [ "-" if karte.arguments is None else "\n".join(karte.arguments) ]
             r += [ "-" if karte.annotations is None else "\n".join(map(str, karte.annotations)) ]
 

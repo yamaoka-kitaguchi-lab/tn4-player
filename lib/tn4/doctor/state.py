@@ -77,15 +77,32 @@ class InterfaceState(StateBase):
             self.interface_mode = nb_object["mode"]["value"]  # "access", "tagged", or "tagged-all"
 
 
-    def to_rich(self, oid_to_vid):
+    def to_rich_with(self, oid_to_vid, their):
+        vlan_t_vids = None
+        resolver = lambda *oids: sorted([ oid_to_vid[oid] for oid in oids ])
+        diff     = lambda a, b: [ f"*{i}" if i in list(set(a)-set(b)) else str(i) for i in a ]
+
+        if self.tagged_oids is not None and their.tagged_oids is not None:
+            self_tagged_vids  = resolver(*self.tagged_oids)
+            their_tagged_vids = resolver(*their.tagged_oids)
+            vlan_t_vids       = diff(self_tagged_vids, their_tagged_vids)
+
+        return self.to_rich(oid_to_vid, vlan_t_vids=vlan_t_vids)
+
+
+    def to_rich(self, oid_to_vid, vlan_t_vids=None):
         resolver = lambda *oids: sorted([ oid_to_vid[oid] for oid in oids ])
 
         enabled = "Y" if self.is_enabled else "N"
         mode    = "-" if self.interface_mode is None else self.interface_mode
-        vlan_t  = "-" if self.tagged_oids is None else ", ".join(resolver(*self.tagged_oids))
         vlan_u  = "-" if self.untagged_oid is None else resolver(self.untagged_oid)[0]
         tags    = "-" if len(self.tags) == 0 else ", ".join(self.tags)
         desc    = "-" if self.description is None else self.description
+
+        if vlan_t_vids is None:
+            vlan_t = "-" if self.tagged_oids is None else ", ".join(resolver(*self.tagged_oids))
+        else:
+            vlan_t = ", ".join(vlan_t_vids)
 
         return "\n".join([
             f"[bold]Enabled:[/bold] {enabled}",
