@@ -193,13 +193,23 @@ class Doctor(CommandBase):
 
         with self.console.status(f"[green]Repairing..."):
             n = len(kartes)
+
             for i, karte in enumerate(kartes):
-                #cap.repair.by_karte(karte)
-                self.console.log(
-                    f"[yellow]Repaired "
-                    f"[b]{karte.ifname}[/b] on [b]{karte.hostname}[/b] "
-                    f"[dim]({i+1} of {n} finished)"
-                )
+                code = cap.repair.by_karte(karte)
+
+                if 200 <= code < 300:
+                    self.console.log(
+                        f"[yellow]Repaired "
+                        f"[b]{karte.ifname}[/b] on [b]{karte.hostname}[/b] "
+                        f"[dim]({i+1} of {n} finished)"
+                    )
+                else:
+                    self.console.log(
+                        f"[red]Faild to repair "
+                        f"[b]{karte.ifname}[/b] on [b]{karte.hostname}[/b] "
+                        f"[dim](exit with {dode})"
+                    )
 
         self.console.log(f"[yellow]Done.")
         return 0
+

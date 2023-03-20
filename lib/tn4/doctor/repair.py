@@ -9,7 +9,7 @@ class Repair:
 
     def __interface_repair(self, karte):
         if karte.type == KarteType:
-            return self.cli.interfaces.update(karte.hostname, karte.ifname, **{
+            _, code = self.cli.interfaces.update(karte.hostname, karte.ifname, **{
                 "description":   karte.desired_state.description,
                 "enabled":       karte.desired_state.is_enabled,
                 "tags":          karte.desired_state.tags,
@@ -17,6 +17,7 @@ class Repair:
                 "untagged_vlan": karte.desired_state.untagged_oid,
                 "tagged_vlans":  karte.desired_state.tagged_oids,
             })
+            return code
 
 
     def __device_repair(self, karte):
