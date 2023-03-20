@@ -63,10 +63,11 @@ class Doctor(CommandBase):
         return l
 
 
-    def show_karte_and_ask(self, *unsorted_all_kartes, use_panel=False, skip_confirm=False, again=False):
+    def show_karte_and_ask(self, *unsorted_all_kartes, target_hosts=[],
+                           use_panel=False, skip_confirm=False, again=False):
         all_kartes = [
-            *[ k for k in unsorted_all_kartes if k.desired_state is not None ],
-            *[ k for k in unsorted_all_kartes if k.desired_state is None ],
+            *[ k for k in unsorted_all_kartes if k.hostname in target_hosts and k.desired_state is not None ],
+            *[ k for k in unsorted_all_kartes if k.hostname in target_hosts and k.desired_state is None ],
         ]
 
         table = Table(show_header=True, header_style="bold white")
@@ -136,7 +137,6 @@ class Doctor(CommandBase):
 
     def exec(self):
         ok = self.fetch_inventory(
-            *self.fetch_inventory_opts,
             netbox_url=self.netbox_url, netbox_token=self.netbox_token,
             use_cache=self.flg_use_cache, debug=self.flg_debug, fetch_all=True
         )
@@ -178,8 +178,10 @@ class Doctor(CommandBase):
         if self.flg_diagnosis_only:
             return 0
 
+        hosts  = self.filter_hosts(*self.fetch_inventory_opts)
         kartes = self.cap.diagnose.summarize()
-        kartes = self.show_karte_and_ask(*kartes, use_panel=False, skip_confirm=False)
+        kartes = self.show_karte_and_ask(*kartes, target_hosts=hosts,
+                                         use_panel=False, skip_confirm=self.flg_force_repair)
 
 
         #with self.console.status(f"[green]Repairing..."):

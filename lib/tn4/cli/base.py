@@ -47,6 +47,79 @@ class CommandBase:
     }
 
 
+    ## CAUTION: filter_hosts() and fetch_inventory() are TIGHT coupling
+    def filter_hosts(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[],
+                     vendors=[], no_vendors=[], tags=[], no_tags=[]):
+        flatten = lambda x: [z for y in x for z in (flatten(y) if hasattr(y, '__iter__') and not isinstance(y, str) else (y,))]
+
+        hostnames = []
+        target_hosts = set()
+        area_to_hosts, role_to_hosts, vendor_to_hosts, tag_to_hosts = {}, {}, {}, {}
+
+        for hostname, hostvar in self.nb_inventory["_meta"]["hosts"].items():
+            hostnames.append(hostname)
+            area_to_hosts.setdefault(hostvar["region"], []).append(hostname)
+            area_to_hosts.setdefault(hostvar["sitegp"], []).append(hostname)
+            role_to_hosts.setdefault(hostvar["role"], []).append(hostname)
+            vendor_to_hosts.setdefault(hostvar["manufacturer"], []).append(hostname)
+
+            for tag in hostvar["device_tags"]:
+                tag_to_hosts.setdefault(tag, []).append(hostname)
+
+        typos = []
+        for host in [*hosts, *no_hosts]:
+            if host not in hostnames:
+                typos.append(host)
+
+        for area in [*areas, *no_areas]:
+            if area not in area_to_hosts:
+                typos.append(area)
+
+        for role in [*roles, *no_roles]:
+            if role not in role_to_hosts:
+                typos.append(role)
+
+        for vendor in [*vendors, *no_vendors]:
+            if vendor not in vendor_to_hosts:
+                typos.append(vendor)
+
+        for tag in [*tags, *no_tags]:
+            if tag not in tag_to_hosts:
+                typos.append(tag)
+
+        if len(typos) > 0:
+            self.console.log("[red bold]Aborted. Your condition may contain NetBox undefined keywords. Typos?")
+            self.console.log(f"[red dim]{', '.join(typos)}")
+            sys.exit(1)
+
+        target_hosts |= set(hosts)
+
+        if len(target_hosts) == 0:
+            target_hosts |= set(self.nb_inventory["_meta"]["hosts"].keys())
+
+        target_hosts -= set(no_hosts)
+
+        if areas:
+            target_hosts &= set(flatten([ area_to_hosts[area] for area in areas ]))
+        if no_areas:
+            target_hosts -= set(flatten([ area_to_hosts[no_area] for no_area in no_areas ]))
+        if roles:
+            target_hosts &= set(flatten([ role_to_hosts[role] for role in roles ]))
+        if no_roles:
+            target_hosts -= set(flatten([ role_to_hosts[no_role] for no_role in no_roles ]))
+        if vendors:
+            target_hosts &= set(flatten([ vendor_to_hosts[vendor] for vendor in vendors ]))
+        if no_vendors:
+            target_hosts -= set(flatten([ vendor_to_hosts[no_vendor] for no_vendor in no_vendors ]))
+        if tags:
+            target_hosts &= set(flatten([ tag_to_hosts[tag] for tag in tags ]))
+        if no_tags:
+            target_hosts -= set(flatten([ tag_to_hosts[no_tag] for no_tag in no_tags ]))
+
+        self.role_to_hosts = role_to_hosts
+        return sorted(list(target_hosts))  # type conversion: set to list
+
+
     def fetch_inventory(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[],
                         vendors=[], no_vendors=[], tags=[], no_tags=[],
                         netbox_url=None, netbox_token=None, use_cache=False, debug=False, fetch_all=False):
@@ -87,94 +160,26 @@ class CommandBase:
             self.console.log(f"[yellow]Loading finished from {nb.cli.interfaces.path} in {et} sec {annotation}")
 
             nb.nbdata = nb.cli.merge_inventory(devices, interfaces)
-            inventory = nb.fetch_inventory(fetch_all=fetch_all)
+            self.nb_inventory = nb.fetch_inventory(fetch_all=fetch_all)
             self.console.log(f"[yellow]Building Titanet4 inventory completed")
 
-        ok = True
-        hostnames = []
-        target_hosts = set()
-        area_to_hosts, role_to_hosts, vendor_to_hosts, tag_to_hosts = {}, {}, {}, {}
-        flatten = lambda x: [z for y in x for z in (flatten(y) if hasattr(y, '__iter__') and not isinstance(y, str) else (y,))]
-
-        for hostname, hostvar in inventory["_meta"]["hosts"].items():
-            hostnames.append(hostname)
-            area_to_hosts.setdefault(hostvar["region"], []).append(hostname)
-            area_to_hosts.setdefault(hostvar["sitegp"], []).append(hostname)
-            role_to_hosts.setdefault(hostvar["role"], []).append(hostname)
-            vendor_to_hosts.setdefault(hostvar["manufacturer"], []).append(hostname)
-
-            for tag in hostvar["device_tags"]:
-                tag_to_hosts.setdefault(tag, []).append(hostname)
-
-        typos = []
-        for host in [*hosts, *no_hosts]:
-            if host not in hostnames:
-                typos.append(host)
-
-        for area in [*areas, *no_areas]:
-            if area not in area_to_hosts:
-                typos.append(area)
-
-        for role in [*roles, *no_roles]:
-            if role not in role_to_hosts:
-                typos.append(role)
-
-        for vendor in [*vendors, *no_vendors]:
-            if vendor not in vendor_to_hosts:
-                typos.append(vendor)
-
-        for tag in [*tags, *no_tags]:
-            if tag not in tag_to_hosts:
-                typos.append(tag)
-
-        if len(typos) > 0:
-            self.console.log("[red bold]Aborted. Your condition may contain NetBox undefined keywords. Typos?")
-            self.console.log(f"[red dim]{', '.join(typos)}")
-            ok = False
-
-        if not ok:
-            return ok
-
-        target_hosts |= set(hosts)
-
-        if len(target_hosts) == 0:
-            target_hosts |= set(inventory["_meta"]["hosts"].keys())
-
-        target_hosts -= set(no_hosts)
-
-        if areas:
-            target_hosts &= set(flatten([ area_to_hosts[area] for area in areas ]))
-        if no_areas:
-            target_hosts -= set(flatten([ area_to_hosts[no_area] for no_area in no_areas ]))
-        if roles:
-            target_hosts &= set(flatten([ role_to_hosts[role] for role in roles ]))
-        if no_roles:
-            target_hosts -= set(flatten([ role_to_hosts[no_role] for no_role in no_roles ]))
-        if vendors:
-            target_hosts &= set(flatten([ vendor_to_hosts[vendor] for vendor in vendors ]))
-        if no_vendors:
-            target_hosts -= set(flatten([ vendor_to_hosts[no_vendor] for no_vendor in no_vendors ]))
-        if tags:
-            target_hosts &= set(flatten([ tag_to_hosts[tag] for tag in tags ]))
-        if no_tags:
-            target_hosts -= set(flatten([ tag_to_hosts[no_tag] for no_tag in no_tags ]))
+        target_hosts = self.filter_hosts(hosts, no_hosts, areas, no_areas,
+                                         roles, no_roles, vendors, no_vendors, tags, no_tags)
 
         self.ansible_common_vars = {}
         with open(self.group_vars_path) as fd:
             self.ansible_common_vars |= safe_load(fd)
-
-        target_hosts = sorted(list(target_hosts))  # type conversion: set to list
 
         self.inventory = {
             **{
                 role: {
                     "hosts": { h: {} for h in hosts if h in target_hosts }
                 }
-                for role, hosts in role_to_hosts.items()
+                for role, hosts in self.role_to_hosts.items()
             },
             "_meta": {
                 "hosts": OrderedDict({
-                    host: inventory["_meta"]["hosts"][host]
+                    host: self.nb_inventory["_meta"]["hosts"][host]
                     for host in target_hosts
                 })
             }
@@ -186,7 +191,7 @@ class CommandBase:
             self.console.log(f"[yellow dim]{', '.join(target_hosts)}")
         else:
             self.console.log("[red bold]No hosts found. Check the typos of your condition or devices' tags on NetBox")
-            ok = False
+            sys.exit(1)
 
         self.nb     = nb
         self.nbdata = copy.deepcopy(nb.nbdata)
@@ -197,4 +202,4 @@ class CommandBase:
             for hostname, interfaces in self.ctx.interfaces.items() if hostname in target_hosts
         }
 
-        return ok
+        return True
