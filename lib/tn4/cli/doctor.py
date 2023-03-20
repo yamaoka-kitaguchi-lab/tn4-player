@@ -6,6 +6,7 @@ from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 from rich.table import Table
 import os
+import sys
 import time
 
 from tn4.cli.base import CommandBase
@@ -51,7 +52,18 @@ class Doctor(CommandBase):
         self.snapshot_basedir = f"{self.workdir_path}/project/snapshots/config.{ts}"
 
 
-    def show_karte_and_ask(self, *all_kartes, use_panel=False, skip_confirm=False):
+    def __flatten_num_string(self, nstr):
+        l = []
+        for n in nstr.split():
+            if "-" in n:
+                a, b = map(int, n.split("-"))
+                l.extend([i for i in range(a,b+1)])
+            else:
+                l.append(int(n))
+        return l
+
+
+    def show_karte_and_ask(self, *all_kartes, use_panel=False, skip_confirm=False, again=False):
         table = Table(show_header=True, header_style="bold white")
         table.box = box.SIMPLE
 
@@ -82,8 +94,35 @@ class Doctor(CommandBase):
         else:
             self.console.print(table)
 
+        indices = [ i+1 for i, k in enumerate(all_kartes) if k.desired_state is not None ]
 
-        return all_kartes
+        print()
+        if skip_confirm:
+            with self.console.status("[bold]Performing force repair in 5 seconds..."):
+                time.sleep(5)
+
+        else:
+            nstr = Prompt.ask("Interfaces to skip repairing (eg: 1 3 5-9)")
+            skipped_indices = self.__flatten_num_string(nstr)
+            target_indices  = list(set(indices) - set(skipped_indices))
+            target_kartes   = [ k for i, k in enumerate(all_kartes) if i+1 in target_indices ]
+
+            if len(target_kartes) < len(all_kartes):
+                m = ', '.join(map(str, skipped_indices))
+                self.console.log(f"[yellow]Omitted the following from the above list: [dim]{m}")
+                return self.show_karte_and_ask(*target_kartes, use_panel=use_panel, again=True)
+
+            is_confirmed = Confirm.ask(
+                f"You are about to repair [bold yellow]{len(target_kartes)}[/bold yellow] interfaces. Continue?",
+                default=False
+            )
+            print()
+
+            if not is_confirmed:
+                self.console.log("[yellow]Aborted, bye.")
+                sys.exit(0)
+
+        return target_kartes
 
 
     def exec(self):
@@ -130,8 +169,8 @@ class Doctor(CommandBase):
         if self.flg_diagnosis_only:
             return 0
 
-        all_kartes = self.cap.diagnose.summarize()
-        kartes = self.show_karte_and_ask(*all_kartes, use_panel=True, skip_confirm=False)
+        kartes = self.cap.diagnose.summarize()
+        kartes = self.show_karte_and_ask(*kartes, use_panel=False, skip_confirm=False)
 
 
         #with self.console.status(f"[green]Repairing..."):
