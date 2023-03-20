@@ -5,19 +5,6 @@ from tn4.doctor.cv import ConditionalValue
 from tn4.helper.utils import flatten
 
 
-class Annotation:
-    def __init__(self, message, severity=1):
-        self.severity = severity
-        self.message  = message
-
-
-    def dump(self):
-        return {
-            "Severity": self.severity,
-            "Message": self.message,
-        }
-
-
 class InterfaceCondition:
     def __init__(self, argument, manual_repair=False):
         self.argument       = argument
@@ -64,17 +51,19 @@ class InterfaceCondition:
         }
 
 
-class Category(Flag):
+class KarteType(Flag):
     WARN   = auto()
     CREATE = auto()
     UPDATE = auto()
     DELETE = auto()
 
 
-class Assessment:
-    def __init__(self, category, keys=[], current=None, desired=None, arguments=[], annotations=[]):
-        self.category      = category
-        self.keys          = keys
+class Karte:
+    def __init__(self, karte_type, hostname,
+                 ifname=None, current=None, desired=None, arguments=[], annotations=[]):
+        self.type          = karte_type
+        self.hostname      = hostname
+        self.ifname        = ifname
         self.current_state = current
         self.desired_state = desired
         self.arguments     = arguments
@@ -83,50 +72,25 @@ class Assessment:
 
     def dump(self):
         return {
+            "Type":        self.type,
+            "Device":      self.hostname,
+            "Interface":   self.ifname,
             "Arguments":   self.arguments,
-            "Annotations": [ v.dump() for v in self.annotations ],
-            "Category":    self.category,
             "Current":     self.current_state.dump() if self.current_state is not None else None,
             "Desired":     self.desired_state.dump() if self.desired_state is not None else None,
+            "Annotations": [ v.dump() for v in self.annotations ],
         }
 
 
-class KarteType(Flag):
-    DEVICE    = auto()
-    INTERFACE = auto()
-    UNDEFINED = auto()
-
-
-class Karte:
-    def __init__(self, karte_type=KarteType.UNDEFINED):
-        self.type = karte_type
-        self.all  = {}
-
-
-    def add(self, assessment):
-        v = self.all
-        for i, k in enumerate(assessment.keys):
-            if k not in v:
-                v[k] = {} if i < len(assessment.keys)-1 else []
-            v = v[k]
-
-        v.append(assessment)
+class Annotation:
+    def __init__(self, message, severity=1):
+        self.severity = severity
+        self.message  = message
 
 
     def dump(self):
-        v = {}
-
-        for hostname in sorted(self.all):
-            v[hostname] = {}
-
-            if type(self.all[hostname]) != dict:
-                assess = self.all[hostname][0]
-                v[hostname] = assess.dump()
-
-            else:
-                for ifname in self.all[hostname]:
-                    assess = self.all[hostname][ifname][0]
-                    v[hostname][ifname] = assess.dump()
-
-        return v
+        return {
+            "Severity": self.severity,
+            "Message": self.message,
+        }
 

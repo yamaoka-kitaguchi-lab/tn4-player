@@ -78,15 +78,17 @@ class Doctor(CommandBase):
         if self.flg_diagnosis_only:
             return 0
 
-        device_karte, interface_karte = cap.diagnose.summarize()
-
-        #pprint(device_karte.dump(), sort_dicts=True)  # debug
-        pprint(interface_karte.dump(), sort_dicts=True)  # debug
+        kartes = cap.diagnose.summarize()
 
 
+        # deleteme
+        for karte in kartes:
+            pprint(karte.dump())
 
-        for assess in assessments:
-            cap.repair.by_assessment(assess)
+
+        #with self.console.status(f"[green]Repairing..."):
+        #    for karte in kartes:
+        #        cap.repair(karte)
 
 
 

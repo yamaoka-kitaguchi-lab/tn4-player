@@ -8,7 +8,7 @@ from tn4.doctor.cv import Condition as Cond
 from tn4.doctor.cv import ConditionalValue as CV
 from tn4.doctor.base import Vlans, Devices, Interfaces
 from tn4.doctor.state import DeviceState, InterfaceState
-from tn4.doctor.karte import InterfaceCondition, Category, Assessment, Annotation, Karte, KarteType
+from tn4.doctor.karte import InterfaceCondition, KarteType, Karte, Annotation
 
 
 class Diagnose():
@@ -69,8 +69,7 @@ class Diagnose():
 
 
     def summarize(self):
-        device_karte    = Karte(karte_type=KarteType.DEVICE)
-        interface_karte = Karte(karte_type=KarteType.INTERFACE)
+        kartes    = []
 
         has_annotation = lambda h, i: h in self.interface_annotations and i in self.interface_annotations[h]
         has_condition  = lambda h, i: h in self.interface_conditions and i in self.interface_conditions[h]
@@ -78,9 +77,9 @@ class Diagnose():
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
             if len(self.device_annotations[hostname]) > 0:
-                device_karte.add(Assessment(
-                    category=Category.WARN,
-                    keys=[hostname],
+                kartes.append(Karte(
+                    karte_type=KarteType.WARN,
+                    hostname=hostname,
                     current=DeviceState(self.nb_devices.all[hostname]),
                     desired=None,
                     arguments=None,
@@ -105,7 +104,7 @@ class Diagnose():
                 skip        = False
 
                 if ok:
-                    category    = Category.UPDATE
+                    karte_type  = KarteType.UPDATE
                     annotations = []
                     if has_annotation(hostname, ifname):
                         annotations = self.interface_annotations[hostname][ifname]
@@ -118,20 +117,21 @@ class Diagnose():
                     skip &= len(annotations) == 0
 
                 else:
-                    category    = Category.WARN
+                    karte_type  = KarteType.WARN
                     annotations = [ Annotation("CONFLICTED!") ]
 
                 if not skip:
-                    interface_karte.add(Assessment(
-                        category=category,
-                        keys=[hostname, ifname],
+                    kartes.append(Karte(
+                        karte_type=karte_type,
+                        hostname=hostname,
+                        ifname=ifname,
                         current=current,
                         desired=desired,
                         arguments=arguments,
                         annotations=annotations,
                     ))
 
-        return device_karte, interface_karte
+        return kartes
 
 
     def check_tag_to_tag_consistency(self):

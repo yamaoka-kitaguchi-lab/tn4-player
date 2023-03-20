@@ -4,29 +4,22 @@ from tn4.netbox.slug import Slug
 from tn4.doctor.karte import Karte, KarteType
 
 
-class RepairBase():
+class Repair():
     def __init__(self, ctx):
         self.ctx   = ctx
 
 
-    def repair_from_karte(self, karte):
-        rt = 0
-        for assess in karte.all:
-            rt += self.repair(assess)
-
-        return rt
-
-
-class InterfaceRepair(RepairBase):
-    def __init__(self, ctx):
-        super().__init__(ctx)
-
-
-    def repair(self, assessment):
+    def __interface_repair(self, karte):
         self.ctx.interfaces.update()
 
 
-class DeviceRepair(RepairBase):
-    def __init__(self, ctx):
-        super().__init__(ctx)
+    def __device_repair(self, karte):
+        pass
+
+
+    def repair(self, karte):
+        if karte.ifname is None:
+            return self.__device_repair(karte)
+        else:
+            return self.__interface_repair(karte)
 
