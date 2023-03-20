@@ -192,9 +192,14 @@ class Doctor(CommandBase):
                                          diagnosis_only=self.flg_diagnosis_only)
 
         with self.console.status(f"[green]Repairing..."):
-            for karte in kartes:
-                cap.repair.by_karte(karte)
+            n = len(kartes)
+            for i, karte in enumerate(kartes):
+                #cap.repair.by_karte(karte)
+                self.console.log(
+                    f"[yellow]Repaired "
+                    f"[b]{karte.ifname}[/b] on [b]{karte.hostname}[/b] "
+                    f"[dim]({i+1} of {n} finished)"
+                )
 
-
-
+        self.console.log(f"[yellow]Done.")
         return 0
