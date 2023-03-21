@@ -82,6 +82,9 @@ class Doctor(CommandBase):
         table.add_column("Annotations", style="dim")
 
         for i, karte in enumerate(all_kartes):
+            if karte.current_state is not None:
+                current = karte.current_state.to_rich(self.cap.oid_to_vid)
+
             if karte.current_state is not None and karte.desired_state is not None:
                 current = karte.current_state.to_rich_with(self.cap.oid_to_vid, karte.desired_state)
                 desired = karte.desired_state.to_rich_with(self.cap.oid_to_vid, karte.current_state)
