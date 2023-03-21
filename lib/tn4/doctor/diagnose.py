@@ -123,7 +123,10 @@ class Diagnose():
 
                 else:
                     karte_type  = KarteType.WARN
-                    annotations = [ Annotation("CONFLICTED!", severity=3) ]
+                    annotations = [
+                        Annotation("CV calculation failed", severity=3),
+                        Annotation("need manual repair", severity=3),
+                    ]
 
                 if not skip:
                     kartes.append(Karte(
