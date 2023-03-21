@@ -41,37 +41,51 @@ class Interfaces(ClientBase):
         return addr4, addr6
 
 
-    def update(self, device_name, interface_name,
-               description=None, enabled=None, mode=None, untagged_vlanid=None, tagged_vlanids=None, tags=None):
+    def update(self, ctx, device_name, interface_name, **kwargs):
         data = []
         body = {
             "id": self.all_interfaces[device_name][interface_name]["id"]
         }
 
-        if description is not None:
-            body["description"] = description
+        if "description" in kwargs:
+            if kwargs["description"] is not None:
+                body["description"] = kwargs["description"]  # str
+            else:
+                body["description"] = ""
 
-        if enabled is not None:
-            body["enabled"] = enabled
+        if "enabled" in kwargs:
+            body["enabled"] = kwargs["enabled"]  # True or False
 
-        if tags is not None:
-            body["tags"] = [{"slug": tag} for tag in tags]
+        if "tags" in kwargs:
+            if kwargs["tags"] is not None:
+                body["tags"] = kwargs["tags"]  # list of slugs
+            else:
+                body["tags"] = []
 
-        if mode is not None:
-            if mode.lower() == "access":
-                body["mode"] = "access"
-            if mode.lower() in ["tagged", "trunk"]:
-                body["mode"] = "tagged"
+        if "mode" in kwargs:
+            if kwargs["mode"] is not None:
+                if kwargs["mode"].lower() == "access":
+                    body["mode"] = "access"
+                if kwargs["mode"].lower() in ["tagged", "trunk"]:
+                    body["mode"] = "tagged"
+            else:
+                body["mode"] = None
 
-        if untagged_vlanid is not None:
-            body["untagged_vlan"] = int(untagged_vlanid)
+        if "untagged_vlanid" in kwargs:
+            if kwargs["untagged_vlanid"] is not None:
+                body["untagged_vlan"] = int(kwargs["untagged_vlanid"])
+            else:
+                body["untagged_vlan"] = None
 
-        if tagged_vlanids is not None:
-            body["tagged_vlans"] = list(map(int, tagged_vlanids))
+        if "tagged_vlanids" in kwargs:
+            if kwargs["tagged_vlanids"] is not None:
+                body["tagged_vlans"] = list(map(int, kwargs["tagged_vlanids"]))
+            else:
+                body["tagged_vlans"] = []
 
         data.append(body)
         if data:
-            return self.query(self.path, data, update=True)
+            return self.query(ctx, self.path, data, update=True)
         return
 
 

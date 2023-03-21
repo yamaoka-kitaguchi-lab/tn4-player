@@ -104,6 +104,10 @@ class Diagnose():
                 desired, ok = self.__build_desired(current, condition)
                 skip        = False
 
+                if condition.manual_repair:
+                    desired = None
+                    self.interface_annotations[hostname][ifname].append(["need manual repair"])
+
                 if ok:
                     karte_type  = KarteType.UPDATE
                     annotations = []
@@ -119,7 +123,10 @@ class Diagnose():
 
                 else:
                     karte_type  = KarteType.WARN
-                    annotations = [ Annotation("CONFLICTED!") ]
+                    annotations = [
+                        Annotation("CV calculation failed", severity=3),
+                        Annotation("need manual repair", severity=3),
+                    ]
 
                 if not skip:
                     kartes.append(Karte(
@@ -145,7 +152,7 @@ class Diagnose():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
 
-                if len(current.tags) > 2:
+                if len(current.tags) > 1:
                     if Slug.Tag.Wifi in current.tags:
                         self.interface_annotations[hostname][ifname].append(Annotation(
                             message="Wi-Fi tag is exclusive",
@@ -265,6 +272,9 @@ class Diagnose():
                 if not current.has("is_to_ap"):
                     continue
 
+                ## must be enabled
+                condition.is_enabled = CV(True, Cond.IS, priority=900)
+
                 ## must be 'tagged' mode
                 condition.interface_mode = CV("tagged", Cond.IS, priority=900)
 
@@ -294,6 +304,9 @@ class Diagnose():
                 if not current.has_tag(Slug.Tag.Hosting):
                     continue
 
+                ## must be enabled
+                condition.is_enabled = CV(True, Cond.IS, priority=900)
+
                 ## must be 'tagged' mode
                 condition.interface_mode = CV("tagged", Cond.IS, priority=900)
 
@@ -317,7 +330,7 @@ class Diagnose():
                 continue
 
             for ifname, interface in device_interfaces.items():
-                condition = InterfaceCondition("VLAN group violation", manual_repair=True)
+                condition = InterfaceCondition("VLAN group violation", manual_repair=False)
 
                 ## must be included in the VLAN group "Titanet"
                 condition.tagged_oids  = CV(titanet_oids, Cond.INCLUDED)

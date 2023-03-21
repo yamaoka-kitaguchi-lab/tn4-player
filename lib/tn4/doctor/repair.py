@@ -8,16 +8,16 @@ class Repair:
 
 
     def __interface_repair(self, karte):
-        if karte.type == KarteType:
-            _, code = self.cli.interfaces.update(karte.hostname, karte.ifname, **{
-                "description":   karte.desired_state.description,
-                "enabled":       karte.desired_state.is_enabled,
-                "tags":          karte.desired_state.tags,
-                "mode":          karte.desired_state.interface_mode,
-                "untagged_vlan": karte.desired_state.untagged_oid,
-                "tagged_vlans":  karte.desired_state.tagged_oids,
-            })
-            return code
+        _, code = self.cli.interfaces.update(self.ctx, karte.hostname, karte.ifname, **{
+            "description":     karte.desired_state.description,
+            "enabled":         karte.desired_state.is_enabled,
+            "mode":            karte.desired_state.interface_mode,
+            "untagged_vlanid": karte.desired_state.untagged_oid,
+            "tagged_vlanids":  karte.desired_state.tagged_oids,
+            "tags":            karte.desired_state.tags,
+        })
+
+        return code
 
 
     def __device_repair(self, karte):
