@@ -152,7 +152,7 @@ class Diagnose():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
 
-                if len(current.tags) > 2:
+                if len(current.tags) > 1:
                     if Slug.Tag.Wifi in current.tags:
                         self.interface_annotations[hostname][ifname].append(Annotation(
                             message="Wi-Fi tag is exclusive",
