@@ -118,6 +118,7 @@ class Diagnose():
 
                 condition   = reduce(operator.add, conditions)
                 desired, ok = self.__build_desired(current, condition)
+                delete      = False
                 skip        = False
 
                 if self.is_manual_repair_interface[hostname][ifname]:
@@ -128,7 +129,9 @@ class Diagnose():
 
                 if ok:
                     karte_type  = KarteType.UPDATE
+                    delete      = desired.delete
                     annotations = []
+
                     if has_annotation(hostname, ifname):
                         annotations = self.interface_annotations[hostname][ifname]
 
@@ -154,7 +157,7 @@ class Diagnose():
                         desired=desired,
                         arguments=arguments,
                         annotations=annotations,
-                        delete=desired.delete,
+                        delete=delete,
                     ))
 
         return kartes
