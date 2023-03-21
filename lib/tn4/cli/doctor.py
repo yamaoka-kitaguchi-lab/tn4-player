@@ -158,7 +158,7 @@ class Doctor(CommandBase):
         hosts  = self.filter_hosts(*self.fetch_inventory_opts)
 
         if len(hosts) > 0:
-            self.console.log(f"[yellow]Scanning targets are the following {len(hosts)} hosts")
+            self.console.log(f"[yellow]Repairing targets are the following {len(hosts)} hosts")
             self.console.log(f"[yellow dim]{', '.join(hosts)}")
 
         with self.console.status(f"[green]Scanning NetBox and checking consistency..."):
