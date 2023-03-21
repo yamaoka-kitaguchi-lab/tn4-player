@@ -9,7 +9,7 @@ class Repair:
 
     def __interface_repair(self, karte):
         if karte.delete:
-            _, code = self.cli.interfaces.delete(self.ctx, karte.hostname, karte.ifname)
+            code = self.cli.interfaces.delete(self.ctx, karte.hostname, karte.ifname)
             return code
 
         _, code = self.cli.interfaces.update(self.ctx, karte.hostname, karte.ifname, **{
