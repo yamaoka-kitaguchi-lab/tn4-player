@@ -47,8 +47,6 @@ class Interfaces(ClientBase):
             "id": self.all_interfaces[device_name][interface_name]["id"]
         }
 
-        print("kwargs:", kwargs)  #deleteme
-
         if "description" in kwargs:
             if kwargs["description"] is not None:
                 body["description"] = kwargs["description"]  # str
