@@ -186,7 +186,7 @@ class Diagnose():
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("incomplete interface")
+                condition = InterfaceCondition("Incomplete interface")
 
                 ## skip if the interface needs manual repair
                 if self.is_manual_repair_interface[hostname][ifname]:
@@ -229,7 +229,7 @@ class Diagnose():
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("obsoleted interface")
+                condition = InterfaceCondition("Termination by Obsoleted tag")
 
                 ## skip if the interface needs manual repair
                 if self.is_manual_repair_interface[hostname][ifname]:
@@ -282,7 +282,7 @@ class Diagnose():
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("tag violation (Wi-Fi)")
+                condition = InterfaceCondition("By Wi-Fi tag")
 
                 ## skip if the interface needs manual repair
                 if self.is_manual_repair_interface[hostname][ifname]:
@@ -318,7 +318,7 @@ class Diagnose():
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("tag violation (Hosting)")
+                condition = InterfaceCondition("By Hosting tag")
 
                 ## skip if the interface needs manual repair
                 if self.is_manual_repair_interface[hostname][ifname]:
@@ -354,7 +354,7 @@ class Diagnose():
                 continue
 
             for ifname, interface in device_interfaces.items():
-                condition = InterfaceCondition("VLAN group violation", manual_repair=False)
+                condition = InterfaceCondition("Outside of Titanet VLANs", manual_repair=False)
 
                 ## skip if the interface needs manual repair
                 if self.is_manual_repair_interface[hostname][ifname]:
@@ -376,7 +376,7 @@ class Diagnose():
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("obsoleted interface")
+                condition = InterfaceCondition("Auto-delete empty irb")
 
                 ## skip if the interface needs manual repair
                 if self.is_manual_repair_interface[hostname][ifname]:
@@ -415,7 +415,7 @@ class Diagnose():
 
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
-                condition = InterfaceCondition("uplink/downlink inconsistency")
+                condition = InterfaceCondition("Core/Edge consistency")
 
                 ## skip if the interface needs manual repair
                 if self.is_manual_repair_interface[hostname][ifname]:
@@ -489,14 +489,14 @@ class Diagnose():
                         desired = desired_slave_s[ifname]
 
                 except KeyError:
-                    annotation = Annotation("'slave' specified but no 'master' found")
+                    annotation = Annotation("Neglected slave")
                     self.interface_annotations[hostname][ifname].append(annotation)
                     continue
 
                 if desired is None:
                     continue
 
-                condition = InterfaceCondition("master/slave inconsistency")
+                condition = InterfaceCondition("Master/Slave consistency")
 
                 ## copy interface settings but keep original tags
                 condition.is_enabled     = CV(desired.is_enabled, Cond.IS, priority=20)
