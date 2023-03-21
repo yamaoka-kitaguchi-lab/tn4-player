@@ -167,33 +167,34 @@ class Doctor(CommandBase):
             self.console.log(f"[yellow dim]{', '.join(hosts)}")
 
         with self.console.status(f"[green]Scanning NetBox and checking consistency..."):
+            n = 9
 
             self.cap.diagnose.check_exclusive_tag_conflict()
-            self.console.log(f"[yellow]Checked exclusive tag")
+            self.console.log(f"[yellow]Checked tag-to-tag confliction [dim](1 of {n})")
 
             self.cap.diagnose.check_and_clear_incomplete_interfaces()
-            self.console.log(f"[yellow]Checked incomplete interfaces")
+            self.console.log(f"[yellow]Checked incomplete interfaces [dim](2 of {n})")
 
             self.cap.diagnose.check_and_clear_obsoleted_interfaces()
-            self.console.log(f"[yellow]Checked obsoleted interfaces")
+            self.console.log(f"[yellow]Checked obsoleted interfaces [dim](3 of {n})")
 
             self.cap.diagnose.check_wifi_tag_consistency()
-            self.console.log(f"[yellow]Checked 'Wi-Fi' tag consistency")
+            self.console.log(f"[yellow]Checked Wi-Fi tag consistency [dim](4 of {n})")
 
             self.cap.diagnose.check_hosting_tag_consistency()
-            self.console.log(f"[yellow]Checked 'Hosting' tag consistency")
+            self.console.log(f"[yellow]Checked Hosting tag consistency [dim](5 of {n})")
 
             self.cap.diagnose.check_vlan_group_consistency()
-            self.console.log(f"[yellow]Checked VLAN group consistency")
+            self.console.log(f"[yellow]Checked VLAN group consistency [dim](6 of {n})")
 
             self.cap.diagnose.check_and_remove_empty_irb()
-            self.console.log(f"[yellow]Checked empty irb")
+            self.console.log(f"[yellow]Checked irb status [dim](7 of {n})")
 
             self.cap.diagnose.check_edge_core_consistency()
-            self.console.log(f"[yellow]Checked Edge/Core consistency")
+            self.console.log(f"[yellow]Checked Core/Edge consistency [dim](8 of {n})")
 
             self.cap.diagnose.check_master_slave_tag_consistency()
-            self.console.log(f"[yellow]Checked Master/Slave consistency")
+            self.console.log(f"[yellow]Checked Master/Slave consistency [dim](9 of {n})")
 
         kartes = self.cap.diagnose.summarize()
         kartes = self.show_karte_and_ask(*kartes, target_hosts=hosts,
