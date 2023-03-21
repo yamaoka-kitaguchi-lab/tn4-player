@@ -265,6 +265,9 @@ class Diagnose():
                 if not current.has("is_to_ap"):
                     continue
 
+                ## must be enabled
+                condition.is_enabled = CV(True, Cond.IS, priority=900)
+
                 ## must be 'tagged' mode
                 condition.interface_mode = CV("tagged", Cond.IS, priority=900)
 
@@ -293,6 +296,9 @@ class Diagnose():
                 ## skip if the interface is not for hosting
                 if not current.has_tag(Slug.Tag.Hosting):
                     continue
+
+                ## must be enabled
+                condition.is_enabled = CV(True, Cond.IS, priority=900)
 
                 ## must be 'tagged' mode
                 condition.interface_mode = CV("tagged", Cond.IS, priority=900)
