@@ -34,7 +34,7 @@ class Doctor(CommandBase):
         self.netbox_url         = args.netbox_url
         self.netbox_token       = args.netbox_token
 
-        self.flg_diagnosis_only = args.diagnosis_only
+        self.flg_diagnose_only = args.diagnose_only
         self.flg_force_repair   = args.force_repair
         self.flg_use_cache      = args.use_cache
         self.flg_debug          = args.debug
@@ -64,7 +64,7 @@ class Doctor(CommandBase):
 
 
     def show_karte_and_ask(self, *unsorted_all_kartes, target_hosts=[],
-                           use_panel=False, skip_confirm=False, diagnosis_only=False, again=False):
+                           use_panel=False, skip_confirm=False, diagnose_only=False, again=False):
         all_kartes = [
             *[ k for k in unsorted_all_kartes if k.hostname in target_hosts and k.desired_state is not None ],
             *[ k for k in unsorted_all_kartes if k.hostname in target_hosts and k.desired_state is None ],
@@ -107,7 +107,7 @@ class Doctor(CommandBase):
 
         indices = [ i+1 for i, k in enumerate(all_kartes) if k.desired_state is not None ]
 
-        if diagnosis_only:
+        if diagnose_only:
             print()
             self.console.log(f"[yellow]There are [bold]{len(indices)}[/bold] interfaces reported for their inconsistency. Bye.")
             sys.exit(0)
@@ -189,7 +189,7 @@ class Doctor(CommandBase):
         kartes = self.show_karte_and_ask(*kartes, target_hosts=hosts,
                                          use_panel=False,
                                          skip_confirm=self.flg_force_repair,
-                                         diagnosis_only=self.flg_diagnosis_only)
+                                         diagnose_only=self.flg_diagnose_only)
 
         with self.console.status(f"[green]Repairing..."):
             n = len(kartes)

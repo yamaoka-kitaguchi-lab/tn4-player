@@ -351,7 +351,7 @@ if __name__ == "__main__":
     add_args_to_parser(doctor_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
 
     doctor_parser.add_argument(
-        "--diagnosis-only",
+        "--diagnose-only",
         action="store_true",
         help="scan NetBox, present diagnosis report, and exit",
     )
