@@ -404,21 +404,36 @@ class Diagnose():
         uplink_oids  = {}
         edges        = set()
 
-        ## collect all active VLANs of each edge
+        ## collect all active VLANs of desired edge state
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             if self.nb_devices.all[hostname]["role"] != Slug.Role.EdgeSW:
                 continue
 
             uplink_oids[hostname] = set()
 
-            for _, interface in device_interfaces.items():
-                current = InterfaceState(interface)
+            for ifname, interface in device_interfaces.items():
+                current     = InterfaceState(interface)
+                conditions  = self.interface_conditions[hostname][ifname]
 
-                if current.tagged_oids is not None:
-                    uplink_oids[hostname] |= set(current.tagged_oids)
+                if len(conditions) > 0:
+                    condition   = reduce(operator.add, conditions)
+                    desired, ok = self.__build_desired(current, condition)
 
-                if current.untagged_oid is not None:
-                    uplink_oids[hostname] |= { current.untagged_oid }
+                    if ok:
+                        tagged_oids  = desired.tagged_oids
+                        untagged_oid = desired.untagged_oid
+                    else:
+                        continue
+
+                else:
+                    tagged_oids  = current.tagged_oids
+                    untagged_oid = current.untagged_oid
+
+                if tagged_oids is not None:
+                    uplink_oids[hostname] |= set(tagged_oids)
+
+                if untagged_oid is not None:
+                    uplink_oids[hostname] |= { untagged_oid }
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             if self.nb_devices.all[hostname]["role"] != Slug.Role.CoreSW:
