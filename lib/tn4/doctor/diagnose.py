@@ -94,12 +94,23 @@ class Diagnose():
                 if not has_condition(hostname, ifname):
                     continue
 
+                current    = InterfaceState(self.nb_interfaces.all[hostname][ifname])
                 conditions = self.interface_conditions[hostname][ifname]
 
                 if len(conditions) == 0:
+                    if has_annotation(hostname, ifname):
+                        kartes.append(Karte(
+                            karte_type=karte_type,
+                            hostname=hostname,
+                            ifname=ifname,
+                            current=current,
+                            desired=None,
+                            arguments=None,
+                            annotations=self.interface_annotations[hostname][ifname],
+                        ))
+
                     continue
 
-                current   = InterfaceState(self.nb_interfaces.all[hostname][ifname])
                 arguments = self.__list_interface_violations(current, conditions)
 
                 condition   = reduce(operator.add, conditions)
