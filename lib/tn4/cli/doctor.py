@@ -155,6 +155,12 @@ class Doctor(CommandBase):
 
         self.cap = Capability(self.ctx, self.nb.cli)
 
+        hosts  = self.filter_hosts(*self.fetch_inventory_opts)
+
+        if len(hosts) > 0:
+            self.console.log(f"[yellow]Scanning targets are the following {len(hosts)} hosts of them")
+            self.console.log(f"[yellow dim]{', '.join(hosts)}")
+
         with self.console.status(f"[green]Scanning NetBox and checking consistency..."):
 
             self.cap.diagnose.check_exclusive_tag_conflict()
@@ -184,7 +190,6 @@ class Doctor(CommandBase):
             self.cap.diagnose.check_master_slave_tag_consistency()
             self.console.log(f"[yellow]Checked Master/Slave consistency")
 
-        hosts  = self.filter_hosts(*self.fetch_inventory_opts)
         kartes = self.cap.diagnose.summarize()
         kartes = self.show_karte_and_ask(*kartes, target_hosts=hosts,
                                          use_panel=False,
