@@ -104,6 +104,10 @@ class Diagnose():
                 desired, ok = self.__build_desired(current, condition)
                 skip        = False
 
+                if condition.manual_repair:
+                    desired = None
+                    self.interface_annotations[hostname][ifname].append(["need manual repair"])
+
                 if ok:
                     karte_type  = KarteType.UPDATE
                     annotations = []
@@ -323,7 +327,7 @@ class Diagnose():
                 continue
 
             for ifname, interface in device_interfaces.items():
-                condition = InterfaceCondition("VLAN group violation", manual_repair=True)
+                condition = InterfaceCondition("VLAN group violation", manual_repair=False)
 
                 ## must be included in the VLAN group "Titanet"
                 condition.tagged_oids  = CV(titanet_oids, Cond.INCLUDED)
