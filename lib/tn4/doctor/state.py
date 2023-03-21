@@ -92,7 +92,8 @@ class InterfaceState(StateBase):
 
 
     def to_rich(self, oid_to_vid, vlan_t_vids=None):
-        resolver = lambda *oids: sorted([ oid_to_vid[oid] for oid in oids ])
+        resolver   = lambda *oids: sorted([ oid_to_vid[oid] for oid in oids ])
+        vid_sorted = lambda l: sorted(l, key=lambda s: int(s.strip('!*')), reverse=False)
 
         enabled = "Y" if self.is_enabled else "N"
         mode    = "-" if self.interface_mode is None else self.interface_mode
@@ -101,9 +102,9 @@ class InterfaceState(StateBase):
         desc    = "-" if self.description is None else self.description
 
         if vlan_t_vids is None:
-            vlan_t = "-" if self.tagged_oids is None else ", ".join(resolver(*self.tagged_oids))
+            vlan_t = "-" if self.tagged_oids is None else ", ".join(vid_sorted(resolver(*self.tagged_oids)))
         else:
-            vlan_t = ", ".join(vlan_t_vids)
+            vlan_t = ", ".join(vid_sorted(vlan_t_vids))
 
         return "\n".join([
             f"[bold]Enabled:[/bold] {enabled}",
