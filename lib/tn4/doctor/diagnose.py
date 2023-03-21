@@ -167,10 +167,10 @@ class Diagnose():
                 current = InterfaceState(interface)
 
                 if len(set([ Slug.Tag.Wifi, Slug.Tag.Hosting ]) - set(current.tags)) == 0:
-                    self.interface_annotations[hostname][ifname].append(Annotation(
-                        message="Wi-Fi/Hosting tags are exclusive",
-                        severity=3
-                    ))
+                    self.interface_annotations[hostname][ifname].extend([
+                        Annotation(message="Wi-Fi/Hosting tags are exclusive", severity=3),
+                        Annotation(message="Manual repair needed"),
+                    ])
                     self.is_manual_repair_interface[hostname][ifname] = True
 
 
@@ -299,7 +299,7 @@ class Diagnose():
                 condition.interface_mode = CV("tagged", Cond.IS, priority=900)
 
                 ## must have all D-Plane VLANs
-                condition.tagged_oids = CV([*dplane_oids, cplane_oid], Cond.IS, priority=900)
+                condition.tagged_oids = CV([*dplane_oids, *cplane_oid], Cond.IS, priority=900)
 
                 ## must be C-Plane VLAN
                 condition.untagged_oid = CV(cplane_oid, Cond.IS, priority=900)
@@ -441,7 +441,7 @@ class Diagnose():
         ## edges registered in NB but not appeared in cores' downlinks
         neglected_edges = set(uplink_oids.keys()) - edges
         for edgename in neglected_edges:
-            annotation = Annotation("neglected edge")
+            annotation = Annotation("Neglected edge")
             self.device_annotations[edgename].append(annotation)
 
 

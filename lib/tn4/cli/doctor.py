@@ -86,13 +86,15 @@ class Doctor(CommandBase):
                 current = karte.current_state.to_rich_with(self.cap.oid_to_vid, karte.desired_state)
                 desired = karte.desired_state.to_rich_with(self.cap.oid_to_vid, karte.current_state)
 
+            dotted = lambda l: "\n".join([ f"[b]{i+1})[/b] {str(n)}" for i, n in enumerate(l) ])
+
             r =  [ str(i+1) if karte.desired_state is not None else "" ]
             r += [ karte.hostname ]
             r += [ "-" if karte.ifname is None else karte.ifname ]
             r += [ "-" if karte.current_state is None else current ]
             r += [ "-" if karte.desired_state is None else desired ]
-            r += [ "-" if karte.arguments is None else "\n".join(karte.arguments) ]
-            r += [ "-" if karte.annotations is None else "\n".join(map(str, karte.annotations)) ]
+            r += [ "-" if karte.arguments is None else dotted(karte.arguments) ]
+            r += [ "-" if karte.annotations is None else dotted(karte.annotations) ]
 
             table.add_row(*r)
 
