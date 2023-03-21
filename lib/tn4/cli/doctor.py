@@ -212,7 +212,7 @@ class Doctor(CommandBase):
                     self.console.log(
                         f"[red]Faild to repair "
                         f"[b]{karte.ifname}[/b] on [b]{karte.hostname}[/b] "
-                        f"[dim](exit with {code})"
+                        f"[dim](exit with status {code})"
                     )
 
         self.console.log(f"[yellow]Done.")
