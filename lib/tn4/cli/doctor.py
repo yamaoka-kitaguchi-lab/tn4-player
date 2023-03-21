@@ -128,30 +128,34 @@ class Doctor(CommandBase):
         if skip_confirm:
             with self.console.status("[bold]Performing force repair in 5 seconds..."):
                 time.sleep(5)
+            nstr = ""
 
         else:
             nstr = Prompt.ask("[green]Interfaces to skip repairing (eg: 1 3 5-9)")
             print()
 
-            skipped_indices = self.__flatten_num_string(nstr)
-            target_indices  = list(set(indices) - set(skipped_indices))
-            target_kartes   = [ k for i, k in enumerate(all_kartes) if i+1 in target_indices ]
-            annot_kartes    = [ k for k in all_kartes if k.desired_state is None ]
+        skipped_indices = self.__flatten_num_string(nstr)
+        target_indices  = list(set(indices) - set(skipped_indices))
+        target_kartes   = [ k for i, k in enumerate(all_kartes) if i+1 in target_indices ]
+        annot_kartes    = [ k for k in all_kartes if k.desired_state is None ]
 
-            if len(target_indices) < len(indices):
-                m = ', '.join(map(str, skipped_indices))
-                self.console.log(f"[yellow]Omitted the following from the above list: [dim]{m}")
-                return self.show_karte_and_ask(*target_kartes, *annot_kartes, use_panel=use_panel, again=True)
+        if skip_confirm:
+            return target_kartes
 
-            is_confirmed = Confirm.ask(
-                f"[green]You are about to repair [bold yellow]{len(target_kartes)}[/bold yellow] interfaces. Continue?",
-                default=False
-            )
-            print()
+        if len(target_indices) < len(indices):
+            m = ', '.join(map(str, skipped_indices))
+            self.console.log(f"[yellow]Omitted the following from the above list: [dim]{m}")
+            return self.show_karte_and_ask(*target_kartes, *annot_kartes, use_panel=use_panel, again=True)
 
-            if not is_confirmed:
-                self.console.log("[yellow]Aborted, bye.")
-                sys.exit(0)
+        is_confirmed = Confirm.ask(
+            f"[green]You are about to repair [bold yellow]{len(target_kartes)}[/bold yellow] interfaces. Continue?",
+            default=False
+        )
+        print()
+
+        if not is_confirmed:
+            self.console.log("[yellow]Aborted, bye.")
+            sys.exit(0)
 
         return target_kartes
 
