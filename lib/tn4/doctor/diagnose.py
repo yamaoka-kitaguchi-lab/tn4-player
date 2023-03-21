@@ -376,6 +376,8 @@ class Diagnose():
 
 
     def check_and_remove_empty_irb(self):
+        has_vlan = lambda s: s.tagged_oids is not None or s.untagged_oid is not None
+
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
             ## skip if the device is not Core SW or Edge SW
@@ -390,10 +392,11 @@ class Diagnose():
                 if self.is_manual_repair_interface[hostname][ifname]:
                     continue
 
-                if ifname[:4] != "irb." or current.interface_mode is not None:
+                ## skip if the interface has VLANs
+                if ifname[:4] != "irb." or has_vlan(current):
                     continue
 
-                ## remove empty irb inteface from NetBox
+                ## remove empty or invalid irb inteface from NetBox
                 condition.delete = CV(True, Cond.IS, priority=100)
 
                 self.interface_conditions[hostname][ifname].append(condition)
