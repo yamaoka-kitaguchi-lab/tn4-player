@@ -109,9 +109,19 @@ class TestCV(unittest.TestCase):
         self.assertTrue(is_equal(a+b+c+d, x))
         self.assertTrue(is_equal(reduce(operator.add, [a,b,c,d]), x))
 
+    def test_add_is_to_is_prio_1(self):
+        a = CV({1,2}, Cond.IS, 10)
+        b = CV({2,3}, Cond.IS, 20)
+        x = CV({2,3}, Cond.IS)
+        self.assertTrue(is_equal(a+b, x))
+        self.assertTrue(is_equal(b+a, x))
 
 if __name__ == "__main__":
     unittest.main()
 
-
+    # a = CV({1,2}, Cond.IS, 10)
+    # b = CV({5}, Cond.INCLUDE)
+    # c = CV({2,3}, Cond.IS, 20)
+    # print((a+b+c).value)
+    # print((c+b+a).value)
 
