@@ -103,9 +103,9 @@ class ConditionalValue:
         ## IS-IS
 
         if self.condition == Condition.IS and other.condition == Condition.IS:
-            if self.value == other.value or self.priority > other.priority:
+            if self.priority > other.priority:
                 return ConditionalValue(self.value, Condition.IS, self.priority)
-            if other.priority > self.priority:
+            elif other.priority >= self.priority:
                 return ConditionalValue(other.value, Condition.IS, other.priority)
 
         ## IS-INCLUDE
