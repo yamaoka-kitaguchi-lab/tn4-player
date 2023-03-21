@@ -484,16 +484,25 @@ class Diagnose():
                 continue
 
             for ifname, interface in device_interfaces.items():
-                current = InterfaceState(interface)
+                current      = InterfaceState(interface)
+                master_state = current
+                conditions   = self.interface_conditions[hostname][ifname]
 
-                if current.has_tag(Slug.Tag.CoreMaster):
-                    desired_slave[ifname] = deepcopy(current)
+                if len(conditions) > 0:
+                    condition   = reduce(operator.add, conditions)
+                    desired, ok = self.__build_desired(current, condition)
 
-                if current.has_tag(Slug.Tag.CoreOokayamaMaster):
-                    desired_slave_o[ifname] = deepcopy(current)
+                    if ok:
+                        master_state = desired
 
-                if current.has_tag(Slug.Tag.CoreSuzukakeMaster):
-                    desired_slave_s[ifname] = deepcopy(current)
+                if master_state.has_tag(Slug.Tag.CoreMaster):
+                    desired_slave[ifname] = deepcopy(master_state)
+
+                if master_state.has_tag(Slug.Tag.CoreOokayamaMaster):
+                    desired_slave_o[ifname] = deepcopy(master_state)
+
+                if master_state.has_tag(Slug.Tag.CoreSuzukakeMaster):
+                    desired_slave_s[ifname] = deepcopy(master_state)
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             if self.nb_devices.all[hostname]["role"] != Slug.Role.CoreSW:
