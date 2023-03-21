@@ -2,6 +2,7 @@ from collections import OrderedDict
 from pprint import pprint
 from rich.console import Console
 from yaml import safe_load
+import copy
 import os
 import sys
 import time
@@ -46,52 +47,16 @@ class CommandBase:
     }
 
 
-    def fetch_inventory(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[],
-                        vendors=[], no_vendors=[], tags=[], no_tags=[], use_cache=False, debug=False):
-        nb = NetBox()
+    ## CAUTION: filter_hosts() and fetch_inventory() are TIGHT coupling
+    def filter_hosts(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[],
+                     vendors=[], no_vendors=[], tags=[], no_tags=[]):
+        flatten = lambda x: [z for y in x for z in (flatten(y) if hasattr(y, '__iter__') and not isinstance(y, str) else (y,))]
 
-        m = "Fetching the latest inventory from NetBox, this may take a while..."
-        if use_cache:
-            m = "Loading local cache and rebuilding inventory, this usually takes less than few seconds..."
-        annotation = "[green bold dim]using cache" if use_cache else ""
-
-        with self.console.status(f"[green]{m}"):
-            start_at = time.time()
-            nb.cli.sites.fetch_as_inventory(nb.ctx, use_cache=use_cache)
-            et = round(time.time() - start_at, 1)
-            self.console.log(f"[yellow]Loading finished from {nb.cli.sites.path} in {et} sec {annotation}")
-
-            start_at = time.time()
-            nb.cli.vlans.fetch_as_inventory(nb.ctx, use_cache=use_cache)
-            et = round(time.time() - start_at, 1)
-            self.console.log(f"[yellow]Loading finished from {nb.cli.vlans.path} in {et} sec {annotation}")
-
-            start_at = time.time()
-            nb.cli.addresses.fetch_as_inventory(nb.ctx, use_cache=use_cache)
-            et = round(time.time() - start_at, 1)
-            self.console.log(f"[yellow]Loading finished from {nb.cli.addresses.path} in {et} sec {annotation}")
-
-            start_at = time.time()
-            devices = nb.cli.devices.fetch_as_inventory(nb.ctx, use_cache=use_cache)
-            et = round(time.time() - start_at, 1)
-            self.console.log(f"[yellow]Loading finished from {nb.cli.devices.path} in {et} sec {annotation}")
-
-            start_at = time.time()
-            interfaces = nb.cli.interfaces.fetch_as_inventory(nb.ctx, use_cache=use_cache)
-            et = round(time.time() - start_at, 1)
-            self.console.log(f"[yellow]Loading finished from {nb.cli.interfaces.path} in {et} sec {annotation}")
-
-            nb.nbdata = nb.cli.merge_inventory(devices, interfaces)
-            inventory = nb.fetch_inventory()
-            self.console.log(f"[yellow]Building Titanet4 inventory completed")
-
-        ok = True
         hostnames = []
         target_hosts = set()
         area_to_hosts, role_to_hosts, vendor_to_hosts, tag_to_hosts = {}, {}, {}, {}
-        flatten = lambda x: [z for y in x for z in (flatten(y) if hasattr(y, '__iter__') and not isinstance(y, str) else (y,))]
 
-        for hostname, hostvar in inventory["_meta"]["hosts"].items():
+        for hostname, hostvar in self.nb_inventory["_meta"]["hosts"].items():
             hostnames.append(hostname)
             area_to_hosts.setdefault(hostvar["region"], []).append(hostname)
             area_to_hosts.setdefault(hostvar["sitegp"], []).append(hostname)
@@ -125,15 +90,12 @@ class CommandBase:
         if len(typos) > 0:
             self.console.log("[red bold]Aborted. Your condition may contain NetBox undefined keywords. Typos?")
             self.console.log(f"[red dim]{', '.join(typos)}")
-            ok = False
-
-        if not ok:
-            return ok
+            sys.exit(1)
 
         target_hosts |= set(hosts)
 
         if len(target_hosts) == 0:
-            target_hosts |= set(inventory["_meta"]["hosts"].keys())
+            target_hosts |= set(self.nb_inventory["_meta"]["hosts"].keys())
 
         target_hosts -= set(no_hosts)
 
@@ -154,22 +116,70 @@ class CommandBase:
         if no_tags:
             target_hosts -= set(flatten([ tag_to_hosts[no_tag] for no_tag in no_tags ]))
 
+        self.role_to_hosts = role_to_hosts
+        return sorted(list(target_hosts))  # type conversion: set to list
+
+
+    def fetch_inventory(self, hosts=[], no_hosts=[], areas=[], no_areas=[], roles=[], no_roles=[],
+                        vendors=[], no_vendors=[], tags=[], no_tags=[],
+                        netbox_url=None, netbox_token=None, use_cache=False, debug=False, fetch_all=False):
+        nb = NetBox(url=netbox_url, token=netbox_token)
+
+        self.console.log(f"[yellow dim]NetBox API endpoint: {nb.ctx.endpoint}")
+        self.console.log(f"[yellow dim]NetBox API token:    {nb.ctx.token}")
+
+        m = "Fetching the latest inventory from NetBox, this may take a while..."
+        if use_cache:
+            m = "Loading local cache and rebuilding inventory, this usually takes less than few seconds..."
+        annotation = "[green bold dim]using cache" if use_cache else ""
+
+        with self.console.status(f"[green]{m}"):
+            start_at = time.time()
+            nb.cli.sites.fetch_as_inventory(nb.ctx, use_cache=use_cache)
+            et = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Loading finished from {nb.cli.sites.path} in {et} sec {annotation}")
+
+            start_at = time.time()
+            nb.cli.vlans.fetch_as_inventory(nb.ctx, use_cache=use_cache)
+            et = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Loading finished from {nb.cli.vlans.path} in {et} sec {annotation}")
+
+            start_at = time.time()
+            nb.cli.addresses.fetch_as_inventory(nb.ctx, use_cache=use_cache)
+            et = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Loading finished from {nb.cli.addresses.path} in {et} sec {annotation}")
+
+            start_at = time.time()
+            devices = nb.cli.devices.fetch_as_inventory(nb.ctx, use_cache=use_cache)
+            et = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Loading finished from {nb.cli.devices.path} in {et} sec {annotation}")
+
+            start_at = time.time()
+            interfaces = nb.cli.interfaces.fetch_as_inventory(nb.ctx, use_cache=use_cache)
+            et = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Loading finished from {nb.cli.interfaces.path} in {et} sec {annotation}")
+
+            nb.nbdata = nb.cli.merge_inventory(devices, interfaces)
+            self.nb_inventory = nb.fetch_inventory(fetch_all=fetch_all)
+            self.console.log(f"[yellow]Building Titanet4 inventory completed")
+
+        target_hosts = self.filter_hosts(hosts, no_hosts, areas, no_areas,
+                                         roles, no_roles, vendors, no_vendors, tags, no_tags)
+
         self.ansible_common_vars = {}
         with open(self.group_vars_path) as fd:
             self.ansible_common_vars |= safe_load(fd)
-
-        target_hosts = sorted(list(target_hosts))  # type conversion: set to list
 
         self.inventory = {
             **{
                 role: {
                     "hosts": { h: {} for h in hosts if h in target_hosts }
                 }
-                for role, hosts in role_to_hosts.items()
+                for role, hosts in self.role_to_hosts.items()
             },
             "_meta": {
                 "hosts": OrderedDict({
-                    host: inventory["_meta"]["hosts"][host]
+                    host: self.nb_inventory["_meta"]["hosts"][host]
                     for host in target_hosts
                 })
             }
@@ -181,6 +191,15 @@ class CommandBase:
             self.console.log(f"[yellow dim]{', '.join(target_hosts)}")
         else:
             self.console.log("[red bold]No hosts found. Check the typos of your condition or devices' tags on NetBox")
-            ok = False
+            sys.exit(1)
 
-        return ok
+        self.nb     = nb
+        self.nbdata = copy.deepcopy(nb.nbdata)
+        self.ctx    = copy.deepcopy(nb.ctx)
+
+        self.ctx.interfaces = {
+            hostname: interfaces
+            for hostname, interfaces in self.ctx.interfaces.items() if hostname in target_hosts
+        }
+
+        return True

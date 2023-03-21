@@ -41,37 +41,56 @@ class Interfaces(ClientBase):
         return addr4, addr6
 
 
-    def update(self, device_name, interface_name,
-                         description=None, enabled=None, mode=None, untagged_vlanid=None, tagged_vlanids=None, tags=None):
+    def delete(self, ctx, device_name, interface_name):
+        oid = self.all_interfaces[device_name][interface_name]["id"]
+        return self.query(ctx, f"{self.path}{str(oid)}/", delete=True)
+
+
+    def update(self, ctx, device_name, interface_name, **kwargs):
         data = []
         body = {
             "id": self.all_interfaces[device_name][interface_name]["id"]
         }
 
-        if description is not None:
-            body["description"] = description
+        if "description" in kwargs:
+            if kwargs["description"] is not None:
+                body["description"] = kwargs["description"]  # str
+            else:
+                body["description"] = ""
 
-        if enabled is not None:
-            body["enabled"] = enabled
+        if "enabled" in kwargs:
+            body["enabled"] = kwargs["enabled"]  # True or False
 
-        if tags is not None:
-            body["tags"] = [{"slug": tag} for tag in tags]
+        if "tags" in kwargs:
+            if kwargs["tags"] is not None:
+                body["tags"] = kwargs["tags"]  # list of slugs
+            else:
+                body["tags"] = []
 
-        if mode is not None:
-            if mode.lower() == "access":
-                body["mode"] = "access"
-            if mode.lower() in ["tagged", "trunk"]:
-                body["mode"] = "tagged"
+        if "mode" in kwargs:
+            if kwargs["mode"] is not None:
+                if kwargs["mode"].lower() == "access":
+                    body["mode"] = "access"
+                if kwargs["mode"].lower() in ["tagged", "trunk"]:
+                    body["mode"] = "tagged"
+            else:
+                body["mode"] = None
 
-        if untagged_vlanid is not None:
-            body["untagged_vlan"] = int(untagged_vlanid)
+        if "untagged_vlanid" in kwargs:
+            if kwargs["untagged_vlanid"] is not None:
+                body["untagged_vlan"] = int(kwargs["untagged_vlanid"])
+            else:
+                body["untagged_vlan"] = None
 
-        if tagged_vlanids is not None:
-            body["tagged_vlans"] = list(map(int, tagged_vlanids))
+        if "tagged_vlanids" in kwargs:
+            if kwargs["tagged_vlanids"] is not None:
+                body["tagged_vlans"] = list(map(int, kwargs["tagged_vlanids"]))
+            else:
+                body["tagged_vlans"] = []
 
         data.append(body)
         if data:
-            return self.query(self.path, data, update=True)
+            return self.query(ctx, self.path, data, update=True)
         return
 
 
@@ -97,6 +116,10 @@ class Interfaces(ClientBase):
             interface["tags"] = [tag["slug"] for tag in interface["tags"]]
 
             dev_name = interface["device"]["name"]
+
+            if dev_name not in ctx.devices:
+                continue
+
             hostname = ctx.devices[dev_name]["hostname"]
 
             is_empty_irb = interface["name"] == "irb" and interface["mode"] is None
@@ -182,7 +205,8 @@ class Interfaces(ClientBase):
                 all_vids.extend(interface["tagged_vids"])
 
                 if interface["untagged_vlan"] is not None:
-                    interface["native_vid"] = interface["untagged_vlan"]["vid"]
+                    interface["native_vlanid"] = interface["untagged_vlan"]["id"]
+                    interface["native_vid"]    = interface["untagged_vlan"]["vid"]
                     all_vlanids.append(interface["untagged_vlan"]["id"])
                     all_vids.append(interface["untagged_vlan"]["vid"])
 
@@ -326,8 +350,6 @@ class Interfaces(ClientBase):
         all_lag_members = self.fetch_lag_members(ctx)  # following fetch_interfaces()
         used_vlans, mgmt_vlans = self.fetch_vlans(ctx)
 
-        ansible_targets = [ device["hostname"] for device in ctx.devices.values() if device["is_ansible_target"] ]
-
         target_interfaces = {
             hostname: {
                 name: interface
@@ -351,6 +373,6 @@ class Interfaces(ClientBase):
                 "vlans":       used_vlans[hostname],          # list of extended VLAN object
                 "mgmt_vlan":   mgmt_vlans[hostname],          # a VLAN object
             }
-            for hostname in all_interfaces.keys() if hostname in ansible_targets
+            for hostname in all_interfaces.keys()
         }
 

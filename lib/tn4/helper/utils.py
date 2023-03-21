@@ -15,3 +15,6 @@ def load_encrypted_secrets(vault_file, vault_password_file):
         except AnsibleVaultError as e:
             raise Exception(f"Failed to decrypt the vault. Check your password and try again. {e}")
 
+def flatten(x):
+    return [z for y in x for z in (flatten(y) if hasattr(y, '__iter__') and not isinstance(y, str) else (y,))]
+

@@ -9,8 +9,11 @@ from tn4.cli.base import CommandBase
 
 class Deploy(CommandBase):
     def __init__(self, args):
+        self.netbox_url            = args.netbox_url
+        self.netbox_token          = args.netbox_token
         self.flg_use_cache         = args.use_cache
         self.flg_dryrun            = args.dryrun
+        self.flg_early_exit        = args.early_exit
         self.flg_debug             = args.debug
         self.custom_template_path  = args.overwrite_j2_path
         self.commit_confirm_min    = 0 if args.commit_confirm_min is None else args.commit_confirm_min
@@ -21,7 +24,6 @@ class Deploy(CommandBase):
             args.roles,   args.no_roles,
             args.vendors, args.no_vendors,
             args.tags,    args.no_tags,
-            args.use_cache,
         ]
 
         self.flg_fetch_only = False
@@ -48,9 +50,18 @@ class Deploy(CommandBase):
 
 
     def exec(self):
-        ok = self.fetch_inventory(*self.fetch_inventory_opts, debug=self.flg_debug)
+        ok = self.fetch_inventory(
+            *self.fetch_inventory_opts,
+            netbox_url=self.netbox_url, netbox_token=self.netbox_token,
+            use_cache=self.flg_use_cache, debug=self.flg_debug
+        )
+
         if not ok:
             return 100
+
+        if self.flg_early_exit:
+            self.console.log(f"[yellow]Bye.")
+            return 0
 
         self.append_ansible_common_vars()
 

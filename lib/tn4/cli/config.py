@@ -8,6 +8,8 @@ from tn4.cli.base import CommandBase
 class Config(CommandBase):
     def __init__(self, args):
         self.__args                = vars(args)
+        self.netbox_url            = args.netbox_url
+        self.netbox_token          = args.netbox_token
         self.outdir                = args.private_dir
         self.inventory_json        = f"{self.outdir}/inventory.json"
 
@@ -22,7 +24,6 @@ class Config(CommandBase):
             args.roles,   args.no_roles,
             args.vendors, args.no_vendors,
             args.tags,    args.no_tags,
-            args.use_cache
         ]
 
 
@@ -84,7 +85,12 @@ class Config(CommandBase):
         if self.flg_remote_fetch:
             return self.remote_fetch()
 
-        ok = self.fetch_inventory(*self.fetch_inventory_opts, debug=self.flg_debug)
+        ok = self.fetch_inventory(
+            *self.fetch_inventory_opts,
+            netbox_url=self.netbox_url, netbox_token=self.netbox_token,
+            use_cache=self.flg_use_cache, debug=self.flg_debug
+        )
+
         if not ok:
             return 100
 
