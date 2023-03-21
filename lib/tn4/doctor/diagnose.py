@@ -80,7 +80,8 @@ class Diagnose():
                 kartes.append(Karte(
                     karte_type=KarteType.WARN,
                     hostname=hostname,
-                    current=DeviceState(self.nb_devices.all[hostname]),
+                    #current=DeviceState(self.nb_devices.all[hostname]),
+                    current=None,
                     desired=None,
                     arguments=None,
                     annotations=self.device_annotations[hostname],
