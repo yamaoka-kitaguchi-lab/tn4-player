@@ -60,7 +60,7 @@ class KarteType(Flag):
 
 class Karte:
     def __init__(self, karte_type, hostname,
-                 ifname=None, current=None, desired=None, arguments=[], annotations=[]):
+                 ifname=None, current=None, desired=None, arguments=[], annotations=[], delete=False):
         self.type          = karte_type
         self.hostname      = hostname
         self.ifname        = ifname
@@ -68,6 +68,7 @@ class Karte:
         self.desired_state = desired
         self.arguments     = arguments
         self.annotations   = annotations
+        self.delete        = delete
 
 
     def dump(self):
@@ -79,6 +80,7 @@ class Karte:
             "Current":     self.current_state.dump() if self.current_state is not None else None,
             "Desired":     self.desired_state.dump() if self.desired_state is not None else None,
             "Annotations": [ v.dump() for v in self.annotations ],
+            "Delete":      self.delete,
         }
 
 

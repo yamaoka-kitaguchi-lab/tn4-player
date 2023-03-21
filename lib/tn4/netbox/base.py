@@ -22,7 +22,7 @@ class Context:
 
 
 class ClientBase:
-    def query(self, ctx, location, data=None, update=False):
+    def query(self, ctx, location, data=None, update=False, delete=False):
         code = None
         responses = []
         url = ctx.endpoint + location
@@ -34,6 +34,11 @@ class ClientBase:
         }
 
         if data is None:
+            if delete:
+                raw  = requests.delete(url, headers=headers, verify=True)
+                code = raw.status_code
+                return code  # early return
+
             while url:
                 raw = requests.get(url, headers=headers, verify=True)
 

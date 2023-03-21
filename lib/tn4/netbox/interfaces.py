@@ -41,6 +41,11 @@ class Interfaces(ClientBase):
         return addr4, addr6
 
 
+    def delete(self, ctx, device_name, interface_name):
+        oid = self.all_interfaces[device_name][interface_name]["id"]
+        return self.query(ctx, f"{self.path}{str(oid)}/", delete=True)
+
+
     def update(self, ctx, device_name, interface_name, **kwargs):
         data = []
         body = {

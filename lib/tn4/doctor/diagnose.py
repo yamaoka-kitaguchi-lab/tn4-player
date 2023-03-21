@@ -151,6 +151,7 @@ class Diagnose():
                         desired=desired,
                         arguments=arguments,
                         annotations=annotations,
+                        delete=condition.remove_from_nb,
                     ))
 
         return kartes
