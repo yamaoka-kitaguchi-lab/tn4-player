@@ -400,8 +400,9 @@ class Diagnose():
 
 
     def check_edge_core_consistency(self):
-        uplink_oids = {}
-        edges = set()
+        titanet_oids = set(self.nb_vlans.with_groups(Slug.VLANGroup.Titanet).oids)
+        uplink_oids  = {}
+        edges        = set()
 
         ## collect all active VLANs of each edge
         for hostname, device_interfaces in self.nb_interfaces.all.items():
@@ -440,10 +441,13 @@ class Diagnose():
                 if edgename not in uplink_oids:
                     continue  # neglected edges
 
-                ## pass only in-used VLANs
+                invalid_uplink_oids   = uplink_oids[edgename] - titanet_oids
+                validated_uplink_oids = uplink_oids[edgename] - invalid_uplink_oids
+
+                ## pass only in-used VLANs belonging the Titanet Group
                 condition.is_enabled     = CV(True, Cond.IS)
                 condition.interface_mode = CV("tagged", Cond.IS)
-                condition.tagged_oids    = CV(uplink_oids[edgename], Cond.IS)
+                condition.tagged_oids    = CV(validated_uplink_oids, Cond.IS)
                 condition.untagged_oid   = CV(None, Cond.IS)
 
                 self.interface_conditions[hostname][ifname].append(condition)
