@@ -70,6 +70,10 @@ class Doctor(CommandBase):
             *[ k for k in unsorted_all_kartes if k.hostname in target_hosts and k.desired_state is None ],
         ]
 
+        if len(all_kartes) == 0:
+            self.console.log("[yellow]No inconsistencies found. Bye.")
+            sys.exit(0)
+
         table = Table(show_header=True, header_style="bold white")
         table.box = box.SIMPLE
 
