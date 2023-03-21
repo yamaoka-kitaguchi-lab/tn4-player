@@ -41,7 +41,7 @@ class Interfaces(ClientBase):
         return addr4, addr6
 
 
-    def update(self, device_name, interface_name,
+    def update(self, ctx, device_name, interface_name,
                description=None, enabled=None, mode=None, untagged_vlanid=None, tagged_vlanids=None, tags=None):
         data = []
         body = {
@@ -71,7 +71,7 @@ class Interfaces(ClientBase):
 
         data.append(body)
         if data:
-            return self.query(self.path, data, update=True)
+            return self.query(ctx, self.path, data, update=True)
         return
 
 

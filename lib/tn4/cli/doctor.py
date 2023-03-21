@@ -109,7 +109,7 @@ class Doctor(CommandBase):
 
         if diagnose_only:
             print()
-            self.console.log(f"[yellow]There are [bold]{len(indices)}[/bold] interfaces reported for their inconsistency. Bye.")
+            self.console.log(f"[yellow]There are [bold]{len(indices)}[/bold] interfaces reported for their inconsistencies. Bye.")
             sys.exit(0)
 
         print()
@@ -200,7 +200,7 @@ class Doctor(CommandBase):
             n = len(kartes)
 
             for i, karte in enumerate(kartes):
-                code = cap.repair.by_karte(karte)
+                code = self.cap.repair.by_karte(karte)
 
                 if 200 <= code < 300:
                     self.console.log(
