@@ -288,7 +288,7 @@ class Diagnose():
                 condition.interface_mode = CV("tagged", Cond.IS, priority=900)
 
                 ## must have all D-Plane VLANs
-                condition.tagged_oids = CV([*dplane_oids, cplane_oid] Cond.IS, priority=900)
+                condition.tagged_oids = CV([*dplane_oids, cplane_oid], Cond.IS, priority=900)
 
                 ## must be C-Plane VLAN
                 condition.untagged_oid = CV(cplane_oid, Cond.IS, priority=900)
