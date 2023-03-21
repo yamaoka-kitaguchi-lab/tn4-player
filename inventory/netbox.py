@@ -24,23 +24,35 @@ def timestamp():
 
 
 class NetBox:
-    def __init__(self):
+    def __init__(self, url=None, token=None):
+        secrets = load_encrypted_secrets(VAULT_FILE, VAULT_PASSWORD_FILE)
+
+        if url is None:
+            url = secrets["netbox_url"]
+        if token is None:
+            token = secrets["netbox_api_token"]
+
         self.ts        = timestamp()
-        secrets   = load_encrypted_secrets(VAULT_FILE, VAULT_PASSWORD_FILE)
-        self.ctx       = Context(endpoint=secrets["netbox_url"], token=secrets["netbox_api_token"])
+        self.ctx       = Context(endpoint=url, token=token)
         self.cli       = Client()
         self.nbdata    = None
         self.inventory = None
 
 
-    def fetch_inventory(self, use_cache=False):
+    def fetch_inventory(self, use_cache=False, fetch_all=False):
         if self.nbdata is None:
-            self.nbdata = cli.fetch_as_inventory(ctx, use_cache=use_cache)
+            self.nbdata = self.cli.fetch_as_inventory(ctx, use_cache=use_cache)
+
+        host_filter = lambda h: self.nbdata[h]["is_ansible_target"] or fetch_all
 
         self.inventory = {
             **{
                 role: {
-                    "hosts": { h: {} for h in self.nbdata["_hostnames"] if self.nbdata[h]["role"] == role }
+                    "hosts": {
+                        h: {}
+                        for h in self.nbdata["_hostnames"]
+                        if self.nbdata[h]["role"] == role and host_filter(h)
+                    }
                 }
                 for role in self.nbdata["_roles"]
             },
@@ -66,7 +78,7 @@ class NetBox:
                         },
                         "datetime": self.ts,
                     }
-                    for hostname in self.nbdata["_hostnames"]
+                    for hostname in self.nbdata["_hostnames"] if host_filter(hostname)
                 }
             }
         }

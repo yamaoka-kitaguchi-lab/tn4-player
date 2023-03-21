@@ -21,6 +21,9 @@ class Slug:
         OokayamaWest   = "ookayama-w"
         Tamachi        = "tamachi"
 
+    class VLANGroup:
+        Titanet = "titanet"
+
     class Tag:
         Ansible                = "ansible"
         BPDUFilter             = "bpdu-filter"
@@ -32,12 +35,15 @@ class Slug:
         CoreSuzukakeMaster     = "mclag-master-cs"
         CoreSuzukakeSlave      = "mclag-slave-cs"
         EdgeUpstream           = "uplink"
+        Hosting                = "hosting"
+        Keep                   = "keep"
         MgmtVlanBorderOokayama = "mgmt-vlan-bo"
         MgmtVlanBorderSuzukake = "mgmt-vlan-bs"
         MgmtVlanCoreOokayama   = "mgmt-vlan-co"
         MgmtVlanCoreSuzukake   = "mgmt-vlan-cs"
         MgmtVlanEdgeOokayama   = "mgmt-vlan-eo"
         MgmtVlanEdgeSuzukake   = "mgmt-vlan-es"
+        Obsoleted              = "obsoleted"
         PoE                    = "poe"
         Protect                = "protect"
         Rspan                  = "rspan"

@@ -8,8 +8,8 @@ A command-line utility to deploy Titanet4 with Ansible and repair NetBox consist
 
   * tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files
   * tn4 deploy - Provisioning Titanet4 with Ansible using NetBox as inventory
-  * tn4 shutdown - Shutting down Titanet4 for the campus-wide blackout
-  * tn4 netbox - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation
+  * tn4 shutdown - Shutting down Titanet4 for the campus-wide blackout (not yet implemented)
+  * tn4 doctor - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation
 
 Since:   October 2022
 Source:  https://github.com/yamaoka-kitaguchi-lab/tn4-player
@@ -30,10 +30,10 @@ from tn4.__version__ import __version__ as __libtn4_version__
 from tn4.cli.config import Config
 from tn4.cli.deploy import Deploy
 from tn4.cli.shutdown import Shutdown
-from tn4.cli.netbox import NetBox
+from tn4.cli.doctor import Doctor
 
 
-__version__ = "v2022.10.21"
+__version__ = "v2023.03.31"
 
 
 def jinja_path(string):
@@ -78,6 +78,29 @@ DEFAULT_CLI_ARGS = {
             dict(
                 action="store_true",
                 help="enable tn4-cli debug mode. only for developers and should NOT be set if you don't know what to expect",
+            ),
+        ),
+    ),
+    "netbox_args": (
+        (
+            ("--netbox-url",),
+            dict(
+                type=str,
+                help="custom NetBox URL (e.g. http://netbox00.m.noc.titech.ac.jp)",
+            ),
+        ),
+        (
+            ("--netbox-token",),
+            dict(
+                type=str,
+                help="custom NetBox API token",
+            ),
+        ),
+        (
+            ("--use-cache",),
+            dict(
+                action="store_true",
+                help="skip NetBox fetching and use local cache if available (~/.cache/tn4-player/*.cache)",
             ),
         ),
     ),
@@ -152,13 +175,13 @@ DEFAULT_CLI_ARGS = {
                 help="inverted option of ```--tags```",
             ),
         ),
-        (
-            ("--use-cache",),
-            dict(
-                action="store_true",
-                help="skip NetBox fetching and use local cache if available (~/.cache/tn4-player/*.cache)",
-            ),
-        ),
+        #(
+        #    ("--use-cache",),
+        #    dict(
+        #        action="store_true",
+        #        help="skip NetBox fetching and use local cache if available (~/.cache/tn4-player/*.cache)",
+        #    ),
+        #),
     )
 
 }
@@ -189,7 +212,13 @@ def print_common_usage():
                 tn4 deploy -vv
                 tn4 deploy --dryrun
                 tn4 deploy --tags test --no-vendors cisco --commit-confirm 1
+                tn4 deploy --tags test --no-vendors cisco --early-exit
                 tn4 deploy --vendors juniper --no-roles core_sw --overwrite /tmp/junos.j2
+
+            Scan NetBox and repair inconsistencies (ex-nbck command)
+
+                tn4 doctor --use-cache --diagnose-only
+                tn4 doctor --force-repair --tags test --areas ookayama
 
         `tn4 --help` list all optional command line arguments
     '''
@@ -212,11 +241,13 @@ if __name__ == "__main__":
         prog="tn4",
         description="Run without arguments to see common usage",
     )
+
     subparsers = parser.add_subparsers(
         title="commands",
         description="COMMAND [ARGS]",
         dest="command",
     )
+
     add_args_to_parser(parser, DEFAULT_CLI_ARGS["generic_args"])
 
     config_parser = subparsers.add_parser(
@@ -225,24 +256,30 @@ if __name__ == "__main__":
        help="render Jinja2 templates or fetch running configs using Ansible",
        aliases=["c"],
     )
+
+    add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["netbox_args"])
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+
     config_parser.add_argument(
         "--remote-fetch",
         action="store_true",
         help="fetch and save running configs using Ansible and exit",
     )
+
     config_parser.add_argument(
         "--template",
         type=jinja_path,
         help="use custom Jinja2 template instead of the defautls",
         dest="custom_j2_path"
     )
+
     config_parser.add_argument(
         "--as-ansible-inventory",
         action="store_true",
         help="export the raw inventory json instead of rendered configs",
         dest="as_inventory",
     )
+
     add_args_to_parser(config_parser, DEFAULT_CLI_ARGS["positional_args"])
 
     deploy_parser = subparsers.add_parser(
@@ -251,59 +288,89 @@ if __name__ == "__main__":
         help="provisioning Titanet4 with Ansible",
         aliases=["d"],
     )
+
+    add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["netbox_args"])
     add_args_to_parser(deploy_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+
     deploy_parser.add_argument(
         "--overwrite",
         type=jinja_path,
         help="use custom Jinja2 template instead of the defautls to overwrite configs",
         dest="overwrite_j2_path"
     )
+
     deploy_parser.add_argument(
         "--commit-confirm",
         type=int,
         help="set the time (minutes) to use in ```commit confirm```. only effective on juniper hosts",
         dest="commit_confirm_min",
     )
+
     deploy_parser.add_argument(
         "--dryrun",
         action="store_true",
         help="simulate a command's result without actually running it",
     )
+
+    deploy_parser.add_argument(
+        "--early-exit",
+        action="store_true",
+        help="just show the list of deploy targets and exit. most preferred",
+    )
+
     deploy_parser.add_argument(
         "-v",
         action="count",
         help="increase the verbosity with multiple v's (up to 5)",
     )
 
-    shutdown_parser = subparsers.add_parser(
-        "shutdown",
-        description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
-        help="TBD: shutting down Titanet4 for the campus-wide blackout",
-        aliases=["s"],
-    )
-    add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
-    #shutdown_parser.add_argument(
-    #    "--reboot",
-    #    action="store_true",
-    #    help="request reboot instead of system halt",
-    #)
-    #shutdown_parser.add_argument(
-    #    "--force",
-    #    action="store_true",
-    #    help="ignore all warnings and skip confirmation",
-    #)
+    # shutdown_parser = subparsers.add_parser(
+    #     "shutdown",
+    #     description="tn4 shutdown - Shutting down Titanet4 in preparation for the campus-wide blackout",
+    #     help="TBD: shutting down Titanet4 for the campus-wide blackout",
+    #     #aliases=["s"],
+    # )
 
-    netbox_parser = subparsers.add_parser(
-        "netbox",
-        description="tn4 netbox - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation",
-        help="TBD: scan and repair NetBox inconsistency with cli-based CRUD operation",
-        aliases=["n"],
+    # add_args_to_parser(shutdown_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+
+    # shutdown_parser.add_argument(
+    #     "--reboot",
+    #     action="store_true",
+    #     help="request reboot instead of system halt",
+    # )
+
+    # shutdown_parser.add_argument(
+    #     "--force",
+    #     action="store_true",
+    #     help="ignore all warnings and skip confirmation",
+    # )
+
+    doctor_parser = subparsers.add_parser(
+        "doctor",
+        description="tn4 doctor - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation",
+        help="scan and repair NetBox inconsistency with cli-based CRUD operation",
+        aliases=["x"],
+    )
+
+    add_args_to_parser(doctor_parser, DEFAULT_CLI_ARGS["netbox_args"])
+    add_args_to_parser(doctor_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+
+    doctor_parser.add_argument(
+        "--diagnose-only",
+        action="store_true",
+        help="scan NetBox, present diagnosis report, and exit",
+    )
+
+    doctor_parser.add_argument(
+        "--force-repair",
+        action="store_true",
+        help="skip confirmation and perform NetBox repair immediately if needed",
     )
 
     args = parser.parse_args()
 
     match args.command:
-        case "config" | "deploy" | "shutdown" | "c" | "d" | "s":
+        case "config" | "deploy" | "doctor" | "c" | "d" | "x":
             args.hosts = csv_to_list(args.hosts)
             args.no_hosts = csv_to_list(args.no_hosts)
             args.areas = csv_to_list(args.areas)
@@ -322,21 +389,23 @@ if __name__ == "__main__":
         print(f"library: {__libtn4_version__}")
         sys.exit(0)
 
-    match args.command:
-        case "config" | "c":
-            code = Config(args).exec()
-        case "deploy" | "d":
-            code = Deploy(args).exec()
-        case "shutdown" | "s":
-            code = Shutdown(args).exec()
-        case "netbox" | "n":
-            code = NetBox(args).exec()
-        case None:
-            print_common_usage()
-            code = 0
-        case default:
-            parser.print_help()
-            code = 0
+    try:
+        match args.command:
+            case "config" | "c":
+                code = Config(args).exec()
+            case "deploy" | "d":
+                code = Deploy(args).exec()
+            case "doctor" | "x":
+                code = Doctor(args).exec()
+            case None:
+                print_common_usage()
+                code = 0
+            case default:
+                parser.print_help()
+                code = 0
+
+    except KeyboardInterrupt:
+        sys.exit(254)
 
     sys.exit(code)
 

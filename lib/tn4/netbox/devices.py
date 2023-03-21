@@ -72,32 +72,36 @@ class Devices(ClientBase):
             if device["primary_ip"] is not None:
                 device_ips[device["hostname"]] = device["primary_ip"]["address"].split("/")[0]
 
-            self.all_devices[device["name"]] = device
+            if device["role"] in [ Slug.Role.EdgeSW, Slug.Role.CoreSW ]:
+                self.all_devices[device["name"]] = device
 
         for device in self.all_devices.values():
             if device["hostname"] in device_ips:
                 device["mgmt_ip"] = device_ips[device["hostname"]]
 
-        ctx.devices = self.all_devices
+        ctx.devices             = self.all_devices
+        ctx.devices_by_hostname = { device["hostname"]: device for device in self.all_devices.values() }
         return self.all_devices
 
 
     def fetch_as_inventory(self, ctx, use_cache=False):
         devices = self.fetch_devices(ctx, use_cache=use_cache)
+
         return {
-            "_hostnames": [ d["hostname"] for d in devices.values() if d["is_ansible_target"] ],
-            "_roles":     [ d["role"] for d in devices.values() if d["is_ansible_target"] ],
+            "_hostnames":     [ d["hostname"] for d in devices.values() ],
+            "_roles":         [ d["role"] for d in devices.values() ],
             **{
                 device["hostname"]: {
-                    "manufacturer":    device["device_type"]["manufacturer"]["slug"],  # manufacturer slug
-                    "role":            device["role"],                                 # role slug
-                    "region":          device["region"],                               # region slug
-                    "sitegp":          device["sitegp"],                               # site group slug
-                    "device_tags":     device["tags"],                                 # device tag slug
-                    "is_test_device":  device["is_test_device"],                       # whethre or not having 'Test' tag
-                    "ansible_host":    device["mgmt_ip"],                              # device ip address without mask, or 'None'
+                    "manufacturer":       device["device_type"]["manufacturer"]["slug"],  # manufacturer slug
+                    "role":               device["role"],                                 # role slug
+                    "region":             device["region"],                               # region slug
+                    "sitegp":             device["sitegp"],                               # site group slug
+                    "device_tags":        device["tags"],                                 # device tag slug
+                    "is_test_device":     device["is_test_device"],                       # whethre or not having 'Test' tag
+                    "is_ansible_target":  device["is_ansible_target"],
+                    "ansible_host":       device["mgmt_ip"],                              # device ip address without mask, or 'None'
                 }
-                for device in devices.values() if device["is_ansible_target"]
-            }
+                for device in devices.values()
+            },
         }
 
