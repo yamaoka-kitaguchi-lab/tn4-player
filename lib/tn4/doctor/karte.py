@@ -2,15 +2,15 @@ from collections import OrderedDict
 from enum import Flag, auto
 
 from tn4.doctor.cv import ConditionalValue
+from tn4.doctor.cv import Condition as Cond
 from tn4.helper.utils import flatten
 
 
 class InterfaceCondition:
-    def __init__(self, argument, manual_repair=False):
+    def __init__(self, argument):
         self.argument       = argument
-        self.manual_repair  = manual_repair  # if true, nbck skips repairing but just present messages
 
-        self.delete = ConditionalValue()
+        self.delete         = ConditionalValue(value=False, condition=Cond.IS)
         self.is_enabled     = ConditionalValue()
         self.description    = ConditionalValue()
         self.tags           = ConditionalValue()
@@ -21,10 +21,9 @@ class InterfaceCondition:
 
     def __add__(self, other):
         argument      = flatten([self.argument, other.argument])  # concatinate as list
-        manual_repair = self.manual_repair | other.manual_repair
 
-        condition = InterfaceCondition(argument, manual_repair)
-        condition.delete = self.delete + other.delete
+        condition = InterfaceCondition(argument)
+        condition.delete         = self.delete + other.delete
         condition.is_enabled     = self.is_enabled + other.is_enabled
         condition.description    = self.description + other.description
         condition.tags           = self.tags + other.tags

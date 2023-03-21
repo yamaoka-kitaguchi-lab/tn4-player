@@ -120,7 +120,7 @@ class Diagnose():
                 desired, ok = self.__build_desired(current, condition)
                 skip        = False
 
-                if condition.manual_repair:
+                if self.is_manual_repair_interface[hostname][ifname]:
                     desired = None
                     self.interface_annotations[hostname][ifname].append(
                         Annotation("Manual repair needed", severity=3)
@@ -154,7 +154,7 @@ class Diagnose():
                         desired=desired,
                         arguments=arguments,
                         annotations=annotations,
-                        delete=condition.delete,
+                        delete=desired.delete,
                     ))
 
         return kartes
@@ -359,7 +359,7 @@ class Diagnose():
                 continue
 
             for ifname, interface in device_interfaces.items():
-                condition = InterfaceCondition("Outside of Titanet VLANs", manual_repair=False)
+                condition = InterfaceCondition("Outside of Titanet VLANs")
 
                 ## skip if the interface needs manual repair
                 if self.is_manual_repair_interface[hostname][ifname]:
@@ -391,7 +391,7 @@ class Diagnose():
                     continue
 
                 ## remove empty irb inteface from NetBox
-                condition.delete = CV(True, Cond.IS)
+                condition.delete = CV(True, Cond.IS, priority=100)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 

@@ -94,6 +94,7 @@ class Doctor(CommandBase):
                 desired = karte.desired_state.to_rich_with(self.cap.oid_to_vid, karte.current_state)
 
             if karte.delete:
+                print(karte.delete)
                 desired = "(deleted)"
 
             dotted = lambda l: "\n".join([ f"[b]{i+1})[/b] {str(n)}" for i, n in enumerate(l) ])
