@@ -213,10 +213,13 @@ class ConditionalValue:
             p = max(self.priority, other.priority)
             return ConditionalValue(v, Condition.EXCLUDE, p)
 
-        ## deleteme
-        print("--", file=sys.stderr)
-        print(f"CONFLICT: self  {self.dump()}", file=sys.stderr)
-        print(f"CONFLICT: other {other.dump()}", file=sys.stderr)
+        ## CONFLICT
+
+        warn, end = "\033[91m", "\033[0m"
+        print()
+        print(f"{warn}Warning: An unexpected CV operation occurred. May report incorrect diagnosis.{end}", file=sys.stderr)
+        print(f"{warn}{self.dump()}{end}", file=sys.stderr)
+        print(f"{warn}{other.dump()}{end}", file=sys.stderr)
 
         return ConditionalValue(None, Condition.CONFLICT)
 
