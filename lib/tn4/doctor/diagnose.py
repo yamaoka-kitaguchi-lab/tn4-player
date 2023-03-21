@@ -20,12 +20,14 @@ class Diagnose():
         self.device_annotations = {}
         self.interface_annotations = {}
         self.interface_conditions = {}
+        self.is_manual_repair_interface = {}  # set true to skip remaining consistency check
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             self.device_annotations[hostname] = []
             for ifname, interface in device_interfaces.items():
                 self.interface_conditions.setdefault(hostname, {})[ifname] = []
                 self.interface_annotations.setdefault(hostname, {})[ifname] = []
+                self.is_manual_repair_interface.setdefault(hostname, {})[ifname] = False
 
 
     def __build_desired(self, current, condition):
@@ -106,7 +108,9 @@ class Diagnose():
 
                 if condition.manual_repair:
                     desired = None
-                    self.interface_annotations[hostname][ifname].append(["need manual repair"])
+                    self.interface_annotations[hostname][ifname].append(
+                        Annotation("Manual repair needed", severity=3)
+                    )
 
                 if ok:
                     karte_type  = KarteType.UPDATE
@@ -117,7 +121,7 @@ class Diagnose():
                     if current.is_equal(desired):
                         skip = True
                     elif len(arguments) == 0:
-                        arguments = [ "Remove out-of-use entries" ]
+                        arguments = [ "Auto-removed out-of-use entries" ]
 
                     skip &= len(annotations) == 0
 
@@ -125,7 +129,6 @@ class Diagnose():
                     karte_type  = KarteType.WARN
                     annotations = [
                         Annotation("CV calculation failed", severity=3),
-                        Annotation("need manual repair", severity=3),
                     ]
 
                 if not skip:
@@ -152,18 +155,12 @@ class Diagnose():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
 
-                if len(current.tags) > 1:
-                    if Slug.Tag.Wifi in current.tags:
-                        self.interface_annotations[hostname][ifname].append(Annotation(
-                            message="Wi-Fi tag is exclusive",
-                            severity=3
-                        ))
-
-                    if Slug.Tag.Hosting in current.tags:
-                        self.interface_annotations[hostname][ifname].append(Annotation(
-                            message="Hosting tag is exclusive",
-                            severity=3
-                        ))
+                if len(set([ Slug.Tag.Wifi, Slug.Tag.Hosting ]) - set(current.tags)) == 0:
+                    self.interface_annotations[hostname][ifname].append(Annotation(
+                        message="Wi-Fi/Hosting tags are exclusive",
+                        severity=3
+                    ))
+                    self.is_manual_repair_interface[hostname][ifname] = True
 
 
     def check_and_clear_incomplete_interfaces(self):
@@ -179,6 +176,10 @@ class Diagnose():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("incomplete interface")
+
+                ## skip if the interface needs manual repair
+                if self.is_manual_repair_interface[hostname][ifname]:
+                    continue
 
                 ## skip if the interface has 'Keep' tag or 'Protect' tag
                 if current.has_tag(Slug.Tag.Keep) or current.has_tag(Slug.Tag.Protect):
@@ -218,6 +219,10 @@ class Diagnose():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("obsoleted interface")
+
+                ## skip if the interface needs manual repair
+                if self.is_manual_repair_interface[hostname][ifname]:
+                    continue
 
                 ## skip if the interface has 'Keep' tag or 'Protect' tag
                 if current.has_tag(Slug.Tag.Keep) or current.has_tag(Slug.Tag.Protect):
@@ -268,6 +273,10 @@ class Diagnose():
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("tag violation (Wi-Fi)")
 
+                ## skip if the interface needs manual repair
+                if self.is_manual_repair_interface[hostname][ifname]:
+                    continue
+
                 ## skip if the interface is not for AP
                 if not current.has("is_to_ap"):
                     continue
@@ -299,6 +308,10 @@ class Diagnose():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("tag violation (Hosting)")
+
+                ## skip if the interface needs manual repair
+                if self.is_manual_repair_interface[hostname][ifname]:
+                    continue
 
                 ## skip if the interface is not for hosting
                 if not current.has_tag(Slug.Tag.Hosting):
@@ -332,6 +345,10 @@ class Diagnose():
             for ifname, interface in device_interfaces.items():
                 condition = InterfaceCondition("VLAN group violation", manual_repair=False)
 
+                ## skip if the interface needs manual repair
+                if self.is_manual_repair_interface[hostname][ifname]:
+                    continue
+
                 ## must be included in the VLAN group "Titanet"
                 condition.tagged_oids  = CV(titanet_oids, Cond.INCLUDED)
                 condition.untagged_oid = CV(titanet_oids, Cond.INCLUDED)
@@ -349,6 +366,10 @@ class Diagnose():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("obsoleted interface")
+
+                ## skip if the interface needs manual repair
+                if self.is_manual_repair_interface[hostname][ifname]:
+                    continue
 
                 if ifname[:4] != "irb." or current.interface_mode is not None:
                     continue
@@ -384,6 +405,10 @@ class Diagnose():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
                 condition = InterfaceCondition("uplink/downlink inconsistency")
+
+                ## skip if the interface needs manual repair
+                if self.is_manual_repair_interface[hostname][ifname]:
+                    continue
 
                 if not current.has_tag(Slug.Tag.CoreDownstream):
                     continue
@@ -437,6 +462,10 @@ class Diagnose():
             for ifname, interface in device_interfaces.items():
                 current = InterfaceState(interface)
                 desired = None
+
+                ## skip if the interface needs manual repair
+                if self.is_manual_repair_interface[hostname][ifname]:
+                    continue
 
                 try:
                     if current.has_tag(Slug.Tag.CoreSlave):
