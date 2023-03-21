@@ -36,7 +36,8 @@ class Diagnose():
                                        condition.tags.condition,
                                        condition.interface_mode.condition,
                                        condition.tagged_oids.condition,
-                                       condition.untagged_oid.condition, ]
+                                       condition.untagged_oid.condition,
+                                       condition.delete.condition, ]
 
         if not is_ok:
             return None, False
@@ -49,6 +50,7 @@ class Diagnose():
         desired.interface_mode = condition.interface_mode.to_value(current.interface_mode, value_type=str)
         desired.tagged_oids    = condition.tagged_oids.to_value(current.tagged_oids)
         desired.untagged_oid   = condition.untagged_oid.to_value(current.untagged_oid, value_type=int)
+        desired.delete         = condition.delete.to_value(current.delete, value_type=bool)
 
         return desired, True
 
@@ -62,10 +64,11 @@ class Diagnose():
                 and condition.tags.is_satisfied_by(current.tags) \
                 and condition.interface_mode.is_satisfied_by(current.interface_mode) \
                 and condition.tagged_oids.is_satisfied_by(current.tagged_oids) \
-                and condition.untagged_oid.is_satisfied_by(current.untagged_oid)
+                and condition.untagged_oid.is_satisfied_by(current.untagged_oid) \
+                and condition.delete.is_satisfied_by(current.delete)
 
             if not is_ok:
-                arguments.append(condition.argument)
+                arguments.append(condition.argument)  # violation
 
         return arguments
 
@@ -151,7 +154,7 @@ class Diagnose():
                         desired=desired,
                         arguments=arguments,
                         annotations=annotations,
-                        delete=condition.remove_from_nb,
+                        delete=condition.delete,
                     ))
 
         return kartes
@@ -388,7 +391,9 @@ class Diagnose():
                     continue
 
                 ## remove empty irb inteface from NetBox
-                condition.remove_from_nb = CV(True, Cond.IS)
+                condition.delete = CV(True, Cond.IS)
+
+                self.interface_conditions[hostname][ifname].append(condition)
 
 
     def check_edge_core_consistency(self):
@@ -506,4 +511,6 @@ class Diagnose():
                 condition.interface_mode = CV(desired.interface_mode, Cond.IS, priority=20)
                 condition.tagged_oids    = CV(desired.tagged_oids, Cond.IS, priority=20)
                 condition.untagged_oid   = CV(desired.untagged_oid, Cond.IS, priority=20)
+
+                self.interface_conditions[hostname][ifname].append(condition)
 

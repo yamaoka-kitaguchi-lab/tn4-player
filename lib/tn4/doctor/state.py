@@ -76,6 +76,7 @@ class InterfaceState(StateBase):
         if nb_object["mode"] is not None:
             self.interface_mode = nb_object["mode"]["value"]  # "access", "tagged", or "tagged-all"
 
+        self.delete = False
 
     def to_rich_with(self, oid_to_vid, their):
         vlan_t_vids = None

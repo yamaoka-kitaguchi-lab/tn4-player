@@ -10,7 +10,7 @@ class InterfaceCondition:
         self.argument       = argument
         self.manual_repair  = manual_repair  # if true, nbck skips repairing but just present messages
 
-        self.remove_from_nb = ConditionalValue()
+        self.delete = ConditionalValue()
         self.is_enabled     = ConditionalValue()
         self.description    = ConditionalValue()
         self.tags           = ConditionalValue()
@@ -24,7 +24,7 @@ class InterfaceCondition:
         manual_repair = self.manual_repair | other.manual_repair
 
         condition = InterfaceCondition(argument, manual_repair)
-        condition.remove_from_nb = self.remove_from_nb + other.remove_from_nb
+        condition.delete = self.delete + other.delete
         condition.is_enabled     = self.is_enabled + other.is_enabled
         condition.description    = self.description + other.description
         condition.tags           = self.tags + other.tags
@@ -41,7 +41,7 @@ class InterfaceCondition:
 
     def dump(self):
         items = [
-            "remove_from_nb", "is_enabled", "description", "tags",
+            "delete", "is_enabled", "description", "tags",
             "interface_mode", "tagged_oids", "untagged_oid",
         ]
 
