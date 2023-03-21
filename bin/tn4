@@ -215,6 +215,11 @@ def print_common_usage():
                 tn4 deploy --tags test --no-vendors cisco --early-exit
                 tn4 deploy --vendors juniper --no-roles core_sw --overwrite /tmp/junos.j2
 
+            Scan NetBox and repair inconsistencies (ex-nbck command)
+
+                tn4 doctor --use-cache --diagnose-only
+                tn4 doctor --force-repair --tags test --areas ookayama
+
         `tn4 --help` list all optional command line arguments
     '''
     print(dedent(common_message)[1:])
