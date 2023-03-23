@@ -2,7 +2,7 @@ import random
 import string
 
 
-NB_BRANCH_ID_KEY = "tn4_branch_id"
+NB_BRANCH_ID_KEY = "tn4_branch_id"  # Custom Field's attribtue
 
 
 class BranchInfo:
