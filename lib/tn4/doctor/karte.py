@@ -105,7 +105,7 @@ class Annotation:
             case 2:
                 severity = "WARN"
             case 3:
-                severity = "CRITICAL"
+                severity = "FATAL"
 
         return f"{self.message} ({severity})"
 
