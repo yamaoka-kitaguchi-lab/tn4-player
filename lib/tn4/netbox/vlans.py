@@ -15,6 +15,12 @@ class Vlans(ClientBase):
         return self.query(ctx, f"{self.path}{str(vlanid)}/", delete=True)
 
 
+    def delete_by_name(self, ctx, name):
+        for vlan in self.all_vlans:
+            if vlan["name"] == name:
+                return self.delete(ctx, vlan["id"])
+
+
     def custom_update(self, ctx, vlanid, **kwargs):
         data = [{
             "id":            vlanid,

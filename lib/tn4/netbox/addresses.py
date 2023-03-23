@@ -13,9 +13,7 @@ class Addresses(ClientBase):
         return self.query(ctx, f"{self.path}{str(address_id)}/", delete=True)
 
 
-    def delete_by_custom_field(self, ctx, cf):
-        rt = 0
-
+    def delete_by_custom_fields(self, ctx, cf):
         if self.addresses is None:
             self.fetch_addresses(ctx)
 
@@ -31,9 +29,7 @@ class Addresses(ClientBase):
                     break
 
             if matched:
-                rt += self.delete(ctx, address["id"])
-
-        return rt
+                self.delete(ctx, address["id"])
 
 
     def create(self, ctx, address, **kwargs):

@@ -13,9 +13,7 @@ class Prefixes(ClientBase):
         return self.query(ctx, f"{self.path}{str(prefixid)}/", delete=True)
 
 
-    def delete_by_custom_field(self, ctx, cf):
-        rt = 0
-
+    def delete_by_custom_fields(self, ctx, cf):
         if self.prefixes is None:
             self.fetch_prefixes(ctx)
 
@@ -31,9 +29,7 @@ class Prefixes(ClientBase):
                     break
 
             if matched:
-                rt += self.delete(ctx, prefix["id"])
-
-        return rt
+                self.delete(ctx, prefix["id"])
 
 
     def create(self, ctx, prefix, **kwargs):
