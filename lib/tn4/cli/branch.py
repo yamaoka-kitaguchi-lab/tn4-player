@@ -24,15 +24,19 @@ class BranchVlan(CommandBase):
 
 
     def exec_add(self):
-        self.branch.update_vlan(self.branch_info)
-        self.branch.add_prefix(self.branch_info)
-        self.branch.add_ip_address(self.branch_info)
+        with self.console.status(f"[green]Creating new branch [b]{self.branch.vlan_name}[/b]..."):
+
+            i, n = 1, 9
+            self.branch.commit_branch_id()
+            self.console.log(f"[yellow]Updated VLAN metadata [dim]({i} of {n})")
+
+            i += 1
+            self.branch.add_prefix()
+            self.console.log(f"[yellow]Added new prefix [dim]({i} of {n})")
 
 
     def exec_delete(self):
-        self.branch.delete_vlan(self.branch_info)
-        self.branch.delete_prefix(self.branch_info)
-        self.branch.delete_ip_address(self.branch_info)
+        pass
 
 
     def exec(self):

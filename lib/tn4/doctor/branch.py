@@ -2,6 +2,9 @@ import random
 import string
 
 
+NB_BRANCH_ID_KEY = "tn4_branch_id"
+
+
 class BranchInfo:
     def __init__(self, vlan_name,
                  prefix_v4=None, vrrp_master_v4=None, vrrp_backup_v4=None, vrrp_vip_v4=None,
@@ -23,48 +26,60 @@ class BranchInfo:
 
 
 class Branch:
-    def __init__(self, ctx, nb_client, branch_info, is_existing_branch=True):
+    def __init__(self, ctx, nb_client, branch_info, is_new_branch=True):
         self.ctx  = ctx
         self.cli  = nb_client
         self.info = branch_info
 
         for vlan in self.cli.vlans.all_vlans:
             if vlan["name"] == branch_info.vlan_name:
-                 self.branch_info.vlan_id  = vlan["id"]
-                 self.branch_info.vlan_vid = vlan["vid"]
+                 self.info.vlan_id  = vlan["id"]
+                 self.info.vlan_vid = vlan["vid"]
 
-        if self.branch_info.vlan_vid is not None:
-            if is_existing_branch:
-                self.branch_info.tn4_branch_id = vlan["custom_fields"]["tn4_branch_id"]
+        if self.info.vlan_vid is not None:
+            vlan = self.cli.vlans.all_vlans[self.info.vlan_id]
+            if NB_BRANCH_ID_KEY in vlan["custom_fields"]:
+                self.info.tn4_branch_id = vlan["custom_fields"][NB_BRANCH_ID_KEY]
             else:
                 s  = vlan_name.strip().replace(' ', '_')
                 s += '%' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
-                self.branch_info.tn4_branch_id = f"{s}"
+                self.info.tn4_branch_id = f"{s}"
 
 
-    def update_vlan(self, branch_info):
-        self.update_custom_fields(self.ctx,branch_info.vlan_id)
+    def __is_ok_or_not(self, code):
+        if 200 <= code < 300:
+            return True
+
+        return False
 
 
-    def delete_vlan(self, branch_info):
+    def commit_branch_id(self):
+        _, code = self.cli.vlans.update_custom_fields(self.ctx, self.info.vlan_id, {
+            NB_BRANCH_ID_KEY: self.info.tn4_branch_id
+        })
+
+        return self.__is_ok_or_not(code)
+
+
+    def delete_vlan(self):
         self.cli.vlans.delete_by_name(branch_info.vlan_name)
 
 
-    def add_prefix(self, branch_info):
+    def add_prefix(self):
         # todo: add prefix with tags, custom_fields
         pass
 
 
-    def delete_prefix(self, branch_info):
+    def delete_prefix(self):
         # todo: delete prefix object from custom_fields
         pass
 
 
-    def add_ip_address(self, branch_info):
+    def add_ip_address(self):
         # todo: add ip address with tags, custom_fields
         pass
 
 
-    def delete_ip_address(self, branch_info):
+    def delete_ip_address(self):
         # todo: delete ip address object from custom_fields
         pass
