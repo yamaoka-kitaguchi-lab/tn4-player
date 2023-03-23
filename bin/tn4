@@ -352,7 +352,7 @@ if __name__ == "__main__":
 
     doctor_parser = subparsers.add_parser(
         "doctor",
-        description="tn4 doctor - Scanning NetBox and repairing inconsistencies",
+        description="tn4 doctor - Scanning NetBox and repairing inconsistencies, also providing CLI-based CRUD operations",
         help="scan and repair NetBox inconsistency",
         aliases=["x"],
     )
@@ -379,98 +379,88 @@ if __name__ == "__main__":
     )
 
     branch_parser = doctor_subparser.add_parser(
-        "branch",
-        description="tn4 doctor branch - branch network management utilities",
+        "branch-vlan",
+        description="tn4 doctor branch-vlan - add or remove branch VLAN and setup VRRP",
         help="branch network management utilities",
         aliases=["b"],
     )
 
-    branch_vlan_subparser = branch_parser.add_subparsers(
-        title="commands",
-        description="COMMAND [ARGS]",
-        dest="command",
-    )
-
-    branch_vlan_parser = branch_vlan_subparser.add_parser(
-        "vlan",
-        description="tn4 doctor branch vlan - add or remove branch VLAN and setup VRRP",
-        help="add or remove branch VLAN and setup VRRP",
-    )
-
-    branch_vlan_parser.add_argument(
+    branch_parser.add_argument(
         "--add",
         action="store_true",
         help="add branch VLAN and setup VRRP. must be with --prefix, --vrrp-master, --vrrp-backup, and --vrrp-vip",
     )
 
-    branch_vlan_parser.add_argument(
+    branch_parser.add_argument(
         "--prefix",
         type=str,
         help="CIDR format of branch VLAN prefix (IPv4)",
         dest="cidr_prefix"
     )
 
-    branch_vlan_parser.add_argument(
+    branch_parser.add_argument(
         "--prefix-v6",
         type=str,
         help="CIDR format of branch VLAN prefix (IPv6)",
         dest="cidr_prefix6"
     )
 
-    branch_vlan_parser.add_argument(
+    branch_parser.add_argument(
         "--vrrp-master",
         type=str,
         help="VRRP master IP address without CIDR length. must be inside the VLAN prefix (IPv4)",
         dest="vrrp_master_ip"
     )
 
-    branch_vlan_parser.add_argument(
+    branch_parser.add_argument(
         "--vrrp-master-v6",
         type=str,
         help="VRRP master IP address without CIDR length. must be inside the VLAN prefix (IPv6)",
         dest="vrrp_master_ip6"
     )
 
-    branch_vlan_parser.add_argument(
+    branch_parser.add_argument(
         "--vrrp-backup",
         type=str,
         help="VRRP backup IP address without CIDR length. must be inside the VLAN prefix (IPv4)",
         dest="vrrp_backup_ip"
     )
 
-    branch_vlan_parser.add_argument(
+    branch_parser.add_argument(
         "--vrrp-backup-v6",
         type=str,
         help="VRRP backup IP address without CIDR length. must be inside the VLAN prefix (IPv6)",
         dest="vrrp_backup_ip6"
     )
 
-    branch_vlan_parser.add_argument(
+    branch_parser.add_argument(
         "--vrrp-vip",
         type=str,
         help="VRRP VIP address without CIDR length. must be inside the VLAN prefix (IPv4)",
         dest="vrrp_vip"
     )
 
-    branch_vlan_parser.add_argument(
+    branch_parser.add_argument(
         "--vrrp-vip-v6",
         type=str,
         help="VRRP VIP address without CIDR length. must be inside the VLAN prefix (IPv6)",
         dest="vrrp_vip6"
     )
 
-    branch_vlan_parser.add_argument(
+    branch_parser.add_argument(
         "--delete",
         action="store_true",
         help="delete branch VLAN and clear VRRP",
     )
 
-    branch_vlan_parser.add_argument(
+    branch_parser.add_argument(
         "vlan_name",
         help="branch VLAN name",
     )
 
     args = parser.parse_args()
+
+    print(args)
 
     match args.command:
         case "config" | "deploy" | "doctor" | "c" | "d" | "x":
