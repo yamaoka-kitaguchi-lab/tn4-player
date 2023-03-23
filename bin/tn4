@@ -31,6 +31,7 @@ from tn4.cli.config import Config
 from tn4.cli.deploy import Deploy
 from tn4.cli.shutdown import Shutdown
 from tn4.cli.doctor import Doctor
+from tn4.cli.branch import BranchVlan
 
 
 __version__ = "v2023.03.31"
@@ -382,7 +383,6 @@ if __name__ == "__main__":
         "branch-vlan",
         description="tn4 doctor branch-vlan - add or remove branch VLAN and setup VRRP",
         help="branch network management utilities",
-        aliases=["b"],
     )
 
     branch_parser.add_argument(
@@ -460,8 +460,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print(args)
-
     match args.command:
         case "config" | "deploy" | "doctor" | "c" | "d" | "x":
             args.hosts = csv_to_list(args.hosts)
@@ -486,13 +484,29 @@ if __name__ == "__main__":
         match args.command:
             case "config" | "c":
                 code = Config(args).exec()
+
             case "deploy" | "d":
                 code = Deploy(args).exec()
+
             case "doctor" | "x":
                 code = Doctor(args).exec()
+
+            case "branch-vlan":
+                is_insufficient_args  = args.cidr_prefix is None
+                is_insufficient_args |= args.vrrp_master_ip is None
+                is_insufficient_args |= args.vrrp_backup_ip is None
+                is_insufficient_args |= args.vrrp_vip is None
+
+                if args.add and is_insufficient_args:
+                    branch_parser.print_help()
+                    code = 1
+                else:
+                    code = BranchVlan(args).exec()
+
             case None:
                 print_common_usage()
                 code = 0
+
             case default:
                 parser.print_help()
                 code = 0
