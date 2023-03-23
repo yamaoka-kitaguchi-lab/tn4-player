@@ -9,6 +9,49 @@ class Addresses(ClientBase):
         self.all_addresses = None
 
 
+    def delete(self, ctx, address_id):
+        return self.query(ctx, f"{self.path}{str(address_id)}/", delete=True)
+
+
+    def delete_by_custom_field(self, ctx, cf):
+        rt = 0
+
+        if self.addresses is None:
+            self.fetch_addresses(ctx)
+
+        cf_keys = cf.keys()
+        for address in self.addresses:
+            matched = True
+            for cf_key in cf_keys:
+                if cf_key not in address["custom_fields"]:
+                    matched = False
+                    break
+                if address["custom_fields"][cf_key] == cf[cf_key]:
+                    matched = False
+                    break
+
+            if matched:
+                rt += self.delete(ctx, address["id"])
+
+        return rt
+
+
+    def create(self, ctx, address, **kwargs):
+        family = 4 if "." in prefix else 6
+
+        data = [{
+            "address": address,
+            "family": family,
+            "status": "active",
+            **{
+                key: kwargs[key]
+                for key in ["tags", "description", "custom_fields"] if key in kwargs
+            }
+        }]
+
+        return self.query(ctx, self.path, data, update=True)
+
+
     def fetch_addresses(self, ctx, use_cache=False):
         all_addresses = None
 

@@ -9,6 +9,49 @@ class Prefixes(ClientBase):
         self.all_prefixes = None
 
 
+    def delete(self, ctx, prefixid):
+        return self.query(ctx, f"{self.path}{str(prefixid)}/", delete=True)
+
+
+    def delete_by_custom_field(self, ctx, cf):
+        rt = 0
+
+        if self.prefixes is None:
+            self.fetch_prefixes(ctx)
+
+        cf_keys = cf.keys()
+        for prefix in self.prefixes:
+            matched = True
+            for cf_key in cf_keys:
+                if cf_key not in prefix["custom_fields"]:
+                    matched = False
+                    break
+                if prefix["custom_fields"][cf_key] == cf[cf_key]:
+                    matched = False
+                    break
+
+            if matched:
+                rt += self.delete(ctx, prefix["id"])
+
+        return rt
+
+
+    def create(self, ctx, prefix, **kwargs):
+        family = 4 if "." in prefix else 6
+
+        data = [{
+            "prefix": prefix,
+            "family": family,
+            "status": "active",
+            **{
+                key: kwargs[key]
+                for key in ["tags", "description", "vlans", "custom_fields"] if key in kwargs
+            }
+        }]
+
+        return self.query(ctx, self.path, data, update=True)
+
+
     def fetch_prefixes(self, ctx, use_cache=False):
         all_prefixes = None
 

@@ -11,6 +11,19 @@ class Vlans(ClientBase):
         self.all_vlans = None
 
 
+    def delete(self, ctx, vlanid):
+        return self.query(ctx, f"{self.path}{str(vlanid)}/", delete=True)
+
+
+    def custom_update(self, ctx, vlanid, **kwargs):
+        data = [{
+            "id":            vlanid,
+            "custom_fields": kwargs
+        }]
+
+        return self.query(ctx, self.path, data, update=True)
+
+
     ## Return all VLANs as a dict object
     ##  - key:   VLAN object ID (NetBox internal ID)
     ##  - value: VLAN object
