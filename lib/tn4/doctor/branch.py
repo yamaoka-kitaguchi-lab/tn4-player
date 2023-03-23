@@ -7,6 +7,7 @@ class BranchInfo:
                  prefix_v4=None, vrrp_master_v4=None, vrrp_backup_v4=None, vrrp_vip_v4=None,
                  prefix_v6=None, vrrp_master_v6=None, vrrp_backup_v6=None, vrrp_vip_v6=None):
         self.vlan_name       = vlan_name
+
         self.prefix_v4       = prefix_v4
         self.prefix_v6       = prefix_v6
         self.vrrp_master_v4  = vrrp_master_v4
@@ -16,36 +17,33 @@ class BranchInfo:
         self.vrrp_vip_v4     = vrrp_vip_v4
         self.vrrp_vip_v6     = vrrp_vip_v6
 
-        self.tn4_branch_id   = self.__generate_tn4_branch_id(vlan_name)
-
-
-    def __generate_tn4_branch_id(self, vlan_name):
-        s  = vlan_name.strip().replace(' ', '_')
-        s += '%' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
-        return f"{s}"
+        self.vlan_id         = None  # netbox vlan object id
+        self.vlan_vid        = None  # 802.1Q vlanid
+        self.tn4_branch_id   = None
 
 
 class Branch:
-    def __init__(self, ctx, nb_client):
-        self.ctx = ctx
-        self.cli = nb_client
+    def __init__(self, ctx, nb_client, branch_info, is_existing_branch=True):
+        self.ctx  = ctx
+        self.cli  = nb_client
+        self.info = branch_info
 
-
-    def get_tn4_branch_id(self, branch_info):
         for vlan in self.cli.vlans.all_vlans:
             if vlan["name"] == branch_info.vlan_name:
-                if "tn4_branch_id" in vlan["custom_fields"]:
-                     branch_info.tn4_branch_id = vlan["custom_fields"]["tn4_branch_id"]
-                     return True
-                else:
-                    return False
-        return False
+                 self.branch_info.vlan_id  = vlan["id"]
+                 self.branch_info.vlan_vid = vlan["vid"]
+
+        if self.branch_info.vlan_vid is not None:
+            if is_existing_branch:
+                self.branch_info.tn4_branch_id = vlan["custom_fields"]["tn4_branch_id"]
+            else:
+                s  = vlan_name.strip().replace(' ', '_')
+                s += '%' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+                self.branch_info.tn4_branch_id = f"{s}"
 
 
     def update_vlan(self, branch_info):
-        # todo: update tag
-        # todo: update custom_fields
-        pass
+        self.update_custom_fields(self.ctx,branch_info.vlan_id)
 
 
     def delete_vlan(self, branch_info):

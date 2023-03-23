@@ -21,7 +21,7 @@ class Vlans(ClientBase):
                 return self.delete(ctx, vlan["id"])
 
 
-    def custom_update(self, ctx, vlanid, **kwargs):
+    def update_custom_fields(self, ctx, vlanid, **kwargs):
         data = [{
             "id":            vlanid,
             "custom_fields": kwargs
