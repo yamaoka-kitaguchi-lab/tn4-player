@@ -60,8 +60,8 @@ class Prefixes(ClientBase):
             all_prefixes, _ = self.query(ctx, self.path)
 
         self.all_prefixes = {}
-        for site in all_prefixes:
-            self.all_prefixes[site["slug"]] = site
+        for prefix in all_prefixes:
+            self.all_prefixes[prefix["id"]] = prefix
 
         ctx.prefixes = self.all_prefixes
         return self.all_prefixes
