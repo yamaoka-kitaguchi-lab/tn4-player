@@ -10,6 +10,7 @@ class Context:
     devices    = None
     vlans      = None
     addresses  = None
+    prefixes   = None
     interfaces = None
 
     devices_by_hostname = None
