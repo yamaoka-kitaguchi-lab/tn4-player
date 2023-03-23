@@ -9,7 +9,7 @@ A command-line utility to deploy Titanet4 with Ansible and repair NetBox consist
   * tn4 config - Rendering Jinja2 templates and exporting them as *.cfg files
   * tn4 deploy - Provisioning Titanet4 with Ansible using NetBox as inventory
   * tn4 shutdown - Shutting down Titanet4 for the campus-wide blackout (not yet implemented)
-  * tn4 doctor - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation
+  * tn4 doctor - Scanning and repairing NetBox inconsistencies, also providing CLI-based CRUD operations
 
 Since:   October 2022
 Source:  https://github.com/yamaoka-kitaguchi-lab/tn4-player
@@ -220,6 +220,11 @@ def print_common_usage():
                 tn4 doctor --use-cache --diagnose-only
                 tn4 doctor --force-repair --tags test --areas ookayama
 
+            Manage branch VLANs and VRRP group
+
+                tn4 doctor branch-vlan --add
+                tn4 doctor branch-vlan --delete
+
         `tn4 --help` list all optional command line arguments
     '''
     print(dedent(common_message)[1:])
@@ -347,8 +352,8 @@ if __name__ == "__main__":
 
     doctor_parser = subparsers.add_parser(
         "doctor",
-        description="tn4 doctor - Scanning and repairing NetBox integrity, also providing CLI-based CRUD operation",
-        help="scan and repair NetBox inconsistency with cli-based CRUD operation",
+        description="tn4 doctor - Scanning NetBox and repairing inconsistencies",
+        help="scan and repair NetBox inconsistency",
         aliases=["x"],
     )
 
@@ -365,6 +370,104 @@ if __name__ == "__main__":
         "--force-repair",
         action="store_true",
         help="skip confirmation and perform NetBox repair immediately if needed",
+    )
+
+    doctor_subparser = doctor_parser.add_subparsers(
+        title="commands",
+        description="COMMAND [ARGS]",
+        dest="command",
+    )
+
+    branch_parser = doctor_subparser.add_parser(
+        "branch",
+        description="tn4 doctor branch - branch network management utilities",
+        help="branch network management utilities",
+        aliases=["b"],
+    )
+
+    branch_vlan_subparser = branch_parser.add_subparsers(
+        title="commands",
+        description="COMMAND [ARGS]",
+        dest="command",
+    )
+
+    branch_vlan_parser = branch_vlan_subparser.add_parser(
+        "vlan",
+        description="tn4 doctor branch vlan - add or remove branch VLAN and setup VRRP",
+        help="add or remove branch VLAN and setup VRRP",
+    )
+
+    branch_vlan_parser.add_argument(
+        "--add",
+        action="store_true",
+        help="add branch VLAN and setup VRRP. must be with --prefix, --vrrp-master, --vrrp-backup, and --vrrp-vip",
+    )
+
+    branch_vlan_parser.add_argument(
+        "--prefix",
+        type=str,
+        help="CIDR format of branch VLAN prefix (IPv4)",
+        dest="cidr_prefix"
+    )
+
+    branch_vlan_parser.add_argument(
+        "--prefix-v6",
+        type=str,
+        help="CIDR format of branch VLAN prefix (IPv6)",
+        dest="cidr_prefix6"
+    )
+
+    branch_vlan_parser.add_argument(
+        "--vrrp-master",
+        type=str,
+        help="VRRP master IP address without CIDR length. must be inside the VLAN prefix (IPv4)",
+        dest="vrrp_master_ip"
+    )
+
+    branch_vlan_parser.add_argument(
+        "--vrrp-master-v6",
+        type=str,
+        help="VRRP master IP address without CIDR length. must be inside the VLAN prefix (IPv6)",
+        dest="vrrp_master_ip6"
+    )
+
+    branch_vlan_parser.add_argument(
+        "--vrrp-backup",
+        type=str,
+        help="VRRP backup IP address without CIDR length. must be inside the VLAN prefix (IPv4)",
+        dest="vrrp_backup_ip"
+    )
+
+    branch_vlan_parser.add_argument(
+        "--vrrp-backup-v6",
+        type=str,
+        help="VRRP backup IP address without CIDR length. must be inside the VLAN prefix (IPv6)",
+        dest="vrrp_backup_ip6"
+    )
+
+    branch_vlan_parser.add_argument(
+        "--vrrp-vip",
+        type=str,
+        help="VRRP VIP address without CIDR length. must be inside the VLAN prefix (IPv4)",
+        dest="vrrp_vip"
+    )
+
+    branch_vlan_parser.add_argument(
+        "--vrrp-vip-v6",
+        type=str,
+        help="VRRP VIP address without CIDR length. must be inside the VLAN prefix (IPv6)",
+        dest="vrrp_vip6"
+    )
+
+    branch_vlan_parser.add_argument(
+        "--delete",
+        action="store_true",
+        help="delete branch VLAN and clear VRRP",
+    )
+
+    branch_vlan_parser.add_argument(
+        "vlan_name",
+        help="branch VLAN name",
     )
 
     args = parser.parse_args()
