@@ -49,8 +49,8 @@ class Branch:
                  self.info.vlan_vid      = vlan["vid"]
                  self.info.vrrp_desc     = vlan["description"]
                  self.info.vrrp_group_id = int(int(self.info.vlan_vid)/10)  # Group 99 <-> VID 990...999
-                 self.info.is_ookayama   = Slug.Tag.IrbO in vlan["tags"]:
-                 self.info.is_suzukake   = Slug.Tag.IrbS in vlan["tags"]:
+                 self.info.is_ookayama   = Slug.Tag.IrbO in vlan["tags"]
+                 self.info.is_suzukake   = Slug.Tag.IrbS in vlan["tags"]
 
         if self.info.vlan_vid is not None:
             vlan = self.cli.vlans.all_vlans[self.info.vlan_id]
@@ -207,7 +207,13 @@ class Branch:
     def add_irb_interfaces(self):
         results, is_all_ok = [], True
 
-        self.cli.interfaces.create_irb(self.ctx, hostname, self.info.vlan_vid)
+        if self.info.is_ookayama:
+            self.cli.interfaces.create_irb(self.ctx, "core-honakn", self.info.vlan_vid)  # master
+            self.cli.interfaces.create_irb(self.ctx, "core-gsic", self.info.vlan_vid)  # backup
+
+        if self.info.is_suzukake:
+            self.cli.interfaces.create_irb(self.ctx, "core-s7", self.info.vlan_vid)  # master
+            self.cli.interfaces.create_irb(self.ctx, "core-s1", self.info.vlan_vid)  # backup
 
 
     def update_inter_core_mclag_interface(self):
