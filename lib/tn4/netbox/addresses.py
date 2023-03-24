@@ -33,12 +33,13 @@ class Addresses(ClientBase):
 
 
     def create(self, ctx, address, **kwargs):
+        keys = ["role", "tags", "description", "assigned_object_type", "assigned_object_id", "custom_fields"]
         data = [{
             "address": address,
             "status":  "active",
             **{
                 key: kwargs[key]
-                for key in ["role", "tags", "description", "custom_fields"] if key in kwargs
+                for key in keys if key in kwargs
             }
         }]
 

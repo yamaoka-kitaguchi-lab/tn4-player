@@ -163,7 +163,7 @@ class Branch:
         results, is_all_ok = [], True
 
         result, is_ok = self.add_vrrp_ip_address(
-            self.info.vrrp_vip_v4, self.info.cidr_len_v4, Slug.Tag.VRRPVIP, self.fhrp_group_id
+            self.info.vrrp_vip_v4, self.info.cidr_len_v4, Slug.Tag.VRRPVIP, self.info.fhrp_group_id
         )
 
         results += result
@@ -173,7 +173,7 @@ class Branch:
 
         if self.info.vrrp_vip_v6:
             result, is_ok = self.add_vrrp_ip_address(
-                self.info.vrrp_vip_v6, self.info.cidr_len_v6, Slug.Tag.VRRPVIP, self.fhrp_group_id
+                self.info.vrrp_vip_v6, self.info.cidr_len_v6, Slug.Tag.VRRPVIP, self.info.fhrp_group_id
             )
 
             is_all_ok &= is_ok
