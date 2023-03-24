@@ -9,11 +9,10 @@ NB_BRANCH_ID_KEY = "tn4_branch_id"  # Custom Field's attribtue
 
 
 class BranchInfo:
-    def __init__(self, vlan_name, vrrp_group_id,
+    def __init__(self, vlan_name,
                  prefix_v4=None, vrrp_master_v4=None, vrrp_backup_v4=None, vrrp_vip_v4=None,
                  prefix_v6=None, vrrp_master_v6=None, vrrp_backup_v6=None, vrrp_vip_v6=None):
         self.vlan_name       = vlan_name
-        self.vrrp_group_id   = vrrp_group_id
 
         self.prefix_v4       = prefix_v4
         self.prefix_v6       = prefix_v6
@@ -30,6 +29,7 @@ class BranchInfo:
         self.vlan_vid        = None  # 802.1Q vlanid
         self.cidr_len_v4     = None
         self.cidr_len_v6     = None
+        self.vrrp_group_id   = None  # VRRP Group ID
         self.fhrp_group_id   = None  # netbox FHRP Group object id
 
 
@@ -43,6 +43,7 @@ class Branch:
             if vlan["name"] == self.info.vlan_name:
                  self.info.vlan_id  = vlan["id"]
                  self.info.vlan_vid = vlan["vid"]
+                 self.vrrp_group_id = int(int(self.info.vlan_vid)/10)  # Group 99 <-> VID 990...999
 
         if self.info.vlan_vid is not None:
             vlan = self.cli.vlans.all_vlans[self.info.vlan_id]

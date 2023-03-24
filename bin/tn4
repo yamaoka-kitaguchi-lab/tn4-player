@@ -392,13 +392,6 @@ if __name__ == "__main__":
     )
 
     branch_parser.add_argument(
-        "--vrrp-group",
-        type=int,
-        help="VRRP group ID",
-        dest="vrrp_group_id"
-    )
-
-    branch_parser.add_argument(
         "--prefix",
         type=str,
         help="CIDR format of branch VLAN prefix (IPv4)",
