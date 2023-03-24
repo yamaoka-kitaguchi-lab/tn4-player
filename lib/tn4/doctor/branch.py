@@ -26,12 +26,11 @@ class BranchInfo:
 
         self.tn4_branch_id   = None
 
-        self.vlan_id         = None  # netbox vlan object id
+        self.vlan_id         = None  # netbox VLAN object id
         self.vlan_vid        = None  # 802.1Q vlanid
         self.cidr_len_v4     = None
         self.cidr_len_v6     = None
-        self.vrrp_vip_v4_id  = None
-        self.vrrp_vip_v6_id  = None
+        self.fhrp_group_id   = None  # netbox FHRP Group object id
 
 
 class Branch:
@@ -112,32 +111,59 @@ class Branch:
         return results, is_all_ok
 
 
-    def add_vrrp_ip_address(self, address, cidr_len, tag_slug):
+    def create_vrrp_group(self):
+        res, code = self.cli.fhrp_groups.create(self.ctx, self.info.vrrp_group_id, **{
+            "description":   "",
+            "tags":          [],
+            "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
+        })
+
+        is_ok = self.__is_ok_or_not(code)
+
+        if is_ok:
+            result = [{ "Address": address, "VRRP Group": self.info.vrrp_group_id,
+                        "URL": res[0]["url"] if len(res) > 0 else None }]
+            self.info.fhrp_group_id = res[0]["id"]
+
+        else:
+            result = [{ "Address": address, "VRRP Group": self.info.vrrp_group_id, "Code": code }]
+
+        return result, is_ok
+
+
+    def add_vrrp_ip_address(self, address, cidr_len, tag_slug, fhrp_group_id=None):
         address += f"/{cidr_len}"
-        res, code = self.cli.addresses.create(self.ctx, address, **{
+
+        request = {
             "description":   "",
             "tags":          [{ "slug": tag_slug }],
             "role":          Slug.Role.VRRP,
             "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
-        })
+        }
+
+        if fhrp_group_id is not None:
+            request |= {
+                "assigned_object_type": "ipam.fhrpgroup",
+                "assigned_object_id":   fhrp_group_id
+            }
+
+        res, code = self.cli.addresses.create(self.ctx, address, **request)
 
         is_ok   = self.__is_ok_or_not(code)
-        addr_id = None
 
         if is_ok:
             result  = [{ "Address": address, "URL": res[0]["url"] if len(res) > 0 else None }]
-            addr_id = res[0]["id"]
         else:
             result = [{ "Address": address, "Error": code }]
 
-        return result, addr_id, is_ok
+        return result, is_ok
 
 
     def add_vrrp_ip_addresses(self):
         results, is_all_ok = [], True
 
-        result, addr_id, is_ok = self.add_vrrp_ip_address(
-            self.info.vrrp_vip_v4, self.info.cidr_len_v4, Slug.Tag.VRRPVIP
+        result, is_ok = self.add_vrrp_ip_address(
+            self.info.vrrp_vip_v4, self.info.cidr_len_v4, Slug.Tag.VRRPVIP, self.fhrp_group_id
         )
 
         results += result
@@ -145,11 +171,9 @@ class Branch:
         if not is_ok:
             return results, is_ok
 
-        self.info.vrrp_vip_v4_id = addr_id
-
         if self.info.vrrp_vip_v6:
-            result, addr_id, is_ok = self.add_vrrp_ip_address(
-                self.info.vrrp_vip_v6, self.info.cidr_len_v6, Slug.Tag.VRRPVIP
+            result, is_ok = self.add_vrrp_ip_address(
+                self.info.vrrp_vip_v6, self.info.cidr_len_v6, Slug.Tag.VRRPVIP, self.fhrp_group_id
             )
 
             is_all_ok &= is_ok
@@ -157,8 +181,6 @@ class Branch:
 
             if not is_all_ok:
                 return results, is_all_ok
-
-            self.info.vrrp_vip_v6_id = addr_id
 
         bulk_args =  [
             ( self.info.vrrp_master_v4, self.info.cidr_len_v4, Slug.Tag.VRRPMaster ),
@@ -173,39 +195,13 @@ class Branch:
 
 
         for args in bulk_args:
-            result, _, is_ok = self.add_vrrp_ip_address(*args)
+            result, is_ok = self.add_vrrp_ip_address(*args)
 
             is_all_ok &= is_ok
             results += result
 
             if not is_all_ok:
                 return results, is_all_ok
-
-        return results, is_all_ok
-
-
-    def add_vrrp_group_and_bind_ip_addresses(self):
-        results, is_all_ok = [], True
-
-        for address, addr_id in [ (self.info.vrrp_vip_v4, self.info.vrrp_vip_v4_id),
-                                  (self.info.vrrp_vip_v6, self.info.vrrp_vip_v6_id) ]:
-            if address is None:
-                continue
-
-            res, code = self.cli.fhrp_groups.create(self.ctx, self.info.vrrp_vip_ids, **{
-                "description":   "",
-                "tags":          [],
-                "ip_addresses":  [ addr_id ],
-                "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
-            })
-
-            is_all_ok &= self.__is_ok_or_not(code)
-
-            if is_all_ok:
-                results += [{ "Address": address, "VRRP Group": self.info.vrrp_vip_ids,
-                              "URL": res[0]["url"] if len(res) > 0 else None }]
-            else:
-                results += [{ "Address": address, "VRRP Group": self.info.vrrp_vip_ids, "Code": code }]
 
         return results, is_all_ok
 

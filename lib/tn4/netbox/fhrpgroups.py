@@ -38,11 +38,13 @@ class FhrpGroups(ClientBase):
             "group_id": fhrp_group_id,
             **{
                 key: kwargs[key]
-                for key in ["tags", "description", "custom_fields"] if key in kwargs
+                for key in ["ip_addresses", "tags", "description", "custom_fields"] if key in kwargs
             }
         }]
 
-        return self.query(ctx, self.path, data, update=True)
+        print(data)
+
+        return self.query(ctx, self.path, data)
 
 
     def fetch_fhrp_groups(self, ctx, use_cache=False):

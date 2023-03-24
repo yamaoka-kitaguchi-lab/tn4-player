@@ -42,8 +42,6 @@ class Addresses(ClientBase):
             }
         }]
 
-        print(data)
-
         return self.query(ctx, self.path, data)
 
 
