@@ -392,6 +392,13 @@ if __name__ == "__main__":
     )
 
     branch_parser.add_argument(
+        "--vrrp-group",
+        type=int,
+        help="VRRP group ID",
+        dest="vrrp_group_id"
+    )
+
+    branch_parser.add_argument(
         "--prefix",
         type=str,
         help="CIDR format of branch VLAN prefix (IPv4)",
@@ -492,6 +499,7 @@ if __name__ == "__main__":
                 code = Doctor(args).exec()
 
             case "branch-vlan":
+                is_insufficient_args  = args.vrrp_group_id is None
                 is_insufficient_args  = args.cidr_prefix is None
                 is_insufficient_args |= args.vrrp_master_ip is None
                 is_insufficient_args |= args.vrrp_backup_ip is None

@@ -9,10 +9,11 @@ NB_BRANCH_ID_KEY = "tn4_branch_id"  # Custom Field's attribtue
 
 
 class BranchInfo:
-    def __init__(self, vlan_name,
+    def __init__(self, vlan_name, vrrp_group_id,
                  prefix_v4=None, vrrp_master_v4=None, vrrp_backup_v4=None, vrrp_vip_v4=None,
                  prefix_v6=None, vrrp_master_v6=None, vrrp_backup_v6=None, vrrp_vip_v6=None):
         self.vlan_name       = vlan_name
+        self.vrrp_group_id   = vrrp_group_id
 
         self.prefix_v4       = prefix_v4
         self.prefix_v6       = prefix_v6
@@ -71,7 +72,7 @@ class Branch:
 
 
     def add_prefix(self):
-        is_ok = True
+        is_all_ok = True
 
         for prefix in [ self.info.prefix_v4, self.info.prefix_v6 ]:
             if prefix is None:
@@ -85,9 +86,9 @@ class Branch:
                 "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
             })
 
-            is_ok &= self.__is_ok_or_not(code)
+            is_all_ok &= self.__is_ok_or_not(code)
 
-        return is_ok
+        return is_all_ok
 
 
     def add_ip_address(self):
@@ -145,6 +146,27 @@ class Branch:
 
 
     def add_fhrp_group(self):
+        is_all_ok = True
+
+        for address in [ self.info.vrrp_vip_v4, self.info.vrrp_vip_v6 ]:
+            if address is None:
+                continue
+
+            vip_id  = self.vrrp_vip_ids.pop()
+            _, code = self.cli.fhrp_groups.create(self.ctx, self.vrrp_vip_ids, {
+                "description":   "",
+                "tags":          [],
+                "ip_addresses":  [{ "id": vip_id }],
+                "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
+            })
+
+            is_all_ok &= self.__is_ok_or_not(code)
+
+        return is_all_ok
+
+
+
+
 
 
     def delete_vlan(self):

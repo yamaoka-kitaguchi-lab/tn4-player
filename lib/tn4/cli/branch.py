@@ -12,7 +12,7 @@ class BranchVlan(CommandBase):
 
         if self.flg_add:
             branch_info = BranchInfo(
-                args.vlan_name,
+                args.vlan_name, args.vrrp_group_id,
                 args.cidr_prefix, args.vrrp_master_ip, args.vrrp_backup_ip, args.vrrp_vip,
                 args.cidr_prefix6, args.vrrp_master_ip6, args.vrrp_backup_ip6, args.vrrp_vip6,
             )
