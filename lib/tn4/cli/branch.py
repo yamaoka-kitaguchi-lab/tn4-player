@@ -69,9 +69,13 @@ class BranchVlan(CommandBase):
                 self.console_fail(f"Failed to add VRRP IP address", results)
                 sys.exit(1)
 
-            # i += 1
-            # ok = self.branch.add_vrrp_and_bind_ip_address()
-            # self.console.log(f"[yellow]Added new FHRP Group binding the IP addresses [dim]({i} of {n})")
+            i += 1
+            results, ok = self.branch.add_vrrp_group_and_bind_ip_addresses()
+            if ok:
+                self.console_success(f"Added new VRRP Group binding the IP addresses [dim]({i} of {n})", results)
+            else:
+                self.console_fail(f"Failed to add VRRP Group", results)
+                sys.exit(1)
 
 
     def exec_delete(self):

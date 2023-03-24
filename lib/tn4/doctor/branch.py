@@ -184,27 +184,30 @@ class Branch:
         return results, is_all_ok
 
 
-    def add_vrrp_and_bind_ip_address(self):
-        is_all_ok = True
+    def add_vrrp_group_and_bind_ip_addresses(self):
+        results, is_all_ok = [], True
 
-        for address in [ self.info.vrrp_vip_v4, self.info.vrrp_vip_v6 ]:
+        for address, addr_id in [ (self.info.vrrp_vip_v4, self.info.vrrp_vip_v4_id),
+                                  (self.info.vrrp_vip_v6, self.info.vrrp_vip_v6_id) ]:
             if address is None:
                 continue
 
-            vip_id  = self.vrrp_vip_ids.pop()
-            _, code = self.cli.fhrp_groups.create(self.ctx, self.vrrp_vip_ids, {
+            res, code = self.cli.fhrp_groups.create(self.ctx, self.info.vrrp_vip_ids, **{
                 "description":   "",
                 "tags":          [],
-                "ip_addresses":  [{ "id": vip_id }],
+                "ip_addresses":  [ addr_id ],
                 "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
             })
 
             is_all_ok &= self.__is_ok_or_not(code)
 
-        return is_all_ok
+            if is_all_ok:
+                results += [{ "Address": address, "VRRP Group": self.info.vrrp_vip_ids,
+                              "URL": res[0]["url"] if len(res) > 0 else None }]
+            else:
+                results += [{ "Address": address, "VRRP Group": self.info.vrrp_vip_ids, "Code": code }]
 
-
-
+        return results, is_all_ok
 
 
 
