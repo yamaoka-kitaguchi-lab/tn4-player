@@ -28,7 +28,10 @@ class BranchInfo:
 
         self.vlan_id         = None  # netbox vlan object id
         self.vlan_vid        = None  # 802.1Q vlanid
-        self.vrrp_vip_ids    = []
+        self.cidr_len_v4     = None
+        self.cidr_len_v6     = None
+        self.vrrp_vip_v4_id  = None
+        self.vrrp_vip_v6_id  = None
 
 
 class Branch:
@@ -51,6 +54,9 @@ class Branch:
                 s  = self.info.vlan_name.strip().replace(' ', '_')
                 s += '%' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
                 self.info.tn4_branch_id = f"{s}"
+
+        self.cidr_len_v4 = self.prefix_v4.split('/')[-1]
+        self.cidr_len_v6 = self.prefix_v6.split('/')[-1]
 
 
     def __is_ok_or_not(self, code):
@@ -106,74 +112,75 @@ class Branch:
         return results, is_all_ok
 
 
-    def add_vrrp_ip_address(self):
+    def add_vrrp_ip_address(self, address, cidr_len, tag_slug):
+        res, code = self.cli.addresses.create(self.ctx, address, **{
+            "description":   "",
+            "tags":          [{ "slug": tag_slug }],
+            "role":          { "slug": Slug.Tag.VRRP },
+            "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
+        })
+
+        is_ok   = self.__is_ok_or_not(code)
+        addr_id = None
+
+        if is_ok:
+            result  = [{ "Address": address, "URL": res[0]["url"] if len(res) > 0 else None }]
+            addr_id = res["id"]
+        else:
+            result = [{ "Address": address, "Error": code }]
+
+        return result, addr_id, is_ok
+
+
+    def add_vrrp_ip_addresses(self):
         results, is_all_ok = [], True
 
-        for address in [ self.info.vrrp_vip_v4, self.info.vrrp_vip_v6 ]:
-            if address is None:
-                continue
+        result, addr_id, is_ok = self.add_vrrp_ip_address(
+            self.info.vrrp_vip_v4, self.cidr_len_v4, Slug.Tag.VRRPVIP
+        )
 
-            res, code = self.cli.addresses.create(self.ctx, address, **{
-                "description":   "",
-                "tags":          [{ "slug": Slug.Tag.VRRPVIP }],
-                "role":          { "slug": Slug.Role.VIP },
-                "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
-            })
+        results += result
 
-            is_ok &= self.__is_ok_or_not(code)
+        if not is_ok:
+            return results, is_ok
 
-            if is_ok:
-                self.vrrp_vip_ids.append(res["id"])
+        self.vrrp_vip_v4_id = addr_id
+
+        if self.info.vrrp_vip_v6:
+            result, addr_id, is_ok = self.add_vrrp_ip_address(
+                self.info.vrrp_vip_v6, self.cidr_len_v6, Slug.Tag.VRRPVIP
+            )
 
             is_all_ok &= is_ok
+            results += result
 
             if not is_all_ok:
-                results += [{ "Address": address, "Error": code }]
                 return results, is_all_ok
 
-            results += [{ "Address": address, "URL": res[0]["url"] if len(res) > 0 else None }]
+            self.vrrp_vip_v6_id = addr_id
+
+        bulk_args =  [
+            ( self.info.vrrp_master_v4, self.cidr_len_v4, Slug.Tag.VRRPMaster ),
+            ( self.info.vrrp_backup_v4, self.cidr_len_v4, Slug.Tag.VRRPBackup ),
+        ]
+
+        if self.info.vrrp_master_v6 is not None:
+            bulk_args += [( self.info.vrrp_master_v6, self.cidr_len_v6, Slug.Tag.VRRPMaster )]
+
+        if self.info.vrrp_backup_v6 is not None:
+            bulk_args += [( self.info.vrrp_backup_v6, self.cidr_len_v6, Slug.Tag.VRRPBackup )]
 
 
-        for address in [ self.info.vrrp_master_v4, self.info.vrrp_master_v4 ]:
-            if address is None:
-                continue
+        for args in bulk_args:
+            result, _, is_ok = self.add_vrrp_ip_address(*args)
 
-            _, code = self.cli.addresses.create(self.ctx, address, **{
-                "description":   "",
-                "tags":          [{ "slug": Slug.Tag.VRRPMaster }],
-                "role":          { "slug": Slug.Role.VRRP },
-                "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
-            })
-
-            is_all_ok &= self.__is_ok_or_not(code)
+            is_all_ok &= is_ok
+            results += result
 
             if not is_all_ok:
-                results += [{ "Address": address, "Error": code }]
                 return results, is_all_ok
 
-            results += [{ "Address": address, "URL": res[0]["url"] if len(res) > 0 else None }]
-
-
-        for address in [ self.info.vrrp_backup_v4, self.info.vrrp_backup_v6 ]:
-            if address is None:
-                continue
-
-            _, code = self.cli.addresses.create(self.ctx, address, **{
-                "description":   "",
-                "tags":          [{ "slug": Slug.Tag.VRRPBackup }],
-                "role":          { "slug": Slug.Role.VRRP },
-                "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
-            })
-
-            is_all_ok &= self.__is_ok_or_not(code)
-
-            if not is_all_ok:
-                results += [{ "Address": address, "Error": code }]
-                return results, is_all_ok
-
-            results += [{ "Address": address, "URL": res[0]["url"] if len(res) > 0 else None }]
-
-        return is_all_ok
+        return results, is_all_ok
 
 
     def add_vrrp_and_bind_ip_address(self):

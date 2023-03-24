@@ -28,7 +28,7 @@ class BranchVlan(CommandBase):
 
     def console_results(self, results, color="green dim"):
         for result in results:
-            s = "\n".join([ f"[b]{k}:[/b] {v}" for k, v in result.items() ])
+            s = ", ".join([ f"[b]{k}:[/b] {v}" for k, v in result.items() ])
             self.console.log(f"[{color}]{s}")
 
 
@@ -66,7 +66,7 @@ class BranchVlan(CommandBase):
             if ok:
                 self.console_success(f"Added new VRRP IP address [dim]({i} of {n})", results)
             else:
-                self.console_success(f"Failed to add VRRP IP address", results)
+                self.console_fail(f"Failed to add VRRP IP address", results)
                 sys.exit(1)
 
             # i += 1
