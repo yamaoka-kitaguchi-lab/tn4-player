@@ -17,7 +17,7 @@ class BranchVlan(CommandBase):
 
         if self.flg_add:
             self.branch_info = BranchInfo(
-                args.vlan_name
+                args.vlan_name,
                 args.cidr_prefix, args.vrrp_master_ip, args.vrrp_backup_ip, args.vrrp_vip,
                 args.cidr_prefix6, args.vrrp_master_ip6, args.vrrp_backup_ip6, args.vrrp_vip6,
             )
@@ -51,7 +51,7 @@ class BranchVlan(CommandBase):
             #     self.console_success(f"Loaded VLAN metadata [dim]({i} of {n})", result)
             # else:
             #     self.console_fail(f"Failed to load VLAN metadata [dim]", result)
-            #     sys.exit(1)
+            #     sys.exit(20)
 
             # i += 1
             # results, ok = self.branch.add_branch_prefixes()
@@ -59,7 +59,7 @@ class BranchVlan(CommandBase):
             #     self.console_success(f"Added new branch prefix [dim]({i} of {n})", results)
             # else:
             #     self.console_fail(f"Failed to add branch prefix", results)
-            #     sys.exit(1)
+            #     sys.exit(21)
 
             # i += 1
             # result, ok = self.branch.add_vrrp_group()
@@ -67,7 +67,7 @@ class BranchVlan(CommandBase):
             #     self.console_success(f"Added new VRRP Group binding the IP addresses [dim]({i} of {n})", result)
             # else:
             #     self.console_fail(f"Failed to add VRRP Group", result)
-            #     sys.exit(1)
+            #     sys.exit(22)
 
             # i += 1
             # results, ok = self.branch.add_vrrp_ip_addresses()
@@ -75,15 +75,15 @@ class BranchVlan(CommandBase):
             #     self.console_success(f"Added new VRRP IP address [dim]({i} of {n})", results)
             # else:
             #     self.console_fail(f"Failed to add VRRP IP address", results)
-            #     sys.exit(1)
+            #     sys.exit(23)
 
-            # i += 1
-            # results, ok = self.branch.add_irb_interfaces()
-            # if ok:
-            #     self.console_success(f"Created irb interfaces on Core SWs [dim]({i} of {n})", results)
-            # else:
-            #     self.console_fail(f"Failed to create irb interfaces", results)
-            #     sys.exit(1)
+            i += 1
+            results, ok = self.branch.add_irb_interfaces()
+            if ok:
+                self.console_success(f"Created irb interfaces on Core SWs [dim]({i} of {n})", results)
+            else:
+                self.console_fail(f"Failed to create irb interfaces", results)
+                sys.exit(24)
 
             # i += 1
             # results, ok = self.branch.update_inter_core_mclag_interface()
@@ -91,7 +91,7 @@ class BranchVlan(CommandBase):
             #     self.console_success(f"Added branch VLAN to ae0 on each Core SWs [dim]({i} of {n})", results)
             # else:
             #     self.console_fail(f"Failed to add branch VLAN to ae0", results)
-            #     sys.exit(1)
+            #     sys.exit(25)
 
             # i += 1
             # results, status = self.branch.update_inter_campus_mclag_interface()
@@ -102,9 +102,9 @@ class BranchVlan(CommandBase):
             #         self.console_success(f"Skipped to update ae1 on each Core SWs [dim]({i} of {n})", results)
             #     case 2:
             #         self.console_fail(f"Failed to add branch VLAN to ae1", results)
-            #         sys.exit(1)
+            #         sys.exit(26)
 
-            self.console_success(f"Done.")
+            self.console.log(f"[yellow]Done.")
 
 
     def exec_delete(self):
