@@ -26,20 +26,20 @@ class BranchVlan(CommandBase):
             self.branch_info = BranchInfo(args.vlan_name)
 
 
-    def console_results(self, results, color="green"):
+    def console_results(self, results, color="green dim"):
         for result in results:
-            for k, v in result.items():
-                self.console.log(f"[{color} dim]{k}: {v}")
+            s = " ".join([ f"{k}: {v}" for k, v in result.items() ])
+            self.console.log(f"[{color}]{s}")
 
 
     def console_success(self, text, results):
          self.console.log(f"[yellow]{text}")
-         self.console_results(result)
+         self.console_results(results)
 
 
-    def console_success(self, text, results):
+    def console_fail(self, text, results):
          self.console.log(f"[red]{text}")
-         self.console_results(result, color="red")
+         self.console_results(results, color="red")
 
 
     def exec_add(self):

@@ -73,15 +73,15 @@ class Branch:
         is_ok = self.__is_ok_or_not(code)
 
         if is_ok:
-            result = [{ "Loaded": res[0]["url"] if len(res) > 0 else None }]
+            result = [{ "URL": res[0]["url"] if len(res) > 0 else None }]
         else:
-            result = [{ "Code": code }]
+            result = [{ "Error": code }]
 
         return result, is_ok
 
 
     def add_branch_prefix(self):
-        urls, is_all_ok = [], True
+        results, is_all_ok = [], True
 
         for prefix in [ self.info.prefix_v4, self.info.prefix_v6 ]:
             if prefix is None:
@@ -95,12 +95,13 @@ class Branch:
                 "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
             })
 
-            url = res[0]["url"] if len(res) > 0 else None
-            urls.append(url)
             is_all_ok &= self.__is_ok_or_not(code)
 
             if not is_all_ok:
-                return urls, code, is_all_ok
+                results += [{ "Prefix": prefix, "Error": code }]
+                return results, is_all_ok
+
+            results += [{ "Prefix": prefix, "URL": res[0]["url"] if len(res) > 0 else None }]
 
         return urls, None, is_all_ok
 
