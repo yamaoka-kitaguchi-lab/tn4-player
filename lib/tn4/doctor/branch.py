@@ -107,7 +107,7 @@ class Branch:
 
 
     def add_vrrp_ip_address(self):
-        is_all_ok = True
+        results, is_all_ok = [], True
 
         for address in [ self.info.vrrp_vip_v4, self.info.vrrp_vip_v6 ]:
             if address is None:
@@ -127,6 +127,12 @@ class Branch:
 
             is_all_ok &= is_ok
 
+            if not is_all_ok:
+                results += [{ "Address": address, "Error": code }]
+                return results, is_all_ok
+
+            results += [{ "Address": address, "URL": res[0]["url"] if len(res) > 0 else None }]
+
 
         for address in [ self.info.vrrp_master_v4, self.info.vrrp_master_v4 ]:
             if address is None:
@@ -141,6 +147,12 @@ class Branch:
 
             is_all_ok &= self.__is_ok_or_not(code)
 
+            if not is_all_ok:
+                results += [{ "Address": address, "Error": code }]
+                return results, is_all_ok
+
+            results += [{ "Address": address, "URL": res[0]["url"] if len(res) > 0 else None }]
+
 
         for address in [ self.info.vrrp_backup_v4, self.info.vrrp_backup_v6 ]:
             if address is None:
@@ -154,6 +166,12 @@ class Branch:
             })
 
             is_all_ok &= self.__is_ok_or_not(code)
+
+            if not is_all_ok:
+                results += [{ "Address": address, "Error": code }]
+                return results, is_all_ok
+
+            results += [{ "Address": address, "URL": res[0]["url"] if len(res) > 0 else None }]
 
         return is_all_ok
 

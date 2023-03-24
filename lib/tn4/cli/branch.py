@@ -48,22 +48,26 @@ class BranchVlan(CommandBase):
             i, n = 1, 9
             result, ok = self.branch.commit_branch_id()
             if ok:
-                self.console_success(f"[yellow]Loaded VLAN metadata [dim]({i} of {n})", result)
+                self.console_success(f"Loaded VLAN metadata [dim]({i} of {n})", result)
             else:
-                self.console_fail(f"[red]Failed to load VLAN metadata [dim]", result)
+                self.console_fail(f"Failed to load VLAN metadata [dim]", result)
                 sys.exit(1)
 
             i += 1
             results, ok = self.branch.add_branch_prefix()
             if ok:
-                self.console_success(f"[yellow]Added new prefix [dim]({i} of {n})", results)
+                self.console_success(f"Added new branch prefix [dim]({i} of {n})", results)
             else:
-                self.console_fail(f"[red]Failed to add branch prefix", results)
+                self.console_fail(f"Failed to add branch prefix", results)
                 sys.exit(1)
 
-            # i += 1
-            # ok = self.branch.add_vrrp_ip_address()
-            # self.console.log(f"[yellow]Added new IP address [dim]({i} of {n})")
+            i += 1
+            results, ok = self.branch.add_vrrp_ip_address()
+            if ok:
+                self.console_success(f"Added new VRRP IP address [dim]({i} of {n})", results)
+            else:
+                self.console_success(f"Failed to add VRRP IP address", results)
+                sys.exit(1)
 
             # i += 1
             # ok = self.branch.add_vrrp_and_bind_ip_address()
