@@ -68,6 +68,9 @@ class Branch:
         is_ok = True
 
         for prefix in [ self.info.prefix_v4, self.info.prefix_v6 ]:
+            if prefix is None:
+                continue
+
             _, code = self.cli.prefix.create(self.ctx, self.info.prefix_v4, {
                 "role":          { "slug": Slug.Role.Branch },
                 "vlan":          { "id": self.info.vlan_id },
@@ -81,17 +84,20 @@ class Branch:
         return is_ok
 
 
+    def add_ip_address(self):
+        # todo: add ip address with tags, custom_fields
+        pass
+
+
+    def add_fhrp_group(self):
+
+
     def delete_vlan(self):
         self.cli.vlans.delete_by_name(branch_info.vlan_name)
 
 
     def delete_prefix(self):
         # todo: delete prefix object from custom_fields
-        pass
-
-
-    def add_ip_address(self):
-        # todo: add ip address with tags, custom_fields
         pass
 
 

@@ -32,8 +32,9 @@ class FhrpGroups(ClientBase):
                 self.delete(ctx, fhrp_group["id"])
 
 
-    def create(self, ctx, fhrp_group_id, **kwargs):
+    def create(self, ctx, fhrp_group_id, protocol="vrrp3", **kwargs):
         data = [{
+            "protocol": protocol,
             "group_id": fhrp_group_id,
             **{
                 key: kwargs[key]
