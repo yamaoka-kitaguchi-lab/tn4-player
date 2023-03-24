@@ -70,9 +70,14 @@ class Branch:
             NB_BRANCH_ID_KEY: self.info.tn4_branch_id
         })
 
-        url = res[0]["url"] if len(res) > 0 else None
+        is_ok = self.__is_ok_or_not(code)
 
-        return url, code, self.__is_ok_or_not(code)
+        if is_ok:
+            result = [{ "Loaded": res[0]["url"] if len(res) > 0 else None }]
+        else:
+            result = [{ "Code": code }]
+
+        return result, is_ok
 
 
     def add_branch_prefix(self):

@@ -26,27 +26,40 @@ class BranchVlan(CommandBase):
             self.branch_info = BranchInfo(args.vlan_name)
 
 
+    def console_results(self, results, color="green"):
+        for result in results:
+            for k, v in result.items():
+                self.console.log(f"[{color} dim]{k}: {v}")
+
+
+    def console_success(self, text, results):
+         self.console.log(f"[yellow]{text}")
+         self.console_results(result)
+
+
+    def console_success(self, text, results):
+         self.console.log(f"[red]{text}")
+         self.console_results(result, color="red")
+
+
     def exec_add(self):
         with self.console.status(f"[green]Creating new branch [b]{self.branch.info.vlan_name}[/b]..."):
 
             i, n = 1, 9
-            url, code, ok = self.branch.commit_branch_id()
+            result, ok = self.branch.commit_branch_id()
             if ok:
-                self.console.log(f"[yellow]Loaded VLAN metadata [dim]({i} of {n})")
-                self.console.log(f"[green dim]{url}")
+                self.console_success(f"[yellow]Loaded VLAN metadata [dim]({i} of {n})", result)
             else:
-                self.console.log(f"[red]Failed to load VLAN metadata [dim](exit with {code})")
-                sys.exit(code)
+                self.console_fail(f"[red]Failed to load VLAN metadata [dim]", result)
+                sys.exit(1)
 
             i += 1
-            urls, code, ok = self.branch.add_branch_prefix()
+            results, ok = self.branch.add_branch_prefix()
             if ok:
-                self.console.log(f"[yellow]Added new prefix [dim]({i} of {n})")
-                for url in urls:
-                    self.console.log(f"[green dim]{url}")
+                self.console_success(f"[yellow]Added new prefix [dim]({i} of {n})", results)
             else:
-                self.console.log(f"[red]Failed to add branch prefix [dim](exit with {code})")
-                sys.exit(code)
+                self.console_fail(f"[red]Failed to add branch prefix", results)
+                sys.exit(1)
 
             # i += 1
             # ok = self.branch.add_vrrp_ip_address()
