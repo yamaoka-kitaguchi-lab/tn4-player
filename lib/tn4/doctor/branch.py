@@ -27,11 +27,14 @@ class BranchInfo:
 
         self.vlan_id         = None  # netbox VLAN object id
         self.vlan_vid        = None  # 802.1Q vlanid
+        self.is_ookayama     = None
+        self.is_suzukake     = None
         self.cidr_len_v4     = None
         self.cidr_len_v6     = None
         self.vrrp_desc       = None
         self.vrrp_group_id   = None  # VRRP Group ID
         self.fhrp_group_id   = None  # netbox FHRP Group object id
+        self.address_ids     = []    # netbox Address object id
 
 
 class Branch:
@@ -46,6 +49,8 @@ class Branch:
                  self.info.vlan_vid      = vlan["vid"]
                  self.info.vrrp_desc     = vlan["description"]
                  self.info.vrrp_group_id = int(int(self.info.vlan_vid)/10)  # Group 99 <-> VID 990...999
+                 self.info.is_ookayama   = Slug.Tag.IrbO in vlan["tags"]:
+                 self.info.is_suzukake   = Slug.Tag.IrbS in vlan["tags"]:
 
         if self.info.vlan_vid is not None:
             vlan = self.cli.vlans.all_vlans[self.info.vlan_id]
@@ -71,6 +76,9 @@ class Branch:
     def validate_branch_info(self):
         # not duplicate: ip address, prefix
         # exist: vlan tag (irb-o or irb-s)
+
+        missing_irb_tag = self.info.is_ookayama == self.info.is_suzukake == False
+
         return
 
 
@@ -155,65 +163,51 @@ class Branch:
         res, code = self.cli.addresses.create(self.ctx, address, **request)
 
         is_ok   = self.__is_ok_or_not(code)
+        addr_id = None
 
         if is_ok:
             result  = [{ "Address": address, "URL": res[0]["url"] if len(res) > 0 else None }]
+            addr_id = res[0]["id"]
         else:
             result = [{ "Address": address, "Error": code }]
 
-        return result, is_ok
+        return result, addr_id, is_ok
 
 
     def add_vrrp_ip_addresses(self):
         results, is_all_ok = [], True
 
-        result, is_ok = self.add_vrrp_ip_address(
-            self.info.vrrp_vip_v4, self.info.cidr_len_v4, Slug.Tag.VRRPVIP, self.info.fhrp_group_id
-        )
-
-        results += result
-
-        if not is_ok:
-            return results, is_ok
-
-        if self.info.vrrp_vip_v6:
-            result, is_ok = self.add_vrrp_ip_address(
-                self.info.vrrp_vip_v6, self.info.cidr_len_v6, Slug.Tag.VRRPVIP, self.info.fhrp_group_id
-            )
-
-            is_all_ok &= is_ok
-            results += result
-
-            if not is_all_ok:
-                return results, is_all_ok
-
         bulk_args = [
             ( self.info.vrrp_master_v4, self.info.cidr_len_v4, Slug.Tag.VRRPMaster ),
             ( self.info.vrrp_backup_v4, self.info.cidr_len_v4, Slug.Tag.VRRPBackup ),
+            ( self.info.vrrp_vip_v4, self.info.cidr_len_v4, Slug.Tag.VRRPVIP, self.info.fhrp_group_id ),
         ]
 
-        if self.info.vrrp_master_v6 is not None:
-            bulk_args += [( self.info.vrrp_master_v6, self.info.cidr_len_v6, Slug.Tag.VRRPMaster )]
-
-        if self.info.vrrp_backup_v6 is not None:
-            bulk_args += [( self.info.vrrp_backup_v6, self.info.cidr_len_v6, Slug.Tag.VRRPBackup )]
-
+        if self.info.vrrp_vip_v6 is not None:
+            bulk_args += [
+                ( self.info.vrrp_master_v6, self.info.cidr_len_v6, Slug.Tag.VRRPMaster ),
+                ( self.info.vrrp_backup_v6, self.info.cidr_len_v6, Slug.Tag.VRRPBackup ),
+                ( self.info.vrrp_vip_v6, self.info.cidr_len_v6, Slug.Tag.VRRPVIP, self.info.fhrp_group_id ),
+            ]
 
         for args in bulk_args:
-            result, is_ok = self.add_vrrp_ip_address(*args)
+            result, addr_id, is_ok = self.add_vrrp_ip_address(*args)
 
             is_all_ok &= is_ok
             results += result
 
             if not is_all_ok:
                 return results, is_all_ok
+
+            self.info.address_ids.append(addr_id)
 
         return results, is_all_ok
 
 
     def add_irb_interfaces(self):
         results, is_all_ok = [], True
-        pass
+
+        self.cli.interfaces.create_irb(self.ctx, hostname, self.info.vlan_vid)
 
 
     def update_inter_core_mclag_interface(self):

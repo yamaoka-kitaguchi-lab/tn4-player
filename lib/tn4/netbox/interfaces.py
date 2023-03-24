@@ -46,6 +46,17 @@ class Interfaces(ClientBase):
         return self.query(ctx, f"{self.path}{str(oid)}/", delete=True)
 
 
+    def create_irb(self, ctx, device_name, vid, **kwargs):
+        data = [{
+            "device": device_name,
+            "name":   f"irb.{vid}"
+            "type":   "virtual",
+            "mode":   "access"
+        }]
+
+        return self.query(ctx, self.path, data)
+
+
     def update(self, ctx, device_name, interface_name, **kwargs):
         data = []
         body = {

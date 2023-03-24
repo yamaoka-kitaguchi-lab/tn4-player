@@ -496,6 +496,8 @@ if __name__ == "__main__":
                 is_insufficient_args |= args.vrrp_master_ip is None
                 is_insufficient_args |= args.vrrp_backup_ip is None
                 is_insufficient_args |= args.vrrp_vip is None
+                is_insufficient_args |= \
+                    args.vrrp_vip6 is None == args.vrrp_master_ip6 is None == arg.vrrp_backup_ip6 is None
 
                 if args.add and is_insufficient_args or args.add and args.delete:
                     branch_parser.print_help()
