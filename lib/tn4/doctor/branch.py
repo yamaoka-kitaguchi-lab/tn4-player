@@ -150,7 +150,7 @@ class Branch:
         return result, is_ok
 
 
-    def add_vrrp_ip_address(self, address, cidr_len, tag_slug, fhrp_group_id=None):
+    def __add_vrrp_ip_address(self, address, cidr_len, tag_slug, fhrp_group_id=None):
         address += f"/{cidr_len}"
 
         request = {
@@ -199,7 +199,7 @@ class Branch:
         addr_ids = []
 
         for args in bulk_args:
-            result, addr_id, is_ok = self.add_vrrp_ip_address(*args)
+            result, addr_id, is_ok = self.__add_vrrp_ip_address(*args)
 
             is_all_ok &= is_ok
             results += result
@@ -217,7 +217,7 @@ class Branch:
         return results, is_all_ok
 
 
-    def create_irb(self, hostname):
+    def __create_irb(self, hostname):
         kwargs = {
             "untagged_vlan": self.info.vlan_id,
             "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
@@ -249,7 +249,7 @@ class Branch:
         iface_ids = []
 
         for host in hosts:
-            result, iface_id, is_ok = self.create_irb(host)
+            result, iface_id, is_ok = self.__create_irb(host)
 
             is_all_ok &= is_ok
             results += result
