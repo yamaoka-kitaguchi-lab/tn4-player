@@ -33,11 +33,8 @@ class Addresses(ClientBase):
 
 
     def create(self, ctx, address, **kwargs):
-        family = 4 if "." in prefix else 6
-
         data = [{
             "address": address,
-            "family":  family,
             "status":  "active",
             **{
                 key: kwargs[key]
@@ -45,7 +42,7 @@ class Addresses(ClientBase):
             }
         }]
 
-        return self.query(ctx, self.path, data, update=True)
+        return self.query(ctx, self.path, data)
 
 
     def fetch_addresses(self, ctx, use_cache=False):
