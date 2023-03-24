@@ -78,7 +78,7 @@ class BranchVlan(CommandBase):
             #     sys.exit(23)
 
             i += 1
-            results, ok = self.branch.add_irb_interfaces()
+            results, ok = self.branch.add_irb_interfaces_and_assign_addresses()
             if ok:
                 self.console_success(f"Created irb interfaces on Core SWs [dim]({i} of {n})", results)
             else:
