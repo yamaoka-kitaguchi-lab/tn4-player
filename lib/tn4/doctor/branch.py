@@ -99,8 +99,6 @@ class Branch:
             if address is None:
                 continue
 
-            if self.cli.addresses.all_addresses:
-
             res, code = self.cli.address.create(self.ctx, address, {
                 "description":   "",
                 "tags":          [{ "slug": Slug.Tag.VRRPVIP }],

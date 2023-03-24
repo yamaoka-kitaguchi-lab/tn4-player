@@ -7,20 +7,23 @@ from tn4.doctor.branch import BranchInfo, Branch
 
 class BranchVlan(CommandBase):
     def __init__(self, args):
-        self.flg_add    = args.add
-        self.flg_delete = args.delete
+        self.netbox_url    = args.netbox_url
+        self.netbox_token  = args.netbox_token
+        self.flg_debug     = args.debug
+        self.flg_use_cache = args.use_cache
+
+        self.flg_add       = args.add
+        self.flg_delete    = args.delete
 
         if self.flg_add:
-            branch_info = BranchInfo(
+            self.branch_info = BranchInfo(
                 args.vlan_name, args.vrrp_group_id,
                 args.cidr_prefix, args.vrrp_master_ip, args.vrrp_backup_ip, args.vrrp_vip,
                 args.cidr_prefix6, args.vrrp_master_ip6, args.vrrp_backup_ip6, args.vrrp_vip6,
             )
 
         if self.flg_delete:
-            branch_info = BranchInfo(args.vlan_name)
-
-        self.branch = Branch(self.ctx, self.nb.cli, branch_info)
+            self.branch_info = BranchInfo(args.vlan_name)
 
 
     def exec_add(self):
@@ -48,6 +51,16 @@ class BranchVlan(CommandBase):
 
 
     def exec(self):
+        ok = self.fetch_inventory(
+            netbox_url=self.netbox_url, netbox_token=self.netbox_token,
+            use_cache=self.flg_use_cache, debug=self.flg_debug, fetch_all=True
+        )
+
+        if not ok:
+            return 100
+
+        self.branch = Branch(self.ctx, self.nb.cli, self.branch_info)
+
         if self.branch.vlan_id is None:
             self.console.log(f"[red]VLAN [b]{self.branch.vlan_name}[/b] not found. Aborted.")
             return 100
