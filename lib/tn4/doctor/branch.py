@@ -34,7 +34,13 @@ class BranchInfo:
         self.vrrp_desc       = None
         self.vrrp_group_id   = None  # VRRP Group ID
         self.fhrp_group_id   = None  # netbox FHRP Group object id
-        self.address_ids     = []    # netbox Address object id
+
+        self.vrrp_master_v4_id = None
+        self.vrrp_master_v6_id = None
+        self.vrrp_backup_v4_id = None
+        self.vrrp_backup_v6_id = None
+        self.vrrp_vip_v4_id    = None
+        self.vrrp_vip_v6_id    = None
 
 
 class Branch:
@@ -150,7 +156,7 @@ class Branch:
         request = {
             "description":   "",
             "tags":          [{ "slug": tag_slug }],
-            "role":          Slug.Role.VRRP,
+            "role":          slug.role.vrrp,
             "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
         }
 
@@ -190,6 +196,8 @@ class Branch:
                 ( self.info.vrrp_vip_v6, self.info.cidr_len_v6, Slug.Tag.VRRPVIP, self.info.fhrp_group_id ),
             ]
 
+        addr_ids = []
+
         for args in bulk_args:
             result, addr_id, is_ok = self.add_vrrp_ip_address(*args)
 
@@ -199,7 +207,12 @@ class Branch:
             if not is_all_ok:
                 return results, is_all_ok
 
-            self.info.address_ids.append(addr_id)
+            addr_ids.append(addr_id)
+
+        self.vrrp_master_v4_id, self.vrrp_backup_v4_id, self.vrrp_vip_v4_id = addr_ids[:3]
+
+        if len(addr_ids) == 6:
+            self.vrrp_master_v6_id, self.vrrp_backup_v6_id, self.vrrp_vip_v6_id = addr_ids[3:]
 
         return results, is_all_ok
 
@@ -207,13 +220,18 @@ class Branch:
     def add_irb_interfaces(self):
         results, is_all_ok = [], True
 
+        kwargs = {
+            "untagged_vlan": self.info.vlan_id,
+            "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
+        }
+
         if self.info.is_ookayama:
-            self.cli.interfaces.create_irb(self.ctx, "core-honakn", self.info.vlan_vid)  # master
-            self.cli.interfaces.create_irb(self.ctx, "core-gsic", self.info.vlan_vid)  # backup
+            self.cli.interfaces.create_irb(self.ctx, "core-honakn", self.info.vlan_vid, **kwargs)
+            self.cli.interfaces.create_irb(self.ctx, "core-gsic", self.info.vlan_vid, **kwargs)
 
         if self.info.is_suzukake:
-            self.cli.interfaces.create_irb(self.ctx, "core-s7", self.info.vlan_vid)  # master
-            self.cli.interfaces.create_irb(self.ctx, "core-s1", self.info.vlan_vid)  # backup
+            self.cli.interfaces.create_irb(self.ctx, "core-s7", self.info.vlan_vid, **kwargs)
+            self.cli.interfaces.create_irb(self.ctx, "core-s1", self.info.vlan_vid, **kwargs)
 
 
     def update_inter_core_mclag_interface(self):
