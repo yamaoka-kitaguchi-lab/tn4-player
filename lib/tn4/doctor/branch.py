@@ -15,8 +15,8 @@ class BranchInfo:
         self.vlan_name       = vlan_name
         self.vrrp_group_id   = vrrp_group_id
 
-        self.prefix_v4       = prefix_v4
-        self.prefix_v6       = prefix_v6
+        self.prefix_v4       = prefix_cidr_v4
+        self.prefix_v6       = prefix_cidr_v6
         self.vrrp_master_v4  = vrrp_master_v4
         self.vrrp_master_v6  = vrrp_master_v6
         self.vrrp_backup_v4  = vrrp_backup_v4
