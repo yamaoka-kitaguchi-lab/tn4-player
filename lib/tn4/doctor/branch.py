@@ -29,6 +29,7 @@ class BranchInfo:
         self.vlan_vid        = None  # 802.1Q vlanid
         self.cidr_len_v4     = None
         self.cidr_len_v6     = None
+        self.vrrp_desc       = None
         self.vrrp_group_id   = None  # VRRP Group ID
         self.fhrp_group_id   = None  # netbox FHRP Group object id
 
@@ -41,9 +42,10 @@ class Branch:
 
         for vlan in self.cli.vlans.all_vlans.values():
             if vlan["name"] == self.info.vlan_name:
-                 self.info.vlan_id  = vlan["id"]
-                 self.info.vlan_vid = vlan["vid"]
-                 self.vrrp_group_id = int(int(self.info.vlan_vid)/10)  # Group 99 <-> VID 990...999
+                 self.info.vlan_id       = vlan["id"]
+                 self.info.vlan_vid      = vlan["vid"]
+                 self.info.vrrp_desc     = vlan["description"]
+                 self.info.vrrp_group_id = int(int(self.info.vlan_vid)/10)  # Group 99 <-> VID 990...999
 
         if self.info.vlan_vid is not None:
             vlan = self.cli.vlans.all_vlans[self.info.vlan_id]
@@ -67,7 +69,8 @@ class Branch:
 
 
     def validate_branch_info(self):
-        # todo: check if any item already exist
+        # not duplicate: ip address, prefix
+        # exist: vlan tag (irb-o or irb-s)
         return
 
 
@@ -114,7 +117,8 @@ class Branch:
 
     def add_vrrp_group(self):
         res, code = self.cli.fhrp_groups.create(self.ctx, self.info.vrrp_group_id, **{
-            "description":   "",
+            #"name":          self.info.vlan_vid,  # Requires >= NetBox 3.4
+            "description":   self.info.vrrp_desc,
             "tags":          [],
             "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
         })
