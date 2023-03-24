@@ -46,6 +46,15 @@ class Addresses(ClientBase):
         return self.query(ctx, self.path, data)
 
 
+    def assign_to_interface(self, ctx, addr_id, iface_id):
+        data = [{
+            "assigned_object_type": "dcim.interface",
+            "assigned_object_id":   iface_id,
+        }]
+
+        return self.query(ctx, self.path, data)
+
+
     def fetch_addresses(self, ctx, use_cache=False):
         all_addresses = None
 

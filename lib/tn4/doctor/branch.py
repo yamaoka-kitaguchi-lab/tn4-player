@@ -72,7 +72,7 @@ class Branch:
         self.info.cidr_len_v6 = self.info.prefix_v6.split('/')[-1]
 
 
-    def __is_ok_or_not(self, code):
+    def is_ok_or_not(self, code):
         if 200 <= code < 300:
             return True
 
@@ -93,7 +93,7 @@ class Branch:
             NB_BRANCH_ID_KEY: self.info.tn4_branch_id
         })
 
-        is_ok = self.__is_ok_or_not(code)
+        is_ok = self.is_ok_or_not(code)
 
         if is_ok:
             result = [{ "URL": res[0]["url"] if len(res) > 0 else None }]
@@ -118,7 +118,7 @@ class Branch:
                 "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
             })
 
-            is_all_ok &= self.__is_ok_or_not(code)
+            is_all_ok &= self.is_ok_or_not(code)
 
             if not is_all_ok:
                 results += [{ "Prefix": prefix, "Error": code }]
@@ -137,7 +137,7 @@ class Branch:
             "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
         })
 
-        is_ok = self.__is_ok_or_not(code)
+        is_ok = self.is_ok_or_not(code)
 
         if is_ok:
             result = [{ "VRRP Group": self.info.vrrp_group_id,
@@ -168,7 +168,7 @@ class Branch:
 
         res, code = self.cli.addresses.create(self.ctx, address, **request)
 
-        is_ok   = self.__is_ok_or_not(code)
+        is_ok   = self.is_ok_or_not(code)
         addr_id = None
 
         if is_ok:
@@ -217,21 +217,37 @@ class Branch:
         return results, is_all_ok
 
 
-    def add_irb_interfaces(self):
-        results, is_all_ok = [], True
-
+    def create_irb(self, hostname):
         kwargs = {
             "untagged_vlan": self.info.vlan_id,
             "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
         }
 
-        if self.info.is_ookayama:
-            self.cli.interfaces.create_irb(self.ctx, "core-honakn", self.info.vlan_vid, **kwargs)
-            self.cli.interfaces.create_irb(self.ctx, "core-gsic", self.info.vlan_vid, **kwargs)
+        res, code = self.cli.interfaces.create_irb(self.ctx, "core-honakn", self.info.vlan_vid, **kwargs)
 
+        is_ok      = self.is_ok_or_not(code)
+        iface_id   = None
+        iface_name = f"irb.{self.info.vlan_vid}"
+
+        if is_ok:
+            result  = [{ "Interface": name, "URL": res[0]["url"] if len(res) > 0 else None }]
+            iface_id = res[0]["id"]
+        else:
+            result = [{ "Interface": name, "Error": code }]
+
+        return results, iface_id, is_ok
+
+
+    def add_irb_interfaces_and_assign_addresses(self):
+        results, is_all_ok = [], True
+
+        if self.info.is_ookayama:
+            hosts = [ "core-gsic", "core-honkan" ]
         if self.info.is_suzukake:
-            self.cli.interfaces.create_irb(self.ctx, "core-s7", self.info.vlan_vid, **kwargs)
-            self.cli.interfaces.create_irb(self.ctx, "core-s1", self.info.vlan_vid, **kwargs)
+            hosts = [ "core-s7", "core-s1" ]
+
+        for host in hosts:
+            result, iface_id, is_ok = self.create_irb(host)
 
 
     def update_inter_core_mclag_interface(self):
