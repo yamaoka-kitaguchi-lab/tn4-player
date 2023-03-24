@@ -23,9 +23,11 @@ class BranchInfo:
         self.vrrp_vip_v4     = vrrp_vip_v4
         self.vrrp_vip_v6     = vrrp_vip_v6
 
+        self.tn4_branch_id   = None
+
         self.vlan_id         = None  # netbox vlan object id
         self.vlan_vid        = None  # 802.1Q vlanid
-        self.tn4_branch_id   = None
+        self.vrrp_vip_ids    = []
 
 
 class Branch:
@@ -54,6 +56,10 @@ class Branch:
             return True
 
         return False
+
+
+    def validate_branch_info(self):
+        # todo: check if any item already exist
 
 
     def commit_branch_id(self):
@@ -85,7 +91,7 @@ class Branch:
 
 
     def add_ip_address(self):
-        is_ok = True
+        is_all_ok = True
 
         for address in [ self.info.vrrp_vip_v4, self.info.vrrp_vip_v6 ]:
             if address is None:
@@ -93,7 +99,7 @@ class Branch:
 
             if self.cli.addresses.all_addresses:
 
-            _, code = self.cli.address.create(self.ctx, address, {
+            res, code = self.cli.address.create(self.ctx, address, {
                 "description":   "",
                 "tags":          [{ "slug": Slug.Tag.VRRPVIP }],
                 "role":          { "slug": Slug.Role.VIP },
@@ -101,6 +107,12 @@ class Branch:
             })
 
             is_ok &= self.__is_ok_or_not(code)
+
+            if is_ok:
+                self.vrrp_vip_ids.append(res["id"])
+
+            is_all_ok &= is_ok
+
 
         for address in [ self.info.vrrp_master_v4, self.info.vrrp_master_v4 ]:
             if address is None:
@@ -113,7 +125,7 @@ class Branch:
                 "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
             })
 
-            is_ok &= self.__is_ok_or_not(code)
+            is_all_ok &= self.__is_ok_or_not(code)
 
 
         for address in [ self.info.vrrp_backup_v4, self.info.vrrp_backup_v6 ]:
@@ -127,9 +139,9 @@ class Branch:
                 "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
             })
 
-            is_ok &= self.__is_ok_or_not(code)
+            is_all_ok &= self.__is_ok_or_not(code)
 
-        return is_ok
+        return is_all_ok
 
 
     def add_fhrp_group(self):
