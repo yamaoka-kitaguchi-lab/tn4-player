@@ -60,11 +60,6 @@ class Branch:
         return False
 
 
-    def __return_with_status(self, res, code):
-        url = res[0]["url"] if res is not None else None
-        return url, code, self.__is_ok_or_not(code)
-
-
     def validate_branch_info(self):
         # todo: check if any item already exist
         return
@@ -75,17 +70,19 @@ class Branch:
             NB_BRANCH_ID_KEY: self.info.tn4_branch_id
         })
 
-        return self.__return_with_status(res, code)
+        url = res[0]["url"] if res is not None else None
+
+        return url, code, self.__is_ok_or_not(code)
 
 
     def add_branch_prefix(self):
-        is_all_ok = True
+        urls, is_all_ok = [], True
 
         for prefix in [ self.info.prefix_v4, self.info.prefix_v6 ]:
             if prefix is None:
                 continue
 
-            _, code = self.cli.prefix.create(self.ctx, prefix, {
+            res, code = self.cli.prefix.create(self.ctx, prefix, {
                 "role":          { "slug": Slug.Role.Branch },
                 "vlan":          { "id": self.info.vlan_id },
                 "description":   "",
@@ -93,9 +90,14 @@ class Branch:
                 "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
             })
 
+            url = res[0]["url"] if res is not None else None
+            urls.append(url)
             is_all_ok &= self.__is_ok_or_not(code)
 
-        return is_all_ok
+            if not is_all_ok:
+                return urls, code, is_all_ok
+
+        return urls, None, is_all_ok
 
 
     def add_vrrp_ip_address(self):
