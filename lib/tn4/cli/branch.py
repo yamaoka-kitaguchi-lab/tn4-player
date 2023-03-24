@@ -45,37 +45,66 @@ class BranchVlan(CommandBase):
     def exec_add(self):
         with self.console.status(f"[green]Creating new branch [b]{self.branch.info.vlan_name}[/b]..."):
 
-            i, n = 1, 9
-            #result, ok = self.branch.commit_branch_id()
-            #if ok:
-            #    self.console_success(f"Loaded VLAN metadata [dim]({i} of {n})", result)
-            #else:
-            #    self.console_fail(f"Failed to load VLAN metadata [dim]", result)
-            #    sys.exit(1)
+            i, n = 1, 7
+            # result, ok = self.branch.commit_branch_id()
+            # if ok:
+            #     self.console_success(f"Loaded VLAN metadata [dim]({i} of {n})", result)
+            # else:
+            #     self.console_fail(f"Failed to load VLAN metadata [dim]", result)
+            #     sys.exit(1)
 
-            #i += 1
-            #results, ok = self.branch.add_branch_prefixes()
-            #if ok:
-            #    self.console_success(f"Added new branch prefix [dim]({i} of {n})", results)
-            #else:
-            #    self.console_fail(f"Failed to add branch prefix", results)
-            #    sys.exit(1)
+            # i += 1
+            # results, ok = self.branch.add_branch_prefixes()
+            # if ok:
+            #     self.console_success(f"Added new branch prefix [dim]({i} of {n})", results)
+            # else:
+            #     self.console_fail(f"Failed to add branch prefix", results)
+            #     sys.exit(1)
 
-            i += 1
-            result, ok = self.branch.add_vrrp_group()
-            if ok:
-                self.console_success(f"Added new VRRP Group binding the IP addresses [dim]({i} of {n})", result)
-            else:
-                self.console_fail(f"Failed to add VRRP Group", result)
-                sys.exit(1)
+            # i += 1
+            # result, ok = self.branch.add_vrrp_group()
+            # if ok:
+            #     self.console_success(f"Added new VRRP Group binding the IP addresses [dim]({i} of {n})", result)
+            # else:
+            #     self.console_fail(f"Failed to add VRRP Group", result)
+            #     sys.exit(1)
 
-            i += 1
-            results, ok = self.branch.add_vrrp_ip_addresses()
-            if ok:
-                self.console_success(f"Added new VRRP IP address [dim]({i} of {n})", results)
-            else:
-                self.console_fail(f"Failed to add VRRP IP address", results)
-                sys.exit(1)
+            # i += 1
+            # results, ok = self.branch.add_vrrp_ip_addresses()
+            # if ok:
+            #     self.console_success(f"Added new VRRP IP address [dim]({i} of {n})", results)
+            # else:
+            #     self.console_fail(f"Failed to add VRRP IP address", results)
+            #     sys.exit(1)
+
+            # i += 1
+            # results, ok = self.branch.add_irb_interfaces()
+            # if ok:
+            #     self.console_success(f"Created irb interfaces on Core SWs [dim]({i} of {n})", results)
+            # else:
+            #     self.console_fail(f"Failed to create irb interfaces", results)
+            #     sys.exit(1)
+
+            # i += 1
+            # results, ok = self.branch.update_inter_core_mclag_interface()
+            # if ok:
+            #     self.console_success(f"Added branch VLAN to ae0 on each Core SWs [dim]({i} of {n})", results)
+            # else:
+            #     self.console_fail(f"Failed to add branch VLAN to ae0", results)
+            #     sys.exit(1)
+
+            # i += 1
+            # results, status = self.branch.update_inter_campus_mclag_interface()
+            # match status:
+            #     case 0:
+            #         self.console_success(f"Added branch VLAN to ae1 on each Core SWs [dim]({i} of {n})", results)
+            #     case 1:
+            #         self.console_success(f"Skipped to update ae1 on each Core SWs [dim]({i} of {n})", results)
+            #     case 2:
+            #         self.console_fail(f"Failed to add branch VLAN to ae1", results)
+            #         sys.exit(1)
+
+            self.console_success(f"Done.")
 
 
     def exec_delete(self):

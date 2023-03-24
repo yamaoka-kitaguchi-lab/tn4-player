@@ -187,7 +187,7 @@ class Branch:
             if not is_all_ok:
                 return results, is_all_ok
 
-        bulk_args =  [
+        bulk_args = [
             ( self.info.vrrp_master_v4, self.info.cidr_len_v4, Slug.Tag.VRRPMaster ),
             ( self.info.vrrp_backup_v4, self.info.cidr_len_v4, Slug.Tag.VRRPBackup ),
         ]
