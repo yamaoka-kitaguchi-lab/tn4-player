@@ -37,17 +37,18 @@ class Branch:
         self.cli  = nb_client
         self.info = branch_info
 
-        for vlan in self.cli.vlans.all_vlans:
-            if vlan["name"] == branch_info.vlan_name:
+        for vlan in self.cli.vlans.all_vlans.values():
+            if vlan["name"] == self.info.vlan_name:
                  self.info.vlan_id  = vlan["id"]
                  self.info.vlan_vid = vlan["vid"]
 
         if self.info.vlan_vid is not None:
             vlan = self.cli.vlans.all_vlans[self.info.vlan_id]
-            if NB_BRANCH_ID_KEY in vlan["custom_fields"]:
+
+            if vlan["custom_fields"][NB_BRANCH_ID_KEY] is not None:
                 self.info.tn4_branch_id = vlan["custom_fields"][NB_BRANCH_ID_KEY]
             else:
-                s  = vlan_name.strip().replace(' ', '_')
+                s  = self.info.vlan_name.strip().replace(' ', '_')
                 s += '%' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
                 self.info.tn4_branch_id = f"{s}"
 
@@ -59,17 +60,22 @@ class Branch:
         return False
 
 
+    def __return_with_status(self, res, code):
+        url = res[0]["url"] if res is not None else None
+        return url, code, self.__is_ok_or_not(code)
+
+
     def validate_branch_info(self):
         # todo: check if any item already exist
         return
 
 
     def commit_branch_id(self):
-        _, code = self.cli.vlans.update_custom_fields(self.ctx, self.info.vlan_id, {
+        res, code = self.cli.vlans.update_custom_fields(self.ctx, self.info.vlan_id, **{
             NB_BRANCH_ID_KEY: self.info.tn4_branch_id
         })
 
-        return self.__is_ok_or_not(code)
+        return self.__return_with_status(res, code)
 
 
     def add_branch_prefix(self):

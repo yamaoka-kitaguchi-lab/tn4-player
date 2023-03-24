@@ -27,11 +27,15 @@ class BranchVlan(CommandBase):
 
 
     def exec_add(self):
-        with self.console.status(f"[green]Creating new branch [b]{self.branch.vlan_name}[/b]..."):
+        with self.console.status(f"[green]Creating new branch [b]{self.branch.info.vlan_name}[/b]..."):
 
             i, n = 1, 9
-            ok = self.branch.commit_branch_id()
-            self.console.log(f"[yellow]Updated VLAN metadata [dim]({i} of {n})")
+            url, code, ok = self.branch.commit_branch_id()
+            if ok:
+                self.console.log(f"[yellow]Updated VLAN metadata [dim]({i} of {n})")
+                self.console.log(f"[green dim]{url}")
+            else:
+                self.console.log(f"[red]Failed to update VLAN metadata [dim](exit with {code})")
 
             # i += 1
             # ok = self.branch.add_branch_prefix()
@@ -61,8 +65,8 @@ class BranchVlan(CommandBase):
 
         self.branch = Branch(self.ctx, self.nb.cli, self.branch_info)
 
-        if self.branch.vlan_id is None:
-            self.console.log(f"[red]VLAN [b]{self.branch.vlan_name}[/b] not found. Aborted.")
+        if self.branch.info.vlan_id is None:
+            self.console.log(f"[red]VLAN [b]{self.branch.info.vlan_name}[/b] not found. Aborted.")
             return 100
 
         self.console.log(
