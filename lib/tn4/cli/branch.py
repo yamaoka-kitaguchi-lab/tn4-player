@@ -28,7 +28,7 @@ class BranchVlan(CommandBase):
 
     def console_results(self, results, color="green dim"):
         for result in results:
-            s = " ".join([ f"{k}: {v}" for k, v in result.items() ])
+            s = " ".join([ f"[b]{k}:[/b] {v}" for k, v in result.items() ])
             self.console.log(f"[{color}]{s}")
 
 

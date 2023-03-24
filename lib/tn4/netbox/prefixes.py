@@ -42,7 +42,7 @@ class Prefixes(ClientBase):
             }
         }]
 
-        return self.query(ctx, self.path, data, update=True)
+        return self.query(ctx, self.path, data)
 
 
     def fetch_prefixes(self, ctx, use_cache=False):

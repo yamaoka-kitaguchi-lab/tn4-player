@@ -103,7 +103,7 @@ class Branch:
 
             results += [{ "Prefix": prefix, "URL": res[0]["url"] if len(res) > 0 else None }]
 
-        return urls, None, is_all_ok
+        return results, is_all_ok
 
 
     def add_vrrp_ip_address(self):
