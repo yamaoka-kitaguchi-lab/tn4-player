@@ -39,7 +39,7 @@ class BranchVlan(CommandBase):
 
     def console_fail(self, text, results):
          self.console.log(f"[red]{text}")
-         self.console_results(results, color="red")
+         self.console_results(results, color="red dim")
 
 
     def exec_add(self):

@@ -33,15 +33,12 @@ class Prefixes(ClientBase):
 
 
     def create(self, ctx, prefix, **kwargs):
-        family = 4 if "." in prefix else 6
-
         data = [{
             "prefix": prefix,
-            "family": family,
             "status": "active",
             **{
                 key: kwargs[key]
-                for key in ["tags", "description", "vlans", "custom_fields"] if key in kwargs
+                for key in ["tags", "description", "vlan", "custom_fields"] if key in kwargs
             }
         }]
 
