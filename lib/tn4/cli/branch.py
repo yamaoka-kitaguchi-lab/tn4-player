@@ -34,6 +34,10 @@ class BranchVlan(CommandBase):
             ok = self.branch.add_prefix()
             self.console.log(f"[yellow]Added new prefix [dim]({i} of {n})")
 
+            i += 1
+            ok = self.branch.add_prefix()
+            self.console.log(f"[yellow]Added new FHRP Group [dim]({i} of {n})")
+
 
     def exec_delete(self):
         pass

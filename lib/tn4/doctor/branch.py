@@ -2,6 +2,9 @@ import random
 import string
 
 
+from tn4.netbox.slug import Slug
+
+
 NB_BRANCH_ID_KEY = "tn4_branch_id"  # Custom Field's attribtue
 
 
@@ -61,13 +64,25 @@ class Branch:
         return self.__is_ok_or_not(code)
 
 
+    def add_prefix(self):
+        is_ok = True
+
+        for prefix in [ self.info.prefix_v4, self.info.prefix_v6 ]:
+            _, code = self.cli.prefix.create(self.ctx, self.info.prefix_v4, {
+                "role":          { "slug": Slug.Role.Branch },
+                "vlan":          { "id": self.info.vlan_id },
+                "description":   "",
+                "tags":          [],
+                "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
+            })
+
+            is_ok &= self.__is_ok_or_not(code)
+
+        return is_ok
+
+
     def delete_vlan(self):
         self.cli.vlans.delete_by_name(branch_info.vlan_name)
-
-
-    def add_prefix(self):
-        # todo: add prefix with tags, custom_fields
-        pass
 
 
     def delete_prefix(self):

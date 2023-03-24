@@ -6,6 +6,7 @@ class Slug:
     class Role:
         CoreSW = "core_sw"
         EdgeSW = "edge_sw"
+        Branch = "branch"
 
     class Region:
         Ookayama = "ookayama"
