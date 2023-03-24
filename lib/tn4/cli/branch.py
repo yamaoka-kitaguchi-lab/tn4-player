@@ -38,10 +38,9 @@ class BranchVlan(CommandBase):
             ok = self.branch.add_ip_address()
             self.console.log(f"[yellow]Added new IP address [dim]({i} of {n})")
 
-
             i += 1
-            ok = self.branch.add_prefix()
-            self.console.log(f"[yellow]Added new FHRP Group and binded IP address [dim]({i} of {n})")
+            ok = self.branch.add_fhrp_group()
+            self.console.log(f"[yellow]Added new FHRP Group binding the IP addresses [dim]({i} of {n})")
 
 
     def exec_delete(self):
