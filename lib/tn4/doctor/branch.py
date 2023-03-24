@@ -61,6 +61,7 @@ class Branch:
 
     def validate_branch_info(self):
         # todo: check if any item already exist
+        return
 
 
     def commit_branch_id(self):
