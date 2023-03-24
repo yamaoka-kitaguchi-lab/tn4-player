@@ -113,7 +113,7 @@ class Branch:
             if address is None:
                 continue
 
-            res, code = self.cli.addresses.create(self.ctx, address, {
+            res, code = self.cli.addresses.create(self.ctx, address, **{
                 "description":   "",
                 "tags":          [{ "slug": Slug.Tag.VRRPVIP }],
                 "role":          { "slug": Slug.Role.VIP },
@@ -132,7 +132,7 @@ class Branch:
             if address is None:
                 continue
 
-            _, code = self.cli.addresses.create(self.ctx, address, {
+            _, code = self.cli.addresses.create(self.ctx, address, **{
                 "description":   "",
                 "tags":          [{ "slug": Slug.Tag.VRRPMaster }],
                 "role":          { "slug": Slug.Role.VRRP },
@@ -146,7 +146,7 @@ class Branch:
             if address is None:
                 continue
 
-            _, code = self.cli.addresses.create(self.ctx, address, {
+            _, code = self.cli.addresses.create(self.ctx, address, **{
                 "description":   "",
                 "tags":          [{ "slug": Slug.Tag.VRRPBackup }],
                 "role":          { "slug": Slug.Role.VRRP },
