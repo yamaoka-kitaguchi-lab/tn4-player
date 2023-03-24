@@ -15,8 +15,8 @@ class BranchInfo:
         self.vlan_name       = vlan_name
         self.vrrp_group_id   = vrrp_group_id
 
-        self.prefix_v4       = prefix_cidr_v4
-        self.prefix_v6       = prefix_cidr_v6
+        self.prefix_v4       = prefix_v4
+        self.prefix_v6       = prefix_v6
         self.vrrp_master_v4  = vrrp_master_v4
         self.vrrp_master_v6  = vrrp_master_v6
         self.vrrp_backup_v4  = vrrp_backup_v4
@@ -55,8 +55,8 @@ class Branch:
                 s += '%' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
                 self.info.tn4_branch_id = f"{s}"
 
-        self.cidr_len_v4 = self.prefix_v4.split('/')[-1]
-        self.cidr_len_v6 = self.prefix_v6.split('/')[-1]
+        self.info.cidr_len_v4 = self.info.prefix_v4.split('/')[-1]
+        self.info.cidr_len_v6 = self.info.prefix_v6.split('/')[-1]
 
 
     def __is_ok_or_not(self, code):
@@ -86,7 +86,7 @@ class Branch:
         return result, is_ok
 
 
-    def add_branch_prefix(self):
+    def add_branch_prefixes(self):
         results, is_all_ok = [], True
 
         for prefix in [ self.info.prefix_v4, self.info.prefix_v6 ]:
@@ -136,7 +136,7 @@ class Branch:
         results, is_all_ok = [], True
 
         result, addr_id, is_ok = self.add_vrrp_ip_address(
-            self.info.vrrp_vip_v4, self.cidr_len_v4, Slug.Tag.VRRPVIP
+            self.info.vrrp_vip_v4, self.info.cidr_len_v4, Slug.Tag.VRRPVIP
         )
 
         results += result
@@ -144,11 +144,11 @@ class Branch:
         if not is_ok:
             return results, is_ok
 
-        self.vrrp_vip_v4_id = addr_id
+        self.info.vrrp_vip_v4_id = addr_id
 
         if self.info.vrrp_vip_v6:
             result, addr_id, is_ok = self.add_vrrp_ip_address(
-                self.info.vrrp_vip_v6, self.cidr_len_v6, Slug.Tag.VRRPVIP
+                self.info.vrrp_vip_v6, self.info.cidr_len_v6, Slug.Tag.VRRPVIP
             )
 
             is_all_ok &= is_ok
@@ -157,18 +157,18 @@ class Branch:
             if not is_all_ok:
                 return results, is_all_ok
 
-            self.vrrp_vip_v6_id = addr_id
+            self.info.vrrp_vip_v6_id = addr_id
 
         bulk_args =  [
-            ( self.info.vrrp_master_v4, self.cidr_len_v4, Slug.Tag.VRRPMaster ),
-            ( self.info.vrrp_backup_v4, self.cidr_len_v4, Slug.Tag.VRRPBackup ),
+            ( self.info.vrrp_master_v4, self.info.cidr_len_v4, Slug.Tag.VRRPMaster ),
+            ( self.info.vrrp_backup_v4, self.info.cidr_len_v4, Slug.Tag.VRRPBackup ),
         ]
 
         if self.info.vrrp_master_v6 is not None:
-            bulk_args += [( self.info.vrrp_master_v6, self.cidr_len_v6, Slug.Tag.VRRPMaster )]
+            bulk_args += [( self.info.vrrp_master_v6, self.info.cidr_len_v6, Slug.Tag.VRRPMaster )]
 
         if self.info.vrrp_backup_v6 is not None:
-            bulk_args += [( self.info.vrrp_backup_v6, self.cidr_len_v6, Slug.Tag.VRRPBackup )]
+            bulk_args += [( self.info.vrrp_backup_v6, self.info.cidr_len_v6, Slug.Tag.VRRPBackup )]
 
 
         for args in bulk_args:

@@ -54,7 +54,7 @@ class BranchVlan(CommandBase):
             #    sys.exit(1)
 
             #i += 1
-            #results, ok = self.branch.add_branch_prefix()
+            #results, ok = self.branch.add_branch_prefixes()
             #if ok:
             #    self.console_success(f"Added new branch prefix [dim]({i} of {n})", results)
             #else:
@@ -62,7 +62,7 @@ class BranchVlan(CommandBase):
             #    sys.exit(1)
 
             i += 1
-            results, ok = self.branch.add_vrrp_ip_address()
+            results, ok = self.branch.add_vrrp_ip_addresses()
             if ok:
                 self.console_success(f"Added new VRRP IP address [dim]({i} of {n})", results)
             else:
