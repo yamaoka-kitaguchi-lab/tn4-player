@@ -211,6 +211,20 @@ class Branch:
         return results, is_all_ok
 
 
+    def add_irb_interfaces(self):
+        results, is_all_ok = [], True
+        pass
+
+
+    def update_inter_core_mclag_interface(self):
+        results, is_all_ok = [], True
+        pass
+
+
+    def update_inter_campus_mclag_interface(self):
+        results, is_all_ok = [], True
+        pass
+
 
     def delete_vlan(self):
         self.cli.vlans.delete_by_name(branch_info.vlan_name)
