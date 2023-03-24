@@ -94,7 +94,7 @@ class Branch:
                 continue
 
             res, code = self.cli.prefixes.create(self.ctx, prefix, **{
-                "role":          { "slug": Slug.Role.Branch },
+                "role":          Slug.Role.Branch,
                 "vlan":          { "id": self.info.vlan_id },
                 "description":   "",
                 "tags":          [],
@@ -113,10 +113,11 @@ class Branch:
 
 
     def add_vrrp_ip_address(self, address, cidr_len, tag_slug):
+        address += f"/{cidr_len}"
         res, code = self.cli.addresses.create(self.ctx, address, **{
             "description":   "",
             "tags":          [{ "slug": tag_slug }],
-            "role":          { "slug": Slug.Tag.VRRP },
+            "role":          Slug.Role.VRRP,
             "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
         })
 
@@ -125,7 +126,7 @@ class Branch:
 
         if is_ok:
             result  = [{ "Address": address, "URL": res[0]["url"] if len(res) > 0 else None }]
-            addr_id = res["id"]
+            addr_id = res[0]["id"]
         else:
             result = [{ "Address": address, "Error": code }]
 
