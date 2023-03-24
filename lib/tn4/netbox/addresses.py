@@ -37,8 +37,8 @@ class Addresses(ClientBase):
 
         data = [{
             "address": address,
-            "family": family,
-            "status": "active",
+            "family":  family,
+            "status":  "active",
             **{
                 key: kwargs[key]
                 for key in ["tags", "description", "custom_fields"] if key in kwargs
