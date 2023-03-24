@@ -70,7 +70,7 @@ class Branch:
             NB_BRANCH_ID_KEY: self.info.tn4_branch_id
         })
 
-        url = res[0]["url"] if res is not None else None
+        url = res[0]["url"] if len(res) > 0 else None
 
         return url, code, self.__is_ok_or_not(code)
 
@@ -82,7 +82,7 @@ class Branch:
             if prefix is None:
                 continue
 
-            res, code = self.cli.prefix.create(self.ctx, prefix, {
+            res, code = self.cli.prefixes.create(self.ctx, prefix, **{
                 "role":          { "slug": Slug.Role.Branch },
                 "vlan":          { "id": self.info.vlan_id },
                 "description":   "",
@@ -90,7 +90,7 @@ class Branch:
                 "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
             })
 
-            url = res[0]["url"] if res is not None else None
+            url = res[0]["url"] if len(res) > 0 else None
             urls.append(url)
             is_all_ok &= self.__is_ok_or_not(code)
 
@@ -107,7 +107,7 @@ class Branch:
             if address is None:
                 continue
 
-            res, code = self.cli.address.create(self.ctx, address, {
+            res, code = self.cli.addresses.create(self.ctx, address, {
                 "description":   "",
                 "tags":          [{ "slug": Slug.Tag.VRRPVIP }],
                 "role":          { "slug": Slug.Role.VIP },
@@ -126,7 +126,7 @@ class Branch:
             if address is None:
                 continue
 
-            _, code = self.cli.address.create(self.ctx, address, {
+            _, code = self.cli.addresses.create(self.ctx, address, {
                 "description":   "",
                 "tags":          [{ "slug": Slug.Tag.VRRPMaster }],
                 "role":          { "slug": Slug.Role.VRRP },
@@ -140,7 +140,7 @@ class Branch:
             if address is None:
                 continue
 
-            _, code = self.cli.address.create(self.ctx, address, {
+            _, code = self.cli.addresses.create(self.ctx, address, {
                 "description":   "",
                 "tags":          [{ "slug": Slug.Tag.VRRPBackup }],
                 "role":          { "slug": Slug.Role.VRRP },
