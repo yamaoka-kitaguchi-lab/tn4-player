@@ -30,17 +30,17 @@ class BranchVlan(CommandBase):
             ok = self.branch.commit_branch_id()
             self.console.log(f"[yellow]Updated VLAN metadata [dim]({i} of {n})")
 
-            i += 1
-            ok = self.branch.add_branch_prefix()
-            self.console.log(f"[yellow]Added new prefix [dim]({i} of {n})")
+            # i += 1
+            # ok = self.branch.add_branch_prefix()
+            # self.console.log(f"[yellow]Added new prefix [dim]({i} of {n})")
 
-            i += 1
-            ok = self.branch.add_vrrp_ip_address()
-            self.console.log(f"[yellow]Added new IP address [dim]({i} of {n})")
+            # i += 1
+            # ok = self.branch.add_vrrp_ip_address()
+            # self.console.log(f"[yellow]Added new IP address [dim]({i} of {n})")
 
-            i += 1
-            ok = self.branch.add_vrrp_and_bind_ip_address()
-            self.console.log(f"[yellow]Added new FHRP Group binding the IP addresses [dim]({i} of {n})")
+            # i += 1
+            # ok = self.branch.add_vrrp_and_bind_ip_address()
+            # self.console.log(f"[yellow]Added new FHRP Group binding the IP addresses [dim]({i} of {n})")
 
 
     def exec_delete(self):
