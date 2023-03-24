@@ -72,7 +72,7 @@ class Branch:
         return self.__is_ok_or_not(code)
 
 
-    def add_prefix(self):
+    def add_branch_prefix(self):
         is_all_ok = True
 
         for prefix in [ self.info.prefix_v4, self.info.prefix_v6 ]:
@@ -92,7 +92,7 @@ class Branch:
         return is_all_ok
 
 
-    def add_ip_address(self):
+    def add_vrrp_ip_address(self):
         is_all_ok = True
 
         for address in [ self.info.vrrp_vip_v4, self.info.vrrp_vip_v6 ]:
@@ -146,7 +146,7 @@ class Branch:
         return is_all_ok
 
 
-    def add_fhrp_group(self):
+    def add_vrrp_and_bind_ip_address(self):
         is_all_ok = True
 
         for address in [ self.info.vrrp_vip_v4, self.info.vrrp_vip_v6 ]:
