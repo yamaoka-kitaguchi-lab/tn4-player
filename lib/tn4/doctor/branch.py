@@ -87,14 +87,43 @@ class Branch:
     def add_ip_address(self):
         is_ok = True
 
-        for address in [ self.info.vrrp_master_v4, self.info.vrrp_backup_v4, self.info.vrrp_vip_v4,
-                         self.info.vrrp_master_v6, self.info.vrrp_backup_v6, self.info.vrrp_vip_v6 ]:
+        for address in [ self.info.vrrp_vip_v4, self.info.vrrp_vip_v6 ]:
+            if address is None:
+                continue
+
+            if self.cli.addresses.all_addresses:
+
+            _, code = self.cli.address.create(self.ctx, address, {
+                "description":   "",
+                "tags":          [{ "slug": Slug.Tag.VRRPVIP }],
+                "role":          { "slug": Slug.Role.VIP },
+                "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
+            })
+
+            is_ok &= self.__is_ok_or_not(code)
+
+        for address in [ self.info.vrrp_master_v4, self.info.vrrp_master_v4 ]:
             if address is None:
                 continue
 
             _, code = self.cli.address.create(self.ctx, address, {
                 "description":   "",
-                "tags":          [],
+                "tags":          [{ "slug": Slug.Tag.VRRPMaster }],
+                "role":          { "slug": Slug.Role.VRRP },
+                "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
+            })
+
+            is_ok &= self.__is_ok_or_not(code)
+
+
+        for address in [ self.info.vrrp_backup_v4, self.info.vrrp_backup_v6 ]:
+            if address is None:
+                continue
+
+            _, code = self.cli.address.create(self.ctx, address, {
+                "description":   "",
+                "tags":          [{ "slug": Slug.Tag.VRRPBackup }],
+                "role":          { "slug": Slug.Role.VRRP },
                 "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
             })
 

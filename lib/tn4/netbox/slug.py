@@ -7,6 +7,8 @@ class Slug:
         CoreSW = "core_sw"
         EdgeSW = "edge_sw"
         Branch = "branch"
+        VRRP   = "vrrp"
+        VIP    = "vip"
 
     class Region:
         Ookayama = "ookayama"
@@ -57,3 +59,6 @@ class Slug:
         WifiMgmtVlanOokayama1  = "wlan-mgmt-vlan-o1"
         WifiMgmtVlanOokayama2  = "wlan-mgmt-vlan-o2"
         WifiMgmtVlanSuzukake   = "wlan-mgmt-vlan-s"
+        VRRPVIP                = "vrrp-vip"
+        VRRPMaster             = "vrrp-master"
+        VRRPBackup             = "vrrp-backup"

@@ -41,7 +41,7 @@ class Addresses(ClientBase):
             "status":  "active",
             **{
                 key: kwargs[key]
-                for key in ["tags", "description", "custom_fields"] if key in kwargs
+                for key in ["role", "tags", "description", "custom_fields"] if key in kwargs
             }
         }]
 
