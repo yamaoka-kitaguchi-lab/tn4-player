@@ -62,19 +62,19 @@ class BranchVlan(CommandBase):
             #    sys.exit(1)
 
             i += 1
+            result, ok = self.branch.add_vrrp_group()
+            if ok:
+                self.console_success(f"Added new VRRP Group binding the IP addresses [dim]({i} of {n})", result)
+            else:
+                self.console_fail(f"Failed to add VRRP Group", result)
+                sys.exit(1)
+
+            i += 1
             results, ok = self.branch.add_vrrp_ip_addresses()
             if ok:
                 self.console_success(f"Added new VRRP IP address [dim]({i} of {n})", results)
             else:
                 self.console_fail(f"Failed to add VRRP IP address", results)
-                sys.exit(1)
-
-            i += 1
-            result, ok = self.branch.add_vrrp_group_and_bind_ip_addresses()
-            if ok:
-                self.console_success(f"Added new VRRP Group binding the IP addresses [dim]({i} of {n})", result)
-            else:
-                self.console_fail(f"Failed to add VRRP Group", result)
                 sys.exit(1)
 
 

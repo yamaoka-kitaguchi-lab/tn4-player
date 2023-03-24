@@ -111,7 +111,7 @@ class Branch:
         return results, is_all_ok
 
 
-    def create_vrrp_group(self):
+    def add_vrrp_group(self):
         res, code = self.cli.fhrp_groups.create(self.ctx, self.info.vrrp_group_id, **{
             "description":   "",
             "tags":          [],
@@ -121,12 +121,12 @@ class Branch:
         is_ok = self.__is_ok_or_not(code)
 
         if is_ok:
-            result = [{ "Address": address, "VRRP Group": self.info.vrrp_group_id,
+            result = [{ "VRRP Group": self.info.vrrp_group_id,
                         "URL": res[0]["url"] if len(res) > 0 else None }]
             self.info.fhrp_group_id = res[0]["id"]
 
         else:
-            result = [{ "Address": address, "VRRP Group": self.info.vrrp_group_id, "Code": code }]
+            result = [{ "VRRP Group": self.info.vrrp_group_id, "Code": code }]
 
         return result, is_ok
 
