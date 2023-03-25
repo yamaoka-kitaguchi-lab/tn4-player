@@ -32,12 +32,12 @@ class BranchVlan(CommandBase):
             self.console.log(f"[{color}]{s}")
 
 
-    def console_success(self, text, results):
+    def console_success(self, text, results=[]):
          self.console.log(f"[yellow]{text}")
          self.console_results(results)
 
 
-    def console_fail(self, text, results):
+    def console_fail(self, text, results=[]):
          self.console.log(f"[red]{text}")
          self.console_results(results, color="red dim")
 
@@ -86,23 +86,23 @@ class BranchVlan(CommandBase):
             #     sys.exit(24)
 
             i += 1
-            results, ok = self.branch.update_inter_core_mclag_interface()
+            _, ok = self.branch.update_inter_core_mclag_interface()
             if ok:
-                self.console_success(f"Added branch VLAN to ae0 on each Core SWs [dim]({i} of {n})", results)
+                self.console_success(f"Added branch VLAN to ae0 on each Core SWs [dim]({i} of {n})")
             else:
-                self.console_fail(f"Failed to add branch VLAN to ae0", results)
+                self.console_fail(f"Failed to add branch VLAN to ae0")
                 sys.exit(25)
 
-            # i += 1
-            # results, status = self.branch.update_inter_campus_mclag_interface()
-            # match status:
-            #     case 0:
-            #         self.console_success(f"Added branch VLAN to ae1 on each Core SWs [dim]({i} of {n})", results)
-            #     case 1:
-            #         self.console_success(f"Skipped to update ae1 on each Core SWs [dim]({i} of {n})", results)
-            #     case 2:
-            #         self.console_fail(f"Failed to add branch VLAN to ae1", results)
-            #         sys.exit(26)
+            i += 1
+            _, status_code = self.branch.update_inter_campus_mclag_interface()
+            match status_code:
+                case 0:
+                    self.console_success(f"Added branch VLAN to ae1 on each Core SWs [dim]({i} of {n})")
+                case 1:
+                    self.console_success(f"Skipped to update ae1 on each Core SWs [dim]({i} of {n})")
+                case 2:
+                    self.console_fail(f"Failed to add branch VLAN to ae1")
+                    sys.exit(26)
 
             self.console.log(f"[yellow]Done.")
 

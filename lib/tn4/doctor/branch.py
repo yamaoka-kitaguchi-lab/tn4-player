@@ -282,26 +282,34 @@ class Branch:
 
 
     def update_inter_core_mclag_interface(self):
-        results, is_all_ok = [], True
-
         if self.info.is_ookayama:
             hosts = [ "core-gsic", "core-honkan" ]
         if self.info.is_suzukake:
             hosts = [ "core-s7", "core-s1" ]
 
         for host in hosts:
-            res, code = self.cli.interfaces.add_tagged_vlans(self.ctx, host, self.info.irb_name, self.vlan_id)
+            _, code = self.cli.interfaces.add_tagged_vlans(self.ctx, host, "ae0", self.vlan_id)
 
-            is_all_ok &= self.is_ok_or_not(code)
-            results += result
+            if not self.is_ok_or_not(code):
+                return None, False
 
-            if not is_all_ok:
-                return results, is_all_ok
-
-        return results, is_all_ok
+        return None, True
 
 
     def update_inter_campus_mclag_interface(self):
+        exit_succeeded, exit_skipped, exit_failed = 0, 1, 2
+
+        if self.info.is_ookayama == self.info.is_suzukake == True:
+            for host in [ "core-gsic", "core-honkan", "core-s7", "core-s1" ]:
+                _, code = self.cli.interfaces.add_tagged_vlans(self.ctx, host, "ae1", self.vlan_id)
+
+                if not self.is_ok_or_not(code):
+                    return None, exit_failed
+
+            return None, exit_succeeded
+
+        else:
+            return None, exit_skipped
 
 
     def delete_vlan(self):
