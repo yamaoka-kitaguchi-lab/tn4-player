@@ -492,12 +492,15 @@ if __name__ == "__main__":
                 code = Doctor(args).exec()
 
             case "branch-vlan":
-                is_insufficient_args  = args.cidr_prefix is None
-                is_insufficient_args |= args.vrrp_master_ip is None
-                is_insufficient_args |= args.vrrp_backup_ip is None
-                is_insufficient_args |= args.vrrp_vip is None
-                is_insufficient_args |= \
+                is_for_ipv4_options  = args.cidr_prefix4 is None
+                is_for_ipv4_options |= \
+                    args.vrrp_vip is None == args.vrrp_master_ip is None == args.vrrp_backup_ip is None
+
+                is_for_ipv6_options  = args.cidr_prefix6 is None
+                is_for_ipv6_options |= \
                     args.vrrp_vip6 is None == args.vrrp_master_ip6 is None == args.vrrp_backup_ip6 is None
+
+                is_insufficient_args = is_for_ipv4_options or is_for_ipv6_options
 
                 if args.add and is_insufficient_args or args.add and args.delete:
                     branch_parser.print_help()
