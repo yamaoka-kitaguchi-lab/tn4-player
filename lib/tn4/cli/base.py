@@ -150,6 +150,21 @@ class CommandBase:
             self.console.log(f"[yellow]Loading finished from {nb.cli.addresses.path} in {et} sec {annotation}")
 
             start_at = time.time()
+            nb.cli.prefixes.fetch_as_inventory(nb.ctx, use_cache=use_cache)
+            et = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Loading finished from {nb.cli.prefixes.path} in {et} sec {annotation}")
+
+            start_at = time.time()
+            nb.cli.fhrp_groups.fetch_as_inventory(nb.ctx, use_cache=use_cache)
+            et = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Loading finished from {nb.cli.fhrp_groups.path} in {et} sec {annotation}")
+
+            start_at = time.time()
+            nb.cli.fhrp_group_assignments.fetch_as_inventory(nb.ctx, use_cache=use_cache)
+            et = round(time.time() - start_at, 1)
+            self.console.log(f"[yellow]Loading finished from {nb.cli.fhrp_group_assignments.path} in {et} sec {annotation}")
+
+            start_at = time.time()
             devices = nb.cli.devices.fetch_as_inventory(nb.ctx, use_cache=use_cache)
             et = round(time.time() - start_at, 1)
             self.console.log(f"[yellow]Loading finished from {nb.cli.devices.path} in {et} sec {annotation}")

@@ -12,6 +12,7 @@ class Context:
     addresses   = None
     prefixes    = None
     fhrp_groups = None
+    fhrp_group_assignments = None
     interfaces  = None
 
     devices_by_hostname = None
