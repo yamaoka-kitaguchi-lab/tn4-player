@@ -73,7 +73,7 @@ class Interfaces(ClientBase):
         })
 
 
-    def delete_tagged_vlans(self, ctx, device_name, interface_name, *vlanids):
+    def remove_tagged_vlans(self, ctx, device_name, interface_name, *vlanids):
         vlans = self.all_interfaces[device_name][interface_name]["tagged_vlans"]
         vlan_oids  = set([ o["id"] for o in vlans ])
         vlan_oids -= set(vlanids)
