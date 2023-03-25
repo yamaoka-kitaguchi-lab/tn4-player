@@ -82,11 +82,9 @@ class Interfaces(ClientBase):
         vlan_oids  = set([ o["id"] for o in vlans ])
         vlan_oids -= set(vlanids)
 
-        print("remove_tagged_vlans:", vlanids)  # deleteme
-
-        #return self.update(ctx, device_name, interface_name, **{
-        #    "tagged_vlanids": list(vlan_oids)
-        #})
+        return self.update(ctx, device_name, interface_name, **{
+            "tagged_vlanids": list(vlan_oids)
+        })
 
 
     def update(self, ctx, device_name, interface_name, **kwargs):

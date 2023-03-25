@@ -18,7 +18,7 @@ class FhrpGroupAssignments(ClientBase):
             self.fetch_fhrp_group_assignments(ctx)
 
         cf_keys = cf.keys()
-        for fhrp_group_assignment in self.all_fhrp_group_assignments:
+        for fhrp_group_assignment in self.all_fhrp_group_assignments.values():
             matched = True
             for cf_key in cf_keys:
                 if cf_key not in fhrp_group_assignment["custom_fields"]:

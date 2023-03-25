@@ -18,7 +18,7 @@ class FhrpGroups(ClientBase):
             self.fetch_fhrp_groups(ctx)
 
         cf_keys = cf.keys()
-        for fhrp_group in self.all_fhrp_groups:
+        for fhrp_group in self.all_fhrp_groups.values():
             matched = True
             for cf_key in cf_keys:
                 if cf_key not in fhrp_group["custom_fields"]:

@@ -18,7 +18,7 @@ class Prefixes(ClientBase):
             self.fetch_prefixes(ctx)
 
         cf_keys = cf.keys()
-        for prefix in self.all_prefixes:
+        for prefix in self.all_prefixes.values():
             matched = True
             for cf_key in cf_keys:
                 if cf_key not in prefix["custom_fields"]:

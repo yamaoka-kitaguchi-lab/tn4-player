@@ -69,8 +69,11 @@ class Branch:
                 s += '%' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
                 self.info.tn4_branch_id = f"{s}"
 
-        self.info.cidr_len_v4 = self.info.prefix_v4.split('/')[-1]
-        self.info.cidr_len_v6 = self.info.prefix_v6.split('/')[-1]
+        if self.info.prefix_v4 is not None:
+            self.info.cidr_len_v4 = self.info.prefix_v4.split('/')[-1]
+
+        if self.info.prefix_v6 is not None:
+            self.info.cidr_len_v6 = self.info.prefix_v6.split('/')[-1]
 
 
     def is_ok_or_not(self, code):
@@ -312,13 +315,14 @@ class Branch:
             return None, exit_skipped
 
 
-    def delete_vlan(self):
-        self.cli.vlans.delete_by_name(branch_info.vlan_name)
-
-
     def delete_prefixes(self):
-        cf = { NB_BRANCH_ID_KEY: self.tn4_branch_id }
+        cf = { NB_BRANCH_ID_KEY: self.info.tn4_branch_id }
         self.cli.prefixes.delete_by_custom_fields(self.ctx, cf)
+
+
+    def delete_addresses(self):
+        cf = { NB_BRANCH_ID_KEY: self.info.tn4_branch_id }
+        self.cli.addresses.delete_by_custom_fields(self.ctx, cf)
 
 
     def delete_irb_interfaces(self):
@@ -327,8 +331,8 @@ class Branch:
 
 
     def delete_vrrp_group(self):
-        cf = { NB_BRANCH_ID_KEY: self.tn4_branch_id }
-        self.cli.fhrp_group.delete_by_custom_fields(self.ctx, cf)
+        cf = { NB_BRANCH_ID_KEY: self.info.tn4_branch_id }
+        self.cli.fhrp_groups.delete_by_custom_fields(self.ctx, cf)
 
 
     def remove_backbone_vlans(self):
@@ -338,6 +342,5 @@ class Branch:
 
 
     def delete_vlan(self):
-        cf = { NB_BRANCH_ID_KEY: self.tn4_branch_id }
-        self.cli.vlans.delete_by_custom_fields(self.ctx, cf)
+        self.cli.vlans.delete(self.ctx, self.info.vlan_id)
 
