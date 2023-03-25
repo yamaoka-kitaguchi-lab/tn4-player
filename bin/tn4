@@ -492,7 +492,7 @@ if __name__ == "__main__":
                 code = Doctor(args).exec()
 
             case "branch-vlan":
-                is_for_ipv4_options  = args.cidr_prefix4 is None
+                is_for_ipv4_options  = args.cidr_prefix is None
                 is_for_ipv4_options |= \
                     args.vrrp_vip is None == args.vrrp_master_ip is None == args.vrrp_backup_ip is None
 
