@@ -239,36 +239,34 @@ class Branch:
 
 
     def add_irb_interfaces_and_assign_addresses(self):
-        #results, is_all_ok = [], True
+        results, is_all_ok = [], True
 
-        #if self.info.is_ookayama:
-        #    hosts = [ "core-gsic", "core-honkan" ]
-        #if self.info.is_suzukake:
-        #    hosts = [ "core-s7", "core-s1" ]
+        if self.info.is_ookayama:
+            hosts = [ "core-gsic", "core-honkan" ]
+        if self.info.is_suzukake:
+            hosts = [ "core-s7", "core-s1" ]
 
-        #iface_ids = []
+        iface_ids = []
 
-        #for host in hosts:
-        #    result, iface_id, is_ok = self.__create_irb(host)
+        for host in hosts:
+            result, iface_id, is_ok = self.__create_irb(host)
 
-        #    is_all_ok &= is_ok
-        #    results += result
+            is_all_ok &= is_ok
+            results += result
 
-        #    if not is_all_ok:
-        #        return results, is_all_ok
+            if not is_all_ok:
+                return results, is_all_ok
 
-        #    iface_ids.append(iface_id)
+            iface_ids.append(iface_id)
 
-        #master_iface_id, slave_iface_id = iface_ids
+        master_iface_id, slave_iface_id = iface_ids
 
-        #self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_master_v4_id, master_iface_id)
-        #self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_master_v6_id, master_iface_id)
-        #self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_backup_v4_id, slave_iface_id)
-        #self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_backup_v6_id, slave_iface_id)
+        self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_master_v4_id, master_iface_id)
+        self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_master_v6_id, master_iface_id)
+        self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_backup_v4_id, slave_iface_id)
+        self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_backup_v6_id, slave_iface_id)
 
-        #return results, is_all_ok
-
-        self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_master_v4_id, 37784)
+        return results, is_all_ok
 
 
     def update_inter_core_mclag_interface(self):
