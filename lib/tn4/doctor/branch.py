@@ -190,11 +190,14 @@ class Branch:
     def add_vrrp_ip_addresses(self):
         results, is_all_ok = [], True
 
-        bulk_args = [
-            ( self.info.vrrp_master_v4, self.info.cidr_len_v4, Slug.Tag.VRRPMaster ),
-            ( self.info.vrrp_backup_v4, self.info.cidr_len_v4, Slug.Tag.VRRPBackup ),
-            ( self.info.vrrp_vip_v4, self.info.cidr_len_v4, Slug.Tag.VRRPVIP, self.info.fhrp_group_id ),
-        ]
+        bulk_args = []
+
+        if self.info.vrrp_vip_v4 is not None:
+            bulk_args += [
+                ( self.info.vrrp_master_v4, self.info.cidr_len_v4, Slug.Tag.VRRPMaster ),
+                ( self.info.vrrp_backup_v4, self.info.cidr_len_v4, Slug.Tag.VRRPBackup ),
+                ( self.info.vrrp_vip_v4, self.info.cidr_len_v4, Slug.Tag.VRRPVIP, self.info.fhrp_group_id ),
+            ]
 
         if self.info.vrrp_vip_v6 is not None:
             bulk_args += [
@@ -216,10 +219,12 @@ class Branch:
 
             addr_ids.append(addr_id)
 
-        self.info.vrrp_master_v4_id, self.info.vrrp_backup_v4_id, self.info.vrrp_vip_v4_id = addr_ids[:3]
+        if len(addr_ids) == 4:
+            self.info.vrrp_master_v4_id, self.info.vrrp_backup_v4_id, self.info.vrrp_vip_v4_id = addr_ids[:3]
+            addr_ids = addr_ids[3:]
 
         if len(addr_ids) == 6:
-            self.info.vrrp_master_v6_id, self.info.vrrp_backup_v6_id, self.info.vrrp_vip_v6_id = addr_ids[3:]
+            self.info.vrrp_master_v6_id, self.info.vrrp_backup_v6_id, self.info.vrrp_vip_v6_id = addr_ids[:3]
 
         return results, is_all_ok
 
@@ -247,7 +252,8 @@ class Branch:
 
     def assign_address_to_irb(self, iface_id, vrrp_priority, *addr_ids):
         for addr_id in addr_ids:
-            self.cli.addresses.assign_to_interface(self.ctx, addr_id, iface_id)
+            if addr_id is None:
+                continue
             self.cli.addresses.assign_to_interface(self.ctx, addr_id, iface_id)
 
         self.cli.fhrp_group_assignments.create(self.ctx, self.info.fhrp_group_id, iface_id, vrrp_priority, **{
