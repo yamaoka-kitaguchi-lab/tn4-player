@@ -238,12 +238,12 @@ class Branch:
         return result, iface_id, is_ok
 
 
-    def assign_address_to_irb(self, iface_id, *addr_ids):
+    def assign_address_to_irb(self, iface_id, vrrp_priority, *addr_ids):
         for addr_id in addr_ids:
             self.cli.addresses.assign_to_interface(self.ctx, addr_id, iface_id)
             self.cli.addresses.assign_to_interface(self.ctx, addr_id, iface_id)
 
-        self.cli.fhrp_group_assignments.create(self.ctx, self.info.fhrp_group_id, iface_id, **{
+        self.cli.fhrp_group_assignments.create(self.ctx, self.info.fhrp_group_id, iface_id, vrrp_priority, **{
             "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
         })
 
@@ -272,8 +272,8 @@ class Branch:
         master_iface_id, slave_iface_id = iface_ids
 
         ## note: ignore return status
-        self.assign_address_to_irb(master_iface_id, self.info.vrrp_master_v4_id, self.info.vrrp_master_v6_id)
-        self.assign_address_to_irb(slave_iface_id, self.info.vrrp_backup_v4_id, self.info.vrrp_backup_v6_id)
+        self.assign_address_to_irb(master_iface_id, 150, self.info.vrrp_master_v4_id, self.info.vrrp_master_v6_id)
+        self.assign_address_to_irb(slave_iface_id, 200, self.info.vrrp_backup_v4_id, self.info.vrrp_backup_v6_id)
 
         return results, is_all_ok
 
