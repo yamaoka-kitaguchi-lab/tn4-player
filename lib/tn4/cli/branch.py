@@ -151,7 +151,7 @@ class BranchVlan(CommandBase):
             return 100
 
         self.console.log(f"[yellow]Found VLAN [b]{self.branch.info.vlan_name}[/b]")
-        self.console.log(f"[dim]VLAN ID: {self.branch.info.vlan_vid}, Branch ID: {self.branch.info.tn4_branch_id}")
+        self.console.log(f"[yellow dim]VLAN ID: {self.branch.info.vlan_vid}, Branch ID: {self.branch.info.tn4_branch_id}")
 
         if self.flg_add:
             return self.exec_add()
