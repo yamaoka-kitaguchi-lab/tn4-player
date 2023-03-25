@@ -58,6 +58,8 @@ class Branch:
                  self.info.is_ookayama   = Slug.Tag.IrbO in vlan["tags"]
                  self.info.is_suzukake   = Slug.Tag.IrbS in vlan["tags"]
 
+                 print(vlan["tags"], Slug.Tag.IrbO, Slug.Tag.IrbS)
+
         if self.info.vlan_vid is not None:
             vlan = self.cli.vlans.all_vlans[self.info.vlan_id]
 
@@ -230,12 +232,12 @@ class Branch:
         iface_name = f"irb.{self.info.vlan_vid}"
 
         if is_ok:
-            result  = [{ "Interface": iface_name, "URL": res[0]["url"] if len(res) > 0 else None }]
+            result  = [{ "Interface": name, "URL": res[0]["url"] if len(res) > 0 else None }]
             iface_id = res[0]["id"]
         else:
-            result = [{ "Interface": iface_name, "Error": code }]
+            result = [{ "Interface": name, "Error": code }]
 
-        return result, iface_id, is_ok
+        return results, iface_id, is_ok
 
 
     def add_irb_interfaces_and_assign_addresses(self):
