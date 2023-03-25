@@ -56,8 +56,10 @@ class Branch:
                  self.info.vlan_vid      = vlan["vid"]
                  self.info.vrrp_desc     = vlan["description"]
                  self.info.vrrp_group_id = int(int(self.info.vlan_vid)/10)  # Group 99 <-> VID 990...999
-                 self.info.is_ookayama   = Slug.Tag.IrbO in vlan["tags"]
-                 self.info.is_suzukake   = Slug.Tag.IrbS in vlan["tags"]
+                 self.info.is_ookayama   = Slug.Tag.IrbOokayama in vlan["tags"]
+                 self.info.is_suzukake   = Slug.Tag.IrbSuzukake in vlan["tags"]
+                 self.info.is_ookayama_vlan = Slug.Tag.VlanOokayama in vlan["tags"]
+                 self.info.is_suzukake_vlan = Slug.Tag.VlanSuzukake in vlan["tags"]
                  self.info.irb_name      = f"irb.{self.info.vlan_vid}"
 
         if self.info.vlan_vid is not None:
@@ -301,7 +303,7 @@ class Branch:
     def update_inter_campus_mclag_interface(self):
         exit_succeeded, exit_skipped, exit_failed = 0, 1, 2
 
-        if self.info.is_ookayama == self.info.is_suzukake == True:
+        if self.info.is_ookayama_vlan == self.info.is_suzukake_vlan == True:
             for host in [ "core-gsic", "core-honkan", "core-s7", "core-s1" ]:
                 _, code = self.cli.interfaces.add_tagged_vlans(self.ctx, host, "ae1", self.info.vlan_id)
 

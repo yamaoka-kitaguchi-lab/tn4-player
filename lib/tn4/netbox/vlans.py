@@ -65,6 +65,8 @@ class Vlans(ClientBase):
         titech_vlans = {}
 
         for vlan in self.all_vlans.values():
+            if vlan is None:
+                continue
             if vlan["group"]["id"] != self.titech_vlan_group_id:
                 titech_vlans[vlan["vid"]] = vlan
 
