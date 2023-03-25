@@ -17,6 +17,7 @@ class Client:
         self.addresses   = Addresses()
         self.prefixes    = Prefixes()
         self.fhrp_groups = FhrpGroups()
+        self.fhrp_group_assignments = FhrpGroupAssignments()
         self.devices     = Devices()
         self.interfaces  = Interfaces()
 
