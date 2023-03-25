@@ -14,17 +14,17 @@ class FhrpGroupAssignments(ClientBase):
 
 
     def delete_by_custom_fields(self, ctx, cf):
-        if self.fhrp_group_assignment_ids is None:
+        if self.all_fhrp_group_assignments is None:
             self.fetch_fhrp_group_assignments(ctx)
 
         cf_keys = cf.keys()
-        for fhrp_group_assignment in self.fhrp_group_assignments:
+        for fhrp_group_assignment in self.all_fhrp_group_assignments:
             matched = True
             for cf_key in cf_keys:
                 if cf_key not in fhrp_group_assignment["custom_fields"]:
                     matched = False
                     break
-                if fhrp_group_assignment["custom_fields"][cf_key] == cf[cf_key]:
+                if fhrp_group_assignment["custom_fields"][cf_key] != cf[cf_key]:
                     matched = False
                     break
 

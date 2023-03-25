@@ -14,17 +14,17 @@ class Prefixes(ClientBase):
 
 
     def delete_by_custom_fields(self, ctx, cf):
-        if self.prefixes is None:
+        if self.all_prefixes is None:
             self.fetch_prefixes(ctx)
 
         cf_keys = cf.keys()
-        for prefix in self.prefixes:
+        for prefix in self.all_prefixes:
             matched = True
             for cf_key in cf_keys:
                 if cf_key not in prefix["custom_fields"]:
                     matched = False
                     break
-                if prefix["custom_fields"][cf_key] == cf[cf_key]:
+                if prefix["custom_fields"][cf_key] != cf[cf_key]:
                     matched = False
                     break
 

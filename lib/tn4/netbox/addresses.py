@@ -14,17 +14,17 @@ class Addresses(ClientBase):
 
 
     def delete_by_custom_fields(self, ctx, cf):
-        if self.addresses is None:
+        if self.all_addresses is None:
             self.fetch_addresses(ctx)
 
         cf_keys = cf.keys()
-        for address in self.addresses:
+        for address in self.all_addresses:
             matched = True
             for cf_key in cf_keys:
                 if cf_key not in address["custom_fields"]:
                     matched = False
                     break
-                if address["custom_fields"][cf_key] == cf[cf_key]:
+                if address["custom_fields"][cf_key] != cf[cf_key]:
                     matched = False
                     break
 

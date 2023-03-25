@@ -123,6 +123,10 @@ class BranchVlan(CommandBase):
             self.console_success(f"Deleted irb interfaces on each Core SWs [dim]({i} of {n})")
 
             i += 1
+            self.branch.delete_vrrp_group()
+            self.console_success(f"Deleted VRRP Group [dim]({i} of {n})")
+
+            i += 1
             self.branch.remove_backbone_vlans()
             self.console_success(f"Refreshed VLAN members of ae0 and ae1 [dim]({i} of {n})")
 

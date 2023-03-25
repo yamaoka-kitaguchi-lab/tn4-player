@@ -322,12 +322,16 @@ class Branch:
 
 
     def delete_irb_interfaces(self):
+        for host in [ "core-gsic", "core-honkan", "core-s7", "core-s1" ]:
+            self.cli.interfaces.delete(self.ctx, host, self.info.irb_name)
+
+
+    def delete_vrrp_group(self):
         cf = { NB_BRANCH_ID_KEY: self.tn4_branch_id }
-        self.cli.interfaces.delete_by_custom_fields(self.ctx, cf)
+        self.cli.fhrp_group.delete_by_custom_fields(self.ctx, cf)
 
 
     def remove_backbone_vlans(self):
-        cf = { NB_BRANCH_ID_KEY: self.tn4_branch_id }
         for host in [ "core-gsic", "core-honkan", "core-s7", "core-s1" ]:
             self.cli.interfaces.remove_tagged_vlans(self.ctx, host, "ae0", self.info.vlan_id)
             self.cli.interfaces.remove_tagged_vlans(self.ctx, host, "ae1", self.info.vlan_id)

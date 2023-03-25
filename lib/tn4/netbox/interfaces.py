@@ -42,7 +42,11 @@ class Interfaces(ClientBase):
 
 
     def delete(self, ctx, device_name, interface_name):
-        oid = self.all_interfaces[device_name][interface_name]["id"]
+        try:
+            oid = self.all_interfaces[device_name][interface_name]["id"]
+        except KeyError:
+            return None, None
+
         return self.query(ctx, f"{self.path}{str(oid)}/", delete=True)
 
 
@@ -78,9 +82,11 @@ class Interfaces(ClientBase):
         vlan_oids  = set([ o["id"] for o in vlans ])
         vlan_oids -= set(vlanids)
 
-        return self.update(ctx, device_name, interface_name, **{
-            "tagged_vlanids": list(vlan_oids)
-        })
+        print("remove_tagged_vlans:", vlanids)  # deleteme
+
+        #return self.update(ctx, device_name, interface_name, **{
+        #    "tagged_vlanids": list(vlan_oids)
+        #})
 
 
     def update(self, ctx, device_name, interface_name, **kwargs):

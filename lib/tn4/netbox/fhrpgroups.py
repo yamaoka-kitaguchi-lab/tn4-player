@@ -14,17 +14,17 @@ class FhrpGroups(ClientBase):
 
 
     def delete_by_custom_fields(self, ctx, cf):
-        if self.fhrp_group_ids is None:
+        if self.all_fhrp_groups is None:
             self.fetch_fhrp_groups(ctx)
 
         cf_keys = cf.keys()
-        for fhrp_group in self.fhrp_groups:
+        for fhrp_group in self.all_fhrp_groups:
             matched = True
             for cf_key in cf_keys:
                 if cf_key not in fhrp_group["custom_fields"]:
                     matched = False
                     break
-                if fhrp_group["custom_fields"][cf_key] == cf[cf_key]:
+                if fhrp_group["custom_fields"][cf_key] != cf[cf_key]:
                     matched = False
                     break
 
