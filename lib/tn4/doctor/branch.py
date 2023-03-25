@@ -58,6 +58,7 @@ class Branch:
                  self.info.vrrp_group_id = int(int(self.info.vlan_vid)/10)  # Group 99 <-> VID 990...999
                  self.info.is_ookayama   = Slug.Tag.IrbO in vlan["tags"]
                  self.info.is_suzukake   = Slug.Tag.IrbS in vlan["tags"]
+                 self.info.irb_name      = f"irb.{self.info.vlan_vid}"
 
         if self.info.vlan_vid is not None:
             vlan = self.cli.vlans.all_vlans[self.info.vlan_id]
@@ -231,15 +232,13 @@ class Branch:
 
         is_ok      = self.is_ok_or_not(code)
         iface_id   = None
-        iface_name = f"irb.{self.info.vlan_vid}"
+        iface_name = self.info.irb_name
 
         if is_ok:
             result = [{ "Host": hostname, "Interface": iface_name, "URL": res[0]["url"] if len(res) > 0 else None }]
             iface_id = res[0]["id"]
         else:
             result = [{ "Host": hostname, "Interface": iface_name, "Error": code }]
-
-        self.info.irb_name = iface_name
 
         return result, iface_id, is_ok
 
