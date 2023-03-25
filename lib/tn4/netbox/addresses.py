@@ -48,6 +48,7 @@ class Addresses(ClientBase):
 
     def assign_to_interface(self, ctx, addr_id, iface_id):
         data = [{
+            "id":                   addr_id,
             "assigned_object_type": "dcim.interface",
             "assigned_object_id":   iface_id,
         }]

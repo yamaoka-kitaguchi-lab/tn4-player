@@ -259,6 +259,16 @@ class Branch:
 
             iface_ids.append(iface_id)
 
+        master_iface_id, slave_iface_id = iface_ids
+
+        a, b = self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_master_v4_id, master_iface_id)
+        print(a, b)  # deleteme
+        self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_master_v6_id, master_iface_id)
+        self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_backup_v4_id, slave_iface_id)
+        self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_backup_v6_id, slave_iface_id)
+
+        return results, is_all_ok
+
 
     def update_inter_core_mclag_interface(self):
         results, is_all_ok = [], True

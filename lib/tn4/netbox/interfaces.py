@@ -50,7 +50,7 @@ class Interfaces(ClientBase):
         keys = [ "untagged_vlan", "custom_fields" ]
         data = [{
             "device": device_name,
-            "name":   f"irb.{vid}"
+            "name":   f"irb.{vid}",
             "type":   "virtual",
             "mode":   "access",
             **{
