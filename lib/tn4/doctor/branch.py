@@ -288,7 +288,7 @@ class Branch:
             hosts = [ "core-s7", "core-s1" ]
 
         for host in hosts:
-            _, code = self.cli.interfaces.add_tagged_vlans(self.ctx, host, "ae0", self.vlan_id)
+            _, code = self.cli.interfaces.add_tagged_vlans(self.ctx, host, "ae0", self.info.vlan_id)
 
             if not self.is_ok_or_not(code):
                 return None, False
@@ -301,7 +301,7 @@ class Branch:
 
         if self.info.is_ookayama == self.info.is_suzukake == True:
             for host in [ "core-gsic", "core-honkan", "core-s7", "core-s1" ]:
-                _, code = self.cli.interfaces.add_tagged_vlans(self.ctx, host, "ae1", self.vlan_id)
+                _, code = self.cli.interfaces.add_tagged_vlans(self.ctx, host, "ae1", self.info.vlan_id)
 
                 if not self.is_ok_or_not(code):
                     return None, exit_failed
