@@ -256,6 +256,7 @@ class Branch:
         for addr_id in addr_ids:
             if addr_id is None:
                 continue
+            print(addr_id)  #deleteme
             self.cli.addresses.assign_to_interface(self.ctx, addr_id, iface_id)
 
         self.cli.fhrp_group_assignments.create(self.ctx, self.info.fhrp_group_id, iface_id, vrrp_priority, **{
