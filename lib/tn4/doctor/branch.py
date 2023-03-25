@@ -266,6 +266,13 @@ class Branch:
         self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_backup_v4_id, slave_iface_id)
         self.cli.addresses.assign_to_interface(self.ctx, self.info.vrrp_backup_v6_id, slave_iface_id)
 
+        kwargs = {
+            "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
+        }
+
+        self.cli.fhrp_group_assignments.create(self.ctx, self.fhrp_group_id, master_iface_id, **kwargs)
+        self.cli.fhrp_group_assignments.create(self.ctx, self.fhrp_group_id, slave_iface_id, **kwargs)
+
         return results, is_all_ok
 
 
