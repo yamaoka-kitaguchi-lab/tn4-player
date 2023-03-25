@@ -53,6 +53,8 @@ class Addresses(ClientBase):
             "assigned_object_id":   iface_id,
         }]
 
+        print(data)  #deleteme
+
         return self.query(ctx, self.path, data)
 
 
