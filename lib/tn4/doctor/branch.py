@@ -223,7 +223,7 @@ class Branch:
             "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
         }
 
-        res, code = self.cli.interfaces.create_irb(self.ctx, "core-honakn", self.info.vlan_vid, **kwargs)
+        res, code = self.cli.interfaces.create_irb(self.ctx, hostname, self.info.vlan_vid, **kwargs)
 
         is_ok      = self.is_ok_or_not(code)
         iface_id   = None

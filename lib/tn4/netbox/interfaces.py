@@ -49,10 +49,11 @@ class Interfaces(ClientBase):
     def create_irb(self, ctx, device_name, vid, **kwargs):
         keys = [ "untagged_vlan", "custom_fields" ]
         data = [{
-            "device": device_name,
+            "device": { "name": device_name },
             "name":   f"irb.{vid}",
             "type":   "virtual",
             "mode":   "access",
+            "mtu":    1500,
             **{
                 key: kwargs[key]
                 for key in keys if key in kwargs
