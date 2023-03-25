@@ -243,10 +243,9 @@ class Branch:
             self.cli.addresses.assign_to_interface(self.ctx, addr_id, iface_id)
             self.cli.addresses.assign_to_interface(self.ctx, addr_id, iface_id)
 
-        a, b = self.cli.fhrp_group_assignments.create(self.ctx, self.info.fhrp_group_id, iface_id, **{
+        self.cli.fhrp_group_assignments.create(self.ctx, self.info.fhrp_group_id, iface_id, **{
             "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
         })
-        print("X:", a, b)  # deleteme
 
 
     def add_irb_interfaces_and_assign_addresses(self):
@@ -272,6 +271,7 @@ class Branch:
 
         master_iface_id, slave_iface_id = iface_ids
 
+        ## note: ignore return status
         self.assign_address_to_irb(master_iface_id, self.info.vrrp_master_v4_id, self.info.vrrp_master_v6_id)
         self.assign_address_to_irb(slave_iface_id, self.info.vrrp_backup_v4_id, self.info.vrrp_backup_v6_id)
 
