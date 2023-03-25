@@ -156,7 +156,7 @@ class Branch:
         request = {
             "description":   "",
             "tags":          [{ "slug": tag_slug }],
-            "role":          slug.role.vrrp,
+            "role":          Slug.Role.VRRP,
             "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
         }
 
