@@ -231,10 +231,10 @@ class Branch:
         iface_name = f"irb.{self.info.vlan_vid}"
 
         if is_ok:
-            result  = [{ "Interface": f"{hostname} {iface_name}", "URL": res[0]["url"] if len(res) > 0 else None }]
+            result = [{ "Host": hostname, "Interface": iface_name, "URL": res[0]["url"] if len(res) > 0 else None }]
             iface_id = res[0]["id"]
         else:
-            result = [{ "Interface": f"{hostname} {iface_name}", "Error": code }]
+            result = [{ "Host": hostname, "Interface": iface_name, "Error": code }]
 
         self.info.irb_name = iface_name
 
