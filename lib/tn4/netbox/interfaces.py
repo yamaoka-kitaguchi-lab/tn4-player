@@ -63,6 +63,16 @@ class Interfaces(ClientBase):
         return self.query(ctx, self.path, data)
 
 
+    def add_tagged_vlans(self, ctx, device_name, interface_name, *vlanids):
+        vlans = self.all_interfaces[device_name][interface_name]["tagged_vlans"]
+        vlan_oids  = set([ o["id"] for o in vlans ])
+        vlan_oids |= set(vlanids)
+
+        return self.update(device_name, interface_name, **{
+            "tagged_vlanids": list(vlan_oids)
+        })
+
+
     def update(self, ctx, device_name, interface_name, **kwargs):
         data = []
         body = {

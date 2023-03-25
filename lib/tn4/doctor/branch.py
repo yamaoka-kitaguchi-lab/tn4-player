@@ -34,6 +34,7 @@ class BranchInfo:
         self.vrrp_desc       = None
         self.vrrp_group_id   = None  # VRRP Group ID
         self.fhrp_group_id   = None  # netbox FHRP Group object id
+        self.irb_name        = None
 
         self.vrrp_master_v4_id = None
         self.vrrp_master_v6_id = None
@@ -235,6 +236,8 @@ class Branch:
         else:
             result = [{ "Interface": f"{hostname} {iface_name}", "Error": code }]
 
+        self.info.irb_name = iface_name
+
         return result, iface_id, is_ok
 
 
@@ -271,7 +274,7 @@ class Branch:
 
         master_iface_id, slave_iface_id = iface_ids
 
-        ## note: ignore return status
+        ## caution: current impl ignores API return status
         self.assign_address_to_irb(master_iface_id, 150, self.info.vrrp_master_v4_id, self.info.vrrp_master_v6_id)
         self.assign_address_to_irb(slave_iface_id, 200, self.info.vrrp_backup_v4_id, self.info.vrrp_backup_v6_id)
 
@@ -280,12 +283,25 @@ class Branch:
 
     def update_inter_core_mclag_interface(self):
         results, is_all_ok = [], True
-        pass
+
+        if self.info.is_ookayama:
+            hosts = [ "core-gsic", "core-honkan" ]
+        if self.info.is_suzukake:
+            hosts = [ "core-s7", "core-s1" ]
+
+        for host in hosts:
+            res, code = self.cli.interfaces.add_tagged_vlans(self.ctx, host, self.info.irb_name, self.vlan_id)
+
+            is_all_ok &= self.is_ok_or_not(code)
+            results += result
+
+            if not is_all_ok:
+                return results, is_all_ok
+
+        return results, is_all_ok
 
 
     def update_inter_campus_mclag_interface(self):
-        results, is_all_ok = [], True
-        pass
 
 
     def delete_vlan(self):
