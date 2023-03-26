@@ -399,51 +399,51 @@ if __name__ == "__main__":
     )
 
     branch_parser.add_argument(
-        "--prefix-v6",
-        type=str,
-        help="CIDR format of branch VLAN prefix (IPv6)",
-        dest="cidr_prefix6"
-    )
-
-    branch_parser.add_argument(
         "--vrrp-master",
         type=str,
-        help="VRRP master IP address without CIDR length. must be inside the VLAN prefix (IPv4)",
+        help="VRRP master IP address (IPv4) without CIDR length. must be inside the ```--prefix``` specified prefix",
         dest="vrrp_master_ip"
     )
 
     branch_parser.add_argument(
         "--vrrp-backup",
         type=str,
-        help="VRRP backup IP address without CIDR length. must be inside the VLAN prefix (IPv4)",
+        help="VRRP backup IP address (IPv4) without CIDR length. must be inside the ```--prefix``` specified prefix",
         dest="vrrp_backup_ip"
     )
 
     branch_parser.add_argument(
         "--vrrp-vip",
         type=str,
-        help="VRRP VIP address without CIDR length. must be inside the VLAN prefix (IPv4)",
+        help="VRRP VIP address (IPv4) without CIDR length. must be inside the ```--prefix``` specified prefix",
         dest="vrrp_vip"
+    )
+
+    branch_parser.add_argument(
+        "--prefix-v6",
+        type=str,
+        help="IPv6 option of ```--prefix```",
+        dest="cidr_prefix6"
     )
 
     branch_parser.add_argument(
         "--vrrp-master-v6",
         type=str,
-        help="VRRP master IP address without CIDR length. must be inside the VLAN prefix (IPv6)",
+        help="IPv6 option of ```--vrrp-master```",
         dest="vrrp_master_ip6"
     )
 
     branch_parser.add_argument(
         "--vrrp-backup-v6",
         type=str,
-        help="VRRP backup IP address without CIDR length. must be inside the VLAN prefix (IPv6)",
+        help="IPv6 option of ```--vrrp-backup```",
         dest="vrrp_backup_ip6"
     )
 
     branch_parser.add_argument(
         "--vrrp-vip-v6",
         type=str,
-        help="VRRP VIP address without CIDR length. must be inside the VLAN prefix (IPv6)",
+        help="IPv6 option of ```--vrrp-vip```",
         dest="vrrp_vip6"
     )
 

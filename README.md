@@ -208,21 +208,23 @@ options:
   -h, --help            show this help message and exit
   --add                 add branch VLAN and setup VRRP
   --prefix CIDR_PREFIX  CIDR format of branch VLAN prefix (IPv4)
-  --prefix-v6 CIDR_PREFIX6
-                        CIDR format of branch VLAN prefix (IPv6)
   --vrrp-master VRRP_MASTER_IP
-                        VRRP master IP address without CIDR length. must be inside the VLAN prefix (IPv4)
+                        VRRP master IP address (IPv4) without CIDR length. must be inside the ```--prefix```
+                        specified prefix
   --vrrp-backup VRRP_BACKUP_IP
-                        VRRP backup IP address without CIDR length. must be inside the VLAN prefix (IPv4)
-  --vrrp-vip VRRP_VIP   VRRP VIP address without CIDR length. must be inside the VLAN prefix (IPv4)
+                        VRRP backup IP address (IPv4) without CIDR length. must be inside the ```--prefix```
+                        specified prefix
+  --vrrp-vip VRRP_VIP   VRRP VIP address (IPv4) without CIDR length. must be inside the ```--prefix```
+                        specified prefix
+  --prefix-v6 CIDR_PREFIX6
+                        IPv6 option of ```--prefix```
   --vrrp-master-v6 VRRP_MASTER_IP6
-                        VRRP master IP address without CIDR length. must be inside the VLAN prefix (IPv6)
+                        IPv6 option of ```--vrrp-master```
   --vrrp-backup-v6 VRRP_BACKUP_IP6
-                        VRRP backup IP address without CIDR length. must be inside the VLAN prefix (IPv6)
+                        IPv6 option of ```--vrrp-backup```
   --vrrp-vip-v6 VRRP_VIP6
-                        VRRP VIP address without CIDR length. must be inside the VLAN prefix (IPv6)
+                        IPv6 option of ```--vrrp-vip```
   --delete              delete branch VLAN and clear VRRP
-
 ```
 
 
