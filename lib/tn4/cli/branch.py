@@ -45,12 +45,17 @@ class BranchVlan(CommandBase):
     def exec_add(self):
         with self.console.status(f"[green]Creating new branch [b]{self.branch.info.vlan_name}[/b]..."):
 
+            result, ok = self.branch.validate_branch_info()
+            if not ok:
+                self.console_fail(f"Failed to validate branch information", result)
+                sys.exit(20)
+
             i, n = 1, 7
             result, ok = self.branch.commit_branch_id()
             if ok:
                 self.console_success(f"Loaded VLAN metadata [dim]({i} of {n})", result)
             else:
-                self.console_fail(f"Failed to load VLAN metadata [dim]", result)
+                self.console_fail(f"Failed to load VLAN metadata", result)
                 sys.exit(20)
 
             i += 1
