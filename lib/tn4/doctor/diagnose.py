@@ -164,6 +164,12 @@ class Diagnose():
 
 
     def check_exclusive_tag_conflict(self):
+        exclusive_tags = set([
+            Slug.Tag.CoreMaster, Slug.Tag.CoreOokayamaMaster, Slug.Tag.CoreSuzukakeMaster,
+            Slug.Tag.CoreSlave, Slug.Tag.CoreOokayamaSlave, Slug.Tag.CoreSuzukakeSlave,
+            Slug.Tag.Wifi, Slug.Tag.Hosting,
+        ])
+
         for hostname, device_interfaces in self.nb_interfaces.all.items():
 
             ## skip if the device is not Core SW or Edge SW
@@ -171,11 +177,13 @@ class Diagnose():
                 continue
 
             for ifname, interface in device_interfaces.items():
-                current = InterfaceState(interface)
+                current       = InterfaceState(interface)
+                current_tags  = set(current.tags)
+                attached_tags = exclusive_tags & current_tags
 
-                if len(set([ Slug.Tag.Wifi, Slug.Tag.Hosting ]) - set(current.tags)) == 0:
+                if len(attached_tags) > 1:
                     self.interface_annotations[hostname][ifname].extend([
-                        Annotation(message="Wi-Fi/Hosting tags are exclusive", severity=3),
+                        Annotation(message=f"MCLAG/Wi-Fi/Hosting tags are excluive", severity=3),
                         Annotation(message="Manual repair needed"),
                     ])
                     self.is_manual_repair_interface[hostname][ifname] = True

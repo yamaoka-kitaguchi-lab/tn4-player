@@ -33,8 +33,9 @@ These are common tn4 examples:
 
     Scan NetBox and repair inconsistencies (ex-nbck command)
 
-        tn4 doctor --use-cache --diagnose-only
+        tn4 doctor netbox
         tn4 doctor --force-repair --tags test --areas ookayama
+        tn4 doctor --use-cache netbox --diagnose-only
 
     Manage branch VLANs and VRRP group
 
