@@ -1,0 +1,24 @@
+{% for ifname, interface in interfaces.items() %}
+{% if interface.is_irb and interface.is_deploy_target %}
+
+set protocols rip group shisen neighbor {{ ifname }}
+set protocols router-advertisement interface {{ ifname }} virtual-router-only
+set protocols router-advertisement interface {{ ifname }} prefix {{ interface.ra_prefix }}
+
+set interface irb unit {{ interface.unit_number }} apply-groups {{ interface.apply_groups }}
+set interface irb unit {{ interface.unit_number }} description {{ interface.description }}
+
+{% if interface.vrrp_physical_ip4 is not None %}
+set interface irb unit {{ interface.unit_number }} family inet mtu {{ interface.mtu }}
+set interface irb unit {{ interface.unit_number }} address {{ interface.vrrp_physical_ip4 }} vrrp-group {{ interface.vrrp_group_id }}
+set interface irb unit {{ interface.unit_number }} address {{ interface.vrrp_physical_ip4 }} virtual-address {{ interface.vrrp_virtual_ip4 }}
+{% endif %}
+
+{% if interface.vrrp_physical_ip6 is not None %}
+set interface irb unit {{ interface.unit_number }} family inet6 mtu {{ interface.mtu }}
+set interface irb unit {{ interface.unit_number }} address {{ interface.vrrp_physical_ip6 }} vrrp-group {{ interface.vrrp_group_id }}
+set interface irb unit {{ interface.unit_number }} address {{ interface.vrrp_physical_ip6 }} virtual-address {{ interface.vrrp_virtual_ip6 }}
+{% endif %}
+
+{% endif %}
+{% endfor %}
