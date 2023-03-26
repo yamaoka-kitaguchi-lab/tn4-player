@@ -87,13 +87,34 @@ class Branch:
 
 
     def validate_branch_info(self):
-        # not duplicate: ip address, prefix
-        # exist: vlan tag (irb-o or irb-s)
+        results       = []
+        is_duplicated = False
+
+        for address in self.cli.addresses.all_addresses:
+            if address["address"] in [ self.info.vrrp_master_v4, self.info.vrrp_backup_v4, self.info.vrrp_vip_v4,
+                                       self.info.vrrp_master_v6, self.info.vrrp_backup_v6, self.info.vrrp_vip_v6 ]:
+                is_duplicated = True
+                results.append({ "Address": address["address"], "URL": address["url"] })
+
+        for prefix in self.cli.prefixes.all_prefixes:
+            if prefix["prefix"] in [ self.info.prefix_v4, self.info.prefix_v6 ]:
+                is_duplicated = True
+                results.append({ "Prefix": prefix["prefix"], "URL": address["url"] })
 
         is_missing_irb_tag  = self.info.is_ookayama == self.info.is_suzukake == False
+
+        if is_missing_irb_tag:
+            results.append({ "Not found": "IRB-O or IRB-S" })
+
         is_missing_vlan_tag = self.info.is_ookayama_vlan == self.info.is_suzukake_vlan == False
 
-        return
+        if is_missing_vlan_tag:
+            results.append({ "Not found": "VLAN-O or VLAN-S" })
+
+
+        is_ok = not is_duplicated and not is_missing_irb_tag and not is_missing_vlan_tag
+
+        return results, is_ok
 
 
     def commit_branch_id(self):
