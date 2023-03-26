@@ -95,7 +95,7 @@ class Branch:
                 is_all_ok = False
                 results += [{ "Address": address["address"], "URL": address["url"] }]
 
-        for prefix in self.cli.prefixes.all_prefixes:
+        for prefix in self.cli.prefixes.all_prefixes.values():
             if prefix["prefix"] in [ self.info.prefix_v4, self.info.prefix_v6 ]:
                 is_all_ok = False
                 results.append({ "Prefix": prefix["prefix"], "URL": address["url"] })
@@ -104,19 +104,19 @@ class Branch:
         is_all_ok &= not is_missing_irb_tag
 
         if is_missing_irb_tag:
-            results.append({ "Not found": "IRB-O or IRB-S is needed" })
+            results.append({ "Not found": "IRB-O or IRB-S" })
 
         is_conflicting_irb_tag = self.info.is_ookayama == self.info.is_suzukake == True
         is_all_ok &= not is_conflicting_irb_tag
 
         if is_conflicting_irb_tag:
-            results.append({ "Conflicted": "IRB-O and IRB-S are exclusive" })
+            results.append({ "Exclusive": "IRB-O and IRB-S" })
 
         is_missing_vlan_tag = self.info.is_ookayama_vlan == self.info.is_suzukake_vlan == False
         is_all_ok &= not is_missing_vlan_tag
 
         if is_missing_vlan_tag:
-            results.append({ "Not found": "VLAN-O and/or VLAN-S are needed" })
+            results.append({ "Not found": "VLAN-O and/or VLAN-S" })
 
         return results, is_all_ok
 
