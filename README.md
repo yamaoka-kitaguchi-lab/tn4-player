@@ -188,6 +188,8 @@ commands:
     branch-vlan         branch network management utilities
 ```
 
+### tn4 doctor branch-vlan
+
 ```
 % tn4 doctor branch-vlan --help
 
