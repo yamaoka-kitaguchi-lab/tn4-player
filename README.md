@@ -229,6 +229,133 @@ options:
 ## Hints
 Some hints and tips from the author.
 
+### Project directory structure
+
+```
+tree -a -I '.git|.github|artifacts|snapshots|__pycache__' | less
+.
+├── ansible.cfg
+├── bin
+│   ├── cisco_diff
+│   ├── tn4
+│   └── tn4.outer
+├── docker.ee
+│   ├── Dockerfile
+│   ├── execution-environment.yml
+│   └── requirements.yml
+├── .dockerignore
+├── env
+│   └── envvars
+├── .gitignore
+├── inventory
+│   ├── group_vars
+│   │   └── all
+│   │       ├── ansible.yml
+│   │       └── vault.yml
+│   ├── hosts.json
+│   └── netbox.py
+├── lib
+│   └── tn4
+│       ├── cli
+│       │   ├── base.py
+│       │   ├── branch.py
+│       │   ├── config.py
+│       │   ├── deploy.py
+│       │   ├── doctor.py
+│       │   └── shutdown.py
+│       ├── doctor
+│       │   ├── base.py
+│       │   ├── branch.py
+│       │   ├── cv.py
+│       │   ├── diagnose.py
+│       │   ├── karte.py
+│       │   ├── repair.py
+│       │   ├── state.py
+│       │   ├── test_cv.py
+│       │   └── :w
+│       ├── helper
+│       │   └── utils.py
+│       ├── __init__.py
+│       ├── netbox
+│       │   ├── addresses.py
+│       │   ├── base.py
+│       │   ├── client.py
+│       │   ├── devices.py
+│       │   ├── fhrpgroupassignments.py
+│       │   ├── fhrpgroups.py
+│       │   ├── interfaces.py
+│       │   ├── prefixes.py
+│       │   ├── sites.py
+│       │   ├── slug.py
+│       │   └── vlans.py
+│       └── __version__.py
+├── LICENSE
+├── Makefile
+├── Pipfile
+├── Pipfile.lock
+├── playbook.log
+├── project
+│   ├── roles
+│   │   ├── cisco
+│   │   │   ├── tasks
+│   │   │   │   ├── deploy.yml
+│   │   │   │   ├── fetch.yml
+│   │   │   │   ├── main.yml
+│   │   │   │   ├── overwrite.yml
+│   │   │   │   └── prepare.yml
+│   │   │   └── templates
+│   │   │       ├── edge.cfg.j2
+│   │   │       └── include
+│   │   │           ├── clear.j2
+│   │   │           ├── interface.j2
+│   │   │           ├── interface-lldp.j2
+│   │   │           ├── interface-poe.j2
+│   │   │           ├── interface-speed.j2
+│   │   │           ├── interface-storm.j2
+│   │   │           ├── interface-vlan.j2
+│   │   │           └── vlan.j2
+│   │   └── juniper
+│   │       ├── tasks
+│   │       │   ├── deploy_core.yml
+│   │       │   ├── deploy_edge.yml
+│   │       │   ├── fetch.yml
+│   │       │   ├── main.yml
+│   │       │   ├── overwrite.yml
+│   │       │   └── prepare.yml
+│   │       └── templates
+│   │           ├── core.cfg.j2
+│   │           ├── edge.cfg.j2
+│   │           └── include
+│   │               ├── core
+│   │               │   ├── reset.j2
+│   │               │   ├── set-interfaces-address.j2
+│   │               │   ├── set-interfaces-filter.j2
+│   │               │   ├── set-interfaces.j2
+│   │               │   ├── set-interfaces-lacp.j2
+│   │               │   ├── set-interfaces-storm.j2
+│   │               │   ├── set-interfaces-vlan.j2
+│   │               │   └── set-vlans.j2
+│   │               └── edge
+│   │                   ├── reset.j2
+│   │                   ├── set-interfaces-filter.j2
+│   │                   ├── set-interfaces.j2
+│   │                   ├── set-interfaces-lacp.j2
+│   │                   ├── set-interfaces-speed.j2
+│   │                   ├── set-interfaces-storm.j2
+│   │                   ├── set-interfaces-vlan.j2
+│   │                   ├── set-poe.j2
+│   │                   ├── set-protocols.j2
+│   │                   └── set-vlans.j2
+│   └── tn4.yml
+├── README.md
+└── .secrets
+    ├── vault-pass.txt
+    └── vault-pass.txt.example
+
+25 directories, 92 files
+```
+
+
 ### Build the EE container with ansible-builder
 See [https://quay.io/repository/ansible/ansible-runner](https://quay.io/repository/ansible/ansible-runner?tab=tags) to check the latest tag and edit Pipfile if needed. Ansible Builder will take about 20 minutes.
 
