@@ -377,6 +377,7 @@ The latest paramiko doesn't support RSA-SHA1 so it is unable to connect C1000 vi
 Following command will help. Before running it, move to the appropriate `dist_packages/paramiko` directory and make sure `client.py` exists.
 
 ```
+% cd /usr/local/lib/python3.10/dist-packages/paramiko  # example path
 % sed -i 's/disabled_algorithms=None/disabled_algorithms=dict(pubkeys=["rsa-sha2-256", "rsa-sha2-512"])/' client.py
 ```
 
