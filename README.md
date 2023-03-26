@@ -372,6 +372,17 @@ As of March 26th, 2023.
 25 directories, 92 files
 ```
 
+### Verbose mode
+
+```
+% tn4 deploy --use-cache --hosts test-c -vvvv
+```
+
+You can get the further details by adding `ANSIBLE_DEBUG=true` like:
+
+```
+% ANSIBLE_DEBUG=true tn4 deploy --use-cache --hosts test-c -vvvv
+```
 
 ### Build the EE container with ansible-builder
 See [https://quay.io/repository/ansible/ansible-runner](https://quay.io/repository/ansible/ansible-runner?tab=tags) to check the latest tag and edit Pipfile if needed. Ansible Builder will take about 20 minutes.
