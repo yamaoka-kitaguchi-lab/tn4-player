@@ -372,6 +372,15 @@ As of March 26th, 2023.
 25 directories, 92 files
 ```
 
+### Paramiko hot-fix
+The latest paramiko doesn't support RSA-SHA1 so it is unable to connect C1000 via SSH-RSA -- check [issue #43](https://github.com/yamaoka-kitaguchi-lab/tn4-player/issues/43) for the problem details.
+Following command will help. Before running it, move to the appropriate `dist_packages/paramiko` directory and make sure `client.py` exists.
+
+```
+% sed -i 's/disabled_algorithms=None/disabled_algorithms=dict(pubkeys=["rsa-sha2-256", "rsa-sha2-512"])/' client.py
+```
+
+
 ### Verbose mode
 
 ```
