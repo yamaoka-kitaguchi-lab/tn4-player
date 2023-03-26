@@ -152,13 +152,9 @@ options:
 ```
 % tn4 doctor --help
 
-usage: tn4 doctor [-h] [--netbox-url NETBOX_URL] [--netbox-token NETBOX_TOKEN] [--use-cache] [--hosts HOSTS]
-                  [--no-hosts NO_HOSTS] [--areas AREAS] [--no-areas NO_AREAS] [--roles ROLES]
-                  [--no-roles NO_ROLES] [--vendors VENDORS] [--no-vendors NO_VENDORS] [--tags TAGS]
-                  [--no-tags NO_TAGS] [--diagnose-only] [--force-repair]
-                  {branch-vlan} ...
+usage: tn4 doctor [-h] [--netbox-url NETBOX_URL] [--netbox-token NETBOX_TOKEN] [--use-cache] {netbox,branch-vlan} ...
 
-tn4 doctor - Scanning NetBox and repairing inconsistencies, also providing CLI-based CRUD operations
+tn4 doctor - Helper utilities to manage Titanet4, also providing CLI-based CRUD operations
 
 options:
   -h, --help            show this help message and exit
@@ -167,6 +163,28 @@ options:
   --netbox-token NETBOX_TOKEN
                         custom NetBox API token
   --use-cache           skip NetBox fetching and use local cache if available (~/.cache/tn4-player/*.cache)
+
+commands:
+  COMMAND [ARGS]
+
+  {netbox,branch-vlan}
+    netbox              scan and repair NetBox inconsistency
+    branch-vlan         branch network management utilities
+```
+
+### tn4 doctor netbox
+
+```
+% tn4 doctor netbox --help
+
+usage: tn4 doctor netbox [-h] [--hosts HOSTS] [--no-hosts NO_HOSTS] [--areas AREAS] [--no-areas NO_AREAS] [--roles ROLES]
+                         [--no-roles NO_ROLES] [--vendors VENDORS] [--no-vendors NO_VENDORS] [--tags TAGS]
+                         [--no-tags NO_TAGS] [--diagnose-only] [--force-repair]
+
+tn4 doctor netbox - Scanning NetBox and repairing inconsistencies
+
+options:
+  -h, --help            show this help message and exit
   --hosts HOSTS         comma-separated list of target hostnames
   --no-hosts NO_HOSTS   inverted option of ```--hosts```
   --areas AREAS         comma-separated list of target regions or site groups (e.g. ookayama-n,suzukake)
@@ -180,12 +198,6 @@ options:
   --no-tags NO_TAGS     inverted option of ```--tags```
   --diagnose-only       scan NetBox, present diagnosis report, and exit
   --force-repair        skip confirmation and perform NetBox repair immediately if needed
-
-commands:
-  COMMAND [ARGS]
-
-  {branch-vlan}
-    branch-vlan         branch network management utilities
 ```
 
 ### tn4 doctor branch-vlan
@@ -332,6 +344,7 @@ As of March 26th, 2023.
 │   │               ├── core
 │   │               │   ├── reset.j2
 │   │               │   ├── set-interfaces-address.j2
+│   │               │   ├── set-interfaces-branch.j2
 │   │               │   ├── set-interfaces-filter.j2
 │   │               │   ├── set-interfaces.j2
 │   │               │   ├── set-interfaces-lacp.j2
