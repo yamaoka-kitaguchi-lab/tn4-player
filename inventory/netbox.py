@@ -73,6 +73,7 @@ class NetBox:
                                 "region",
                                 "role",
                                 "sitegp",
+                                "unprotected_irb_units",
                                 "vlans",
                             ]
                             if key in self.nbdata[hostname]

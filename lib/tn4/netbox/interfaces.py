@@ -480,6 +480,16 @@ class Interfaces(ClientBase):
             for hostname, interfaces in all_interfaces.items()
         }
 
+        ## skip actually existing units having protect tags (= all branch-scope units)
+        unprotected_irb_units = {
+            hostname: [
+                str(i)
+                for i in range(1,4095)
+                if not ( f"irb.{i}" in interfaces and interfaces[f"irb.{i}"]["is_deploy_target"] == False )
+            ]
+            for hostname, interfaces in all_interfaces.items()
+        }
+
         target_lag_members = {
             hostname: {
                 parent: children
@@ -494,6 +504,7 @@ class Interfaces(ClientBase):
                 "lag_members": target_lag_members[hostname],  # key: parent name, value: list of members' name
                 "vlans":       used_vlans[hostname],          # list of extended VLAN object
                 "mgmt_vlan":   mgmt_vlans[hostname],          # a VLAN object
+                "unprotected_irb_units": unprotected_irb_units[hostname],  # list of str
             }
             for hostname in all_interfaces.keys()
         }
