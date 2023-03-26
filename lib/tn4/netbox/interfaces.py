@@ -78,8 +78,8 @@ class Interfaces(ClientBase):
 
 
     def lookup_prefixes_by_branch_id(self, ctx, branch_id):
-        is_ipv4    = lambda a: '.' in a["address"]
-        is_ipv6    = lambda a: ':' in a["address"]
+        is_ipv4    = lambda a: '.' in a["prefix"]
+        is_ipv6    = lambda a: ':' in a["prefix"]
 
         prefix4, prefix6 = None, None
 
