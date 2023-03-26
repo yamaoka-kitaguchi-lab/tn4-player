@@ -87,34 +87,38 @@ class Branch:
 
 
     def validate_branch_info(self):
-        results       = []
-        is_duplicated = False
+        results, is_all_ok = [], True
 
         for address in self.cli.addresses.all_addresses:
             if address["address"] in [ self.info.vrrp_master_v4, self.info.vrrp_backup_v4, self.info.vrrp_vip_v4,
                                        self.info.vrrp_master_v6, self.info.vrrp_backup_v6, self.info.vrrp_vip_v6 ]:
-                is_duplicated = True
-                results.append({ "Address": address["address"], "URL": address["url"] })
+                is_all_ok = False
+                results += [{ "Address": address["address"], "URL": address["url"] }]
 
         for prefix in self.cli.prefixes.all_prefixes:
             if prefix["prefix"] in [ self.info.prefix_v4, self.info.prefix_v6 ]:
-                is_duplicated = True
+                is_all_ok = False
                 results.append({ "Prefix": prefix["prefix"], "URL": address["url"] })
 
-        is_missing_irb_tag  = self.info.is_ookayama == self.info.is_suzukake == False
+        is_missing_irb_tag = self.info.is_ookayama == self.info.is_suzukake == False
+        is_all_ok &= not is_missing_irb_tag
 
         if is_missing_irb_tag:
-            results.append({ "Not found": "IRB-O or IRB-S" })
+            results.append({ "Not found": "IRB-O or IRB-S is needed" })
+
+        is_conflicting_irb_tag = self.info.is_ookayama == self.info.is_suzukake == True
+        is_all_ok &= not is_conflicting_irb_tag
+
+        if is_conflicting_irb_tag:
+            results.append({ "Conflicted": "IRB-O and IRB-S are exclusive" })
 
         is_missing_vlan_tag = self.info.is_ookayama_vlan == self.info.is_suzukake_vlan == False
+        is_all_ok &= not is_missing_vlan_tag
 
         if is_missing_vlan_tag:
-            results.append({ "Not found": "VLAN-O or VLAN-S" })
+            results.append({ "Not found": "VLAN-O and/or VLAN-S are needed" })
 
-
-        is_ok = not is_duplicated and not is_missing_irb_tag and not is_missing_vlan_tag
-
-        return results, is_ok
+        return results, is_all_ok
 
 
     def commit_branch_id(self):
