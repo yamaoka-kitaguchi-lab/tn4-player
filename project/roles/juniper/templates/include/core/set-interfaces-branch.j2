@@ -15,7 +15,7 @@ set interface irb unit {{ interface.unit_number }} family inet address {{ interf
 
 {% if interface.vrrp_physical_ip6 %}
 set interface irb unit {{ interface.unit_number }} family inet6 mtu {{ interface.mtu }}
-set interface irb unit {{ interface.unit_number }} family inet6 address {{ interface.vrrp_physical_ip4 }} vrrp-inet6-group {{ interface.vrrp_group_id }} virtual-inet6-address {{ interface.vrrp_virtual_ip4 }}
+set interface irb unit {{ interface.unit_number }} family inet6 address {{ interface.vrrp_physical_ip6 }} vrrp-inet6-group {{ interface.vrrp_group_id }} virtual-inet6-address {{ interface.vrrp_virtual_ip6 }}
 {% endif %}
 
 {% endif %}
