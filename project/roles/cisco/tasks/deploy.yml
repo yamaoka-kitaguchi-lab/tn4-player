@@ -23,9 +23,10 @@
   ios_config:
     src: "{{ snapshot_basedir }}/{{ hostname }}_submitted.cfg"
     save_when: modified
+    diff_against: "startup"
   diff: "{{ not is_quiet }}"
   no_log: "{{ is_quiet }}"
-  check_mode: "is_dryrun"
+  check_mode: "{{ is_dryrun }}"
 
 - name: Create post snapshots
   ios_config:
