@@ -144,7 +144,7 @@ class Branch:
                 continue
 
             res, code = self.cli.prefixes.create(self.ctx, prefix, **{
-                "role":          Slug.Role.Branch,
+                "role":          { "slug": Slug.Role.Branch },
                 "vlan":          { "id": self.info.vlan_id },
                 "description":   "",
                 "tags":          [],
