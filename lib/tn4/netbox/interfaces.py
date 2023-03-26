@@ -226,8 +226,8 @@ class Interfaces(ClientBase):
                     if not is_invalid:
                         interface |= {
                             "vrrp_group_id":    group_id,
-                            "vrrp_virtual_ip4": vip4.split('/'}[0] if vip4 is not None else None,
-                            "vrrp_virtual_ip6": vip6.split('/'}[0] if vip6 is not None else None,
+                            "vrrp_virtual_ip4": vip4.split('/')[0] if vip4 is not None else None,
+                            "vrrp_virtual_ip6": vip6.split('/')[0] if vip6 is not None else None,
                         }
 
                         if hostname in [ "core-honkan", "core-s7" ]:
