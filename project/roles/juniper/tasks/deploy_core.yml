@@ -20,7 +20,7 @@
   delegate_to: localhost
   no_log: "{{ is_quiet }}"
 
-- name: Provisioning Core SWs
+- name: Provisioning Core SWs (VRRP Master)
   connection: netconf
   junos_config:
     src: "{{ snapshot_basedir }}/{{ hostname }}_submitted.cfg"
@@ -29,6 +29,18 @@
     confirm: "{{ commit_confirm_min }}"
     update: merge
     check_commit: "{{ is_dryrun }}"
+  when: "{{ is_vrrp_master }}"
+
+- name: Provisioning Core SWs (VRRP Backup)
+  connection: netconf
+  junos_config:
+    src: "{{ snapshot_basedir }}/{{ hostname }}_submitted.cfg"
+    src_format: set
+    comment: Action performed by ansible
+    confirm: "{{ commit_confirm_min }}"
+    update: merge
+    check_commit: "{{ is_dryrun }}"
+  when: "{{ is_vrrp_backup }}"
 
 - name: Create post snapshots
   connection: netconf
