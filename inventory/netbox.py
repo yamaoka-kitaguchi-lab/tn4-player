@@ -64,10 +64,8 @@ class NetBox:
                             key: self.nbdata[hostname][key]
                             for key in [
                                 "ansible_host",
-                                "apply_groups",       # VRRP-MASTER or VRRP-BACKUP
                                 "device_tags",
                                 "interfaces",
-                                "is_irb",
                                 "is_test_device",
                                 "lag_members",
                                 "manufacturer",
@@ -76,11 +74,6 @@ class NetBox:
                                 "role",
                                 "sitegp",
                                 "vlans",
-                                "vrrp_group_id",
-                                "vrrp_physical_ip4",  # with CIDR length
-                                "vrrp_physical_ip6",  # with CIDR length
-                                "vrrp_virtual_ip4",   # without CIDR length
-                                "vrrp_virtual_ip6",   # without CIDR length
                             ]
                             if key in self.nbdata[hostname]
                         },

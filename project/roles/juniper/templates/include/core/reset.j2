@@ -4,5 +4,10 @@ delete vlans
 delete interfaces {{ interface.name }} unit 0
 {% endfor %}
 
+{% for vid in range(1,4095) %}
+{% if "irb."+str(vid) %}
+delete interfaces irb unit {{ vid }}
+{% endfor %}
+
 set protocols lldp interface all
 
