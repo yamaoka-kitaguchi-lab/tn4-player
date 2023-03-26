@@ -232,12 +232,14 @@ class Interfaces(ClientBase):
 
                         if hostname in [ "core-honkan", "core-s7" ]:
                             interface |= {
+                                "apply_groups":      "VRRP-MASTER",
                                 "vrrp_physical_ip4": master4,  # master ipv4 (or None if missing)
                                 "vrrp_physical_ip6": master6,  # master ipv6 (or None if missing)
                             }
 
                         if hostname in [ "core-gsic", "core-s1" ]:
                             interface |= {
+                                "apply_groups":      "VRRP-BACKUP",
                                 "vrrp_physical_ip4": backup4,  # backup ipv4 (or None if missing)
                                 "vrrp_physical_ip6": backup6,  # backup ipv6 (or None if missing)
                             }
