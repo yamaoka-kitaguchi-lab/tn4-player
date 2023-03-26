@@ -65,7 +65,7 @@ class Branch:
                 self.info.irb_name      = f"irb.{self.info.vlan_vid}"
 
         if count > 1:
-            self.info.vlan_vid = None
+            self.info.vlan_vid = None  # multiple VLANs having same name found
 
         if self.info.vlan_vid is not None:
             vlan = self.cli.vlans.all_vlans[self.info.vlan_id]
