@@ -53,25 +53,25 @@ class Interfaces(ClientBase):
 
         for addr in ctx.addresses:
             if addr["custom_fields"][NB_BRANCH_ID_KEY] == branch_id:
-                if is_ipv4 and is_master:
+                if is_ipv4(addr) and is_master(addr):
                     master4 = addr["address"]
-                if is_ipv4 and is_backup:
+                if is_ipv4(addr) and is_backup(addr):
                     backup4 = addr["address"]
-                if is_ipv4 and is_virtual:
-                    vip4 = addr["address"]
-                if is_ipv6 and is_master:
+                if is_ipv4(addr) and is_virtual(addr):
+                    vip4    = addr["address"]
+                if is_ipv6(addr) and is_master(addr):
                     master6 = addr["address"]
-                if is_ipv6 and is_backup:
+                if is_ipv6(addr) and is_backup(addr):
                     backup6 = addr["address"]
-                if is_ipv6 and is_virtual:
-                    vip6 = addr["address"]
+                if is_ipv6(addr) and is_virtual(addr):
+                    vip6    = addr["address"]
 
         ## all addresses are with CIDR length
         return master4, backup4, vip4, master6, backup6, vip6
 
 
     def lookup_vrrp_group_id_by_branch_id(self, ctx, branch_id):
-        for vrrp_group in ctx.fhrp_groups:
+        for vrrp_group in ctx.fhrp_groups.values():
             if vrrp_group["custom_fields"][NB_BRANCH_ID_KEY] == branch_id:
                 return vrrp_group["group_id"]
         return None

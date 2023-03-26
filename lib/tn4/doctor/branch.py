@@ -293,9 +293,9 @@ class Branch:
         results, is_all_ok = [], True
 
         if self.info.is_ookayama:
-            hosts = [ "core-gsic", "core-honkan" ]
+            hosts = [ "core-honkan", "core-gsic" ]  # order sensitive: master, backup
         if self.info.is_suzukake:
-            hosts = [ "core-s7", "core-s1" ]
+            hosts = [ "core-s7", "core-s1" ]  # order sensitive: master, backup
 
         iface_ids = []
 
@@ -321,7 +321,7 @@ class Branch:
 
     def update_inter_core_mclag_interface(self):
         if self.info.is_ookayama:
-            hosts = [ "core-gsic", "core-honkan" ]
+            hosts = [ "core-honkan", "core-gsic" ]
         if self.info.is_suzukake:
             hosts = [ "core-s7", "core-s1" ]
 
@@ -338,7 +338,7 @@ class Branch:
         exit_succeeded, exit_skipped, exit_failed = 0, 1, 2
 
         if self.info.is_ookayama_vlan == self.info.is_suzukake_vlan == True:
-            for host in [ "core-gsic", "core-honkan", "core-s7", "core-s1" ]:
+            for host in [ "core-honkan", "core-gsic", "core-s7", "core-s1" ]:
                 _, code = self.cli.interfaces.add_tagged_vlans(self.ctx, host, "ae1", self.info.vlan_id)
 
                 if not self.is_ok_or_not(code):
@@ -361,7 +361,7 @@ class Branch:
 
 
     def delete_irb_interfaces(self):
-        for host in [ "core-gsic", "core-honkan", "core-s7", "core-s1" ]:
+        for host in [ "core-honkan", "core-gsic", "core-s7", "core-s1" ]:
             self.cli.interfaces.delete(self.ctx, host, self.info.irb_name)
 
 
@@ -371,7 +371,7 @@ class Branch:
 
 
     def remove_backbone_vlans(self):
-        for host in [ "core-gsic", "core-honkan", "core-s7", "core-s1" ]:
+        for host in [ "core-honkan", "core-gsic", "core-s7", "core-s1" ]:
             self.cli.interfaces.remove_tagged_vlans(self.ctx, host, "ae0", self.info.vlan_id)
             self.cli.interfaces.remove_tagged_vlans(self.ctx, host, "ae1", self.info.vlan_id)
 
