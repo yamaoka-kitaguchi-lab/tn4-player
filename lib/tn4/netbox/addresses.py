@@ -9,6 +9,62 @@ class Addresses(ClientBase):
         self.all_addresses = None
 
 
+    def delete(self, ctx, address_id):
+        return self.query(ctx, f"{self.path}{str(address_id)}/", delete=True)
+
+
+    def delete_by_custom_fields(self, ctx, cf):
+        for address in self.grep_by_custom_fields(ctx, cf):
+            self.delete(ctx, address["id"])
+
+
+    def create(self, ctx, address, **kwargs):
+        keys = ["role", "tags", "description", "assigned_object_type", "assigned_object_id", "custom_fields"]
+        data = [{
+            "address": address,
+            "status":  "active",
+            **{
+                key: kwargs[key]
+                for key in keys if key in kwargs
+            }
+        }]
+
+        return self.query(ctx, self.path, data)
+
+
+    def assign_to_interface(self, ctx, addr_id, iface_id):
+        data = [{
+            "id":                   addr_id,
+            "assigned_object_type": "dcim.interface",
+            "assigned_object_id":   iface_id,
+        }]
+
+        return self.query(ctx, self.path, data, update=True)
+
+
+    def grep_by_custom_fields(self, ctx, cf):
+        if self.all_addresses is None:
+            self.fetch_addresses(ctx)
+
+        addresses = []
+
+        for address in self.all_addresses:
+            matched = True
+            for cf_key in cf.keys():
+                if cf_key not in address["custom_fields"]:
+                    matched = False
+                    break
+                if address["custom_fields"][cf_key] != cf[cf_key]:
+                    matched = False
+                    break
+
+            if matched:
+                addresses.append(address)
+
+        return addresses
+
+
+
     def fetch_addresses(self, ctx, use_cache=False):
         all_addresses = None
 

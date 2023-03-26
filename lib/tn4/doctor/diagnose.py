@@ -500,12 +500,21 @@ class Diagnose():
 
                 if master_state.has_tag(Slug.Tag.CoreMaster):
                     desired_slave[ifname] = deepcopy(master_state)
+                    desired_slave[ifname].tags = set(desired_slave[ifname].tags)
+                    desired_slave[ifname].tags -= { Slug.Tag.CoreMaster }
+                    desired_slave[ifname].tags |= { Slug.Tag.CoreSlave }
 
                 if master_state.has_tag(Slug.Tag.CoreOokayamaMaster):
                     desired_slave_o[ifname] = deepcopy(master_state)
+                    desired_slave_o[ifname].tags = set(desired_slave_o[ifname].tags)
+                    desired_slave_o[ifname].tags -= { Slug.Tag.CoreOokayamaMaster }
+                    desired_slave_o[ifname].tags |= { Slug.Tag.CoreOokayamaSlave }
 
                 if master_state.has_tag(Slug.Tag.CoreSuzukakeMaster):
                     desired_slave_s[ifname] = deepcopy(master_state)
+                    desired_slave_s[ifname].tags = set(desired_slave_s[ifname].tags)
+                    desired_slave_s[ifname].tags -= { Slug.Tag.CoreSuzukakeMaster }
+                    desired_slave_s[ifname].tags |= { Slug.Tag.CoreSuzukakeSlave }
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             if self.nb_devices.all[hostname]["role"] != Slug.Role.CoreSW:
@@ -545,6 +554,7 @@ class Diagnose():
                 condition.interface_mode = CV(desired.interface_mode, Cond.IS, priority=20)
                 condition.tagged_oids    = CV(desired.tagged_oids, Cond.IS, priority=20)
                 condition.untagged_oid   = CV(desired.untagged_oid, Cond.IS, priority=20)
+                condition.tags           = CV(desired.tags, Cond.IS, priority=20)
 
                 self.interface_conditions[hostname][ifname].append(condition)
 

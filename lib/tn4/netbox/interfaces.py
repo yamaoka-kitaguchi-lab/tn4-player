@@ -1,12 +1,13 @@
 from tn4.netbox.base import ClientBase
 from tn4.netbox.slug import Slug
+from tn4.doctor.branch import NB_BRANCH_ID_KEY
 
 
 class Interfaces(ClientBase):
     path = "/dcim/interfaces/"
 
     ## Slugs of interface type name
-    allowed_types_virtual = ["lag"]  # ignore virtual type interfaces
+    allowed_types_virtual = ["lag"]  # ignore virtual interfaces but irb
     allowed_types_ethernet_utp = [
          "1000base-t", "2.5gbase-t", "5gbase-t", "10gbase-t",
     ]
@@ -30,7 +31,7 @@ class Interfaces(ClientBase):
         return None
 
 
-    def lookup_interface_address(self, ifid, ctx):
+    def lookup_interface_address(self, ctx, ifid):
         addr4, addr6 = [], []
         for addr in ctx.addresses:
             if addr["assigned_object_id"] == ifid:
@@ -41,9 +42,101 @@ class Interfaces(ClientBase):
         return addr4, addr6
 
 
+    def lookup_vrrp_addresses_by_branch_id(self, ctx, branch_id):
+        is_ipv4    = lambda a: '.' in a["address"]
+        is_ipv6    = lambda a: ':' in a["address"]
+        is_master  = lambda a: Slug.Tag.VRRPMaster in a["tags"]
+        is_backup  = lambda a: Slug.Tag.VRRPBackup in a["tags"]
+        is_virtual = lambda a: Slug.Tag.VRRPVirtual in a["tags"]
+
+        master4, backup4, vip4, master6, backup6, vip6 = None, None, None, None, None, None
+
+        for addr in ctx.addresses:
+            if addr["custom_fields"][NB_BRANCH_ID_KEY] == branch_id:
+                if is_ipv4(addr) and is_master(addr):
+                    master4 = addr["address"]
+                if is_ipv4(addr) and is_backup(addr):
+                    backup4 = addr["address"]
+                if is_ipv4(addr) and is_virtual(addr):
+                    vip4    = addr["address"]
+                if is_ipv6(addr) and is_master(addr):
+                    master6 = addr["address"]
+                if is_ipv6(addr) and is_backup(addr):
+                    backup6 = addr["address"]
+                if is_ipv6(addr) and is_virtual(addr):
+                    vip6    = addr["address"]
+
+        ## all addresses are with CIDR length
+        return master4, backup4, vip4, master6, backup6, vip6
+
+
+    def lookup_vrrp_group_id_by_branch_id(self, ctx, branch_id):
+        for vrrp_group in ctx.fhrp_groups.values():
+            if vrrp_group["custom_fields"][NB_BRANCH_ID_KEY] == branch_id:
+                return vrrp_group["group_id"]
+        return None
+
+
+    def lookup_prefixes_by_branch_id(self, ctx, branch_id):
+        is_ipv4    = lambda a: '.' in a["prefix"]
+        is_ipv6    = lambda a: ':' in a["prefix"]
+
+        prefix4, prefix6 = None, None
+
+        for prefix in ctx.prefixes.values():
+            if prefix["custom_fields"][NB_BRANCH_ID_KEY] == branch_id:
+                if is_ipv4(prefix):
+                    prefix4 = prefix["prefix"]
+                if is_ipv6(prefix):
+                    prefix6 = prefix["prefix"]
+
+        return prefix4, prefix6
+
+
     def delete(self, ctx, device_name, interface_name):
-        oid = self.all_interfaces[device_name][interface_name]["id"]
+        try:
+            oid = self.all_interfaces[device_name][interface_name]["id"]
+        except KeyError:
+            return None, None
+
         return self.query(ctx, f"{self.path}{str(oid)}/", delete=True)
+
+
+    def create_irb(self, ctx, device_name, vid, **kwargs):
+        keys = [ "untagged_vlan", "custom_fields" ]
+        data = [{
+            "device": { "name": device_name },
+            "name":   f"irb.{vid}",
+            "type":   "virtual",
+            "mode":   "access",
+            "mtu":    1500,
+            **{
+                key: kwargs[key]
+                for key in keys if key in kwargs
+            }
+        }]
+
+        return self.query(ctx, self.path, data)
+
+
+    def add_tagged_vlans(self, ctx, device_name, interface_name, *vlanids):
+        vlans = self.all_interfaces[device_name][interface_name]["tagged_vlans"]
+        vlan_oids  = set([ o["id"] for o in vlans ])
+        vlan_oids |= set(vlanids)
+
+        return self.update(ctx, device_name, interface_name, **{
+            "tagged_vlanids": list(vlan_oids)
+        })
+
+
+    def remove_tagged_vlans(self, ctx, device_name, interface_name, *vlanids):
+        vlans = self.all_interfaces[device_name][interface_name]["tagged_vlans"]
+        vlan_oids  = set([ o["id"] for o in vlans ])
+        vlan_oids -= set(vlanids)
+
+        return self.update(ctx, device_name, interface_name, **{
+            "tagged_vlanids": list(vlan_oids)
+        })
 
 
     def update(self, ctx, device_name, interface_name, **kwargs):
@@ -126,35 +219,88 @@ class Interfaces(ClientBase):
             if is_empty_irb:
                 continue  # ignored. these interfaces should have been fixed by nbck module beforehand
 
-            is_upstream = hastag(interface, Slug.Tag.Upstream)
+            is_protected = hastag(interface, Slug.Tag.Protect)
+            is_upstream  = hastag(interface, Slug.Tag.Upstream)
+            is_irb       = interface["name"][:4] == "irb."
+
+            is_deploy_target  = interface["type"]["value"] in self.allowed_types
+            is_deploy_target |= is_irb and not is_protected
+            is_deploy_target &= not is_protected
+
+            if is_irb:
+                interface["unit_number"] = interface["name"][4:]
+
+            if is_irb and is_deploy_target:
+                branch_id = interface["custom_fields"][NB_BRANCH_ID_KEY]
+
+                if branch_id is not None:
+                    addrs    = self.lookup_vrrp_addresses_by_branch_id(ctx, branch_id)
+                    prefixes = self.lookup_prefixes_by_branch_id(ctx, branch_id)
+                    group_id = self.lookup_vrrp_group_id_by_branch_id(ctx, branch_id)
+
+                    master4, backup4, vip4, master6, backup6, vip6 = addrs
+                    prefix4, prefix6 = prefixes
+
+                    is_invalid  = group_id is None
+                    is_invalid |= master4 == backup4 == vip4 == master6 == backup6 == vip6 == None
+                    is_invalid |= prefix4 == prefix6 == None
+
+                    if not is_invalid:
+                        interface |= {
+                            "vrrp_group_id":    group_id,
+                            "vrrp_virtual_ip4": vip4.split('/')[0] if vip4 is not None else None,
+                            "vrrp_virtual_ip6": vip6.split('/')[0] if vip6 is not None else None,
+                        }
+
+                        interface["ra_prefix"] = prefix6
+
+                        if hostname in [ "core-honkan", "core-s7" ]:
+                            interface |= {
+                                "apply_groups":      "VRRP-MASTER",
+                                "vrrp_physical_ip4": master4,  # master ipv4 (or None if missing)
+                                "vrrp_physical_ip6": master6,  # master ipv6 (or None if missing)
+                            }
+
+                        if hostname in [ "core-gsic", "core-s1" ]:
+                            interface |= {
+                                "apply_groups":      "VRRP-BACKUP",
+                                "vrrp_physical_ip4": backup4,  # backup ipv4 (or None if missing)
+                                "vrrp_physical_ip6": backup6,  # backup ipv6 (or None if missing)
+                            }
+
+                    else:
+                        is_deploy_target = False
+
+                else:
+                    is_deploy_target = False
 
             interface |= {
-                "is_ansible_target": ctx.devices[dev_name]["is_ansible_target"],
-                "is_10mbps":         interface["speed"] == 10 * 1000,
                 "is_100mbps":        interface["speed"] == 100 * 1000,
-                "is_1gbps":          interface["speed"] == 1000 * 1000,
                 "is_10gbps":         interface["speed"] == 10000 * 1000,
-                "is_storm_5m":       hasrole(interface, Slug.Role.CoreSW) and hastag(interface, Slug.Tag.Storm5M),
+                "is_10mbps":         interface["speed"] == 10 * 1000,
+                "is_1gbps":          interface["speed"] == 1000 * 1000,
+                "is_ansible_target": ctx.devices[dev_name]["is_ansible_target"],
                 "is_bpdu_filtered":  hasrole(interface, Slug.Role.CoreSW) and hastag(interface, Slug.Tag.BPDUFilter),
-                "is_deploy_target":  interface["type"]["value"] in self.allowed_types,
+                "is_deploy_target":  is_deploy_target,
+                "is_enabled":        interface["enabled"] or is_upstream,
+                "is_irb":            is_irb,
                 "is_lag_member":     interface["lag"] is not None,
                 "is_lag_parent":     interface["type"]["value"] == "lag",
+                "is_phy_uplink":     False,  # updated in fetch_lag_members()
+                "is_physical":       interface["type"]["value"] in self.allowed_types_ethernet,
                 "is_poe":            hastag(interface, Slug.Tag.PoE),
-                "is_protected":      hastag(interface, Slug.Tag.Protect),
+                "is_protected":      is_protected,
+                "is_rspan":          interface["name"] == "rspan",
+                "is_storm_5m":       hasrole(interface, Slug.Role.CoreSW) and hastag(interface, Slug.Tag.Storm5M),
                 "is_to_ap":          hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.Wifi),
                 "is_to_core":        hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.EdgeUpstream),
                 "is_to_edge":        hasrole(interface, Slug.Role.CoreSW) and hastag(interface, Slug.Tag.CoreDownstream),
                 "is_upstream":       is_upstream,
                 "is_utp":            interface["type"]["value"] in self.allowed_types_ethernet_utp,
-                "is_physical":       interface["type"]["value"] in self.allowed_types_ethernet,
-                "is_irb":            interface["name"][:4] == "irb.",
-                "is_rspan":          interface["name"] == "rspan",
-                "is_enabled":        interface["enabled"] or is_upstream,
-                "is_phy_uplink":     False,  # updated in fetch_lag_members()
                 "lag_parent_name":   None,
-                "role":              ctx.devices[interface["device"]["name"]]["role"],
-                "region":            ctx.devices[interface["device"]["name"]]["region"],
                 "mtu":               interface["mtu"],  # None or integer (eg. 9000)
+                "region":            ctx.devices[interface["device"]["name"]]["region"],
+                "role":              ctx.devices[interface["device"]["name"]]["role"],
             }
 
             if interface["is_lag_member"]:
@@ -235,7 +381,7 @@ class Interfaces(ClientBase):
                 absent_vids = [vid for vid in range(1, 4095) if vid not in all_vids]
                 interface["absent_vids"] = [absent_vids[i:i+packed_size] for i in range(0, len(absent_vids), packed_size)]
 
-            addr4, addr6 = self.lookup_interface_address(interface["id"], ctx)
+            addr4, addr6 = self.lookup_interface_address(ctx, interface["id"])
             interface |= {
                 "addresses4": addr4,
                 "addresses6": addr6,
@@ -358,6 +504,16 @@ class Interfaces(ClientBase):
             for hostname, interfaces in all_interfaces.items()
         }
 
+        ## skip actually existing units having protect tags (= all branch-scope units)
+        unprotected_irb_units = {
+            hostname: [
+                str(i)
+                for i in range(1,4095)
+                if not ( f"irb.{i}" in interfaces and interfaces[f"irb.{i}"]["is_deploy_target"] == False )
+            ]
+            for hostname, interfaces in all_interfaces.items()
+        }
+
         target_lag_members = {
             hostname: {
                 parent: children
@@ -372,6 +528,7 @@ class Interfaces(ClientBase):
                 "lag_members": target_lag_members[hostname],  # key: parent name, value: list of members' name
                 "vlans":       used_vlans[hostname],          # list of extended VLAN object
                 "mgmt_vlan":   mgmt_vlans[hostname],          # a VLAN object
+                "unprotected_irb_units": unprotected_irb_units[hostname],  # list of str
             }
             for hostname in all_interfaces.keys()
         }

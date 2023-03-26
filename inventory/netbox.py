@@ -59,7 +59,9 @@ class NetBox:
             "_meta": {
                 "hosts": {
                     hostname: {
-                        "hostname": hostname,
+                        "hostname":       hostname,
+                        "is_vrrp_master": hostname in [ "core-honkan", "core-s7" ],
+                        "is_vrrp_backup": hostname in [ "core-gsic", "core-s1" ],
                         **{
                             key: self.nbdata[hostname][key]
                             for key in [
@@ -73,8 +75,10 @@ class NetBox:
                                 "region",
                                 "role",
                                 "sitegp",
+                                "unprotected_irb_units",
                                 "vlans",
                             ]
+                            if key in self.nbdata[hostname]
                         },
                         "datetime": self.ts,
                     }

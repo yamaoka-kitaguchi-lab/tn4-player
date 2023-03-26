@@ -11,6 +11,25 @@ class Vlans(ClientBase):
         self.all_vlans = None
 
 
+    def delete(self, ctx, vlanid):
+        return self.query(ctx, f"{self.path}{str(vlanid)}/", delete=True)
+
+
+    def delete_by_name(self, ctx, name):
+        for vlan in self.all_vlans:
+            if vlan["name"] == name:
+                return self.delete(ctx, vlan["id"])
+
+
+    def update_custom_fields(self, ctx, vlanid, **kwargs):
+        data = [{
+            "id":            vlanid,
+            "custom_fields": kwargs
+        }]
+
+        return self.query(ctx, self.path, data, update=True)
+
+
     ## Return all VLANs as a dict object
     ##  - key:   VLAN object ID (NetBox internal ID)
     ##  - value: VLAN object
@@ -46,7 +65,7 @@ class Vlans(ClientBase):
         titech_vlans = {}
 
         for vlan in self.all_vlans.values():
-            if vlan["group"]["id"] != self.titech_vlan_group_id:
+            if vlan["group"] is not None and vlan["group"]["id"] != self.titech_vlan_group_id:
                 titech_vlans[vlan["vid"]] = vlan
 
         return titech_vlans

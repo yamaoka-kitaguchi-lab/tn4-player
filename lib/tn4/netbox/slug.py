@@ -6,6 +6,9 @@ class Slug:
     class Role:
         CoreSW = "core_sw"
         EdgeSW = "edge_sw"
+        Branch = "branch"
+        VRRP   = "vrrp"
+        VIP    = "vip"
 
     class Region:
         Ookayama = "ookayama"
@@ -36,6 +39,8 @@ class Slug:
         CoreSuzukakeSlave      = "mclag-slave-cs"
         EdgeUpstream           = "uplink"
         Hosting                = "hosting"
+        IrbOokayama            = "irb-o"
+        IrbSuzukake            = "irb-s"
         Keep                   = "keep"
         MgmtVlanBorderOokayama = "mgmt-vlan-bo"
         MgmtVlanBorderSuzukake = "mgmt-vlan-bs"
@@ -50,6 +55,9 @@ class Slug:
         Storm5M                = "storm-5m"
         Test                   = "test"
         Upstream               = "uplink"
+        VRRPBackup             = "vrrp-backup"
+        VRRPMaster             = "vrrp-master"
+        VRRPVirtual            = "vrrp-vip"
         VlanOokayama           = "vlan-o"
         VlanSuzukake           = "vlan-s"
         Wifi                   = "wifi"
