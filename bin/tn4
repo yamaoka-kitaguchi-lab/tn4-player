@@ -353,30 +353,36 @@ if __name__ == "__main__":
 
     doctor_parser = subparsers.add_parser(
         "doctor",
-        description="tn4 doctor - Scanning NetBox and repairing inconsistencies, also providing CLI-based CRUD operations",
-        help="scan and repair NetBox inconsistency",
-        aliases=["x"],
+        description="tn4 doctor - Helper utilities to manage Titanet4, also providing CLI-based CRUD operations",
+        help="helper utilities to manage Titanet4",
     )
 
     add_args_to_parser(doctor_parser, DEFAULT_CLI_ARGS["netbox_args"])
-    add_args_to_parser(doctor_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
-
-    doctor_parser.add_argument(
-        "--diagnose-only",
-        action="store_true",
-        help="scan NetBox, present diagnosis report, and exit",
-    )
-
-    doctor_parser.add_argument(
-        "--force-repair",
-        action="store_true",
-        help="skip confirmation and perform NetBox repair immediately if needed",
-    )
 
     doctor_subparser = doctor_parser.add_subparsers(
         title="commands",
         description="COMMAND [ARGS]",
         dest="command",
+    )
+
+    netbox_parser = doctor_subparser.add_parser(
+        "netbox",
+        description="tn4 doctor netbox - Scanning NetBox and repairing inconsistencies",
+        help="scan and repair NetBox inconsistency",
+    )
+
+    add_args_to_parser(netbox_parser, DEFAULT_CLI_ARGS["inventory_group_args"])
+
+    netbox_parser.add_argument(
+        "--diagnose-only",
+        action="store_true",
+        help="scan NetBox, present diagnosis report, and exit",
+    )
+
+    netbox_parser.add_argument(
+        "--force-repair",
+        action="store_true",
+        help="skip confirmation and perform NetBox repair immediately if needed",
     )
 
     branch_parser = doctor_subparser.add_parser(
@@ -461,7 +467,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     match args.command:
-        case "config" | "deploy" | "doctor" | "c" | "d" | "x":
+        case "config" | "deploy" | "netbox" | "c" | "d":
             args.hosts = csv_to_list(args.hosts)
             args.no_hosts = csv_to_list(args.no_hosts)
             args.areas = csv_to_list(args.areas)
@@ -488,7 +494,7 @@ if __name__ == "__main__":
             case "deploy" | "d":
                 code = Deploy(args).exec()
 
-            case "doctor" | "x":
+            case "netbox":
                 code = Doctor(args).exec()
 
             case "branch-vlan":
