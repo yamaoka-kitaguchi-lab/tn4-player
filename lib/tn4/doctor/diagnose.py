@@ -183,7 +183,7 @@ class Diagnose():
 
                 if len(attached_tags) > 1:
                     self.interface_annotations[hostname][ifname].extend([
-                        Annotation(message=f"MCLAG/Wi-Fi/Hosting tags are excluive", severity=3),
+                        Annotation(message=f"MCLAG/Wi-Fi/Hosting tags are exclusive", severity=3),
                         Annotation(message="Manual repair needed"),
                     ])
                     self.is_manual_repair_interface[hostname][ifname] = True
