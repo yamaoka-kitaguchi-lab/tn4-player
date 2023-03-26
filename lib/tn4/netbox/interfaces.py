@@ -203,12 +203,50 @@ class Interfaces(ClientBase):
             if is_empty_irb:
                 continue  # ignored. these interfaces should have been fixed by nbck module beforehand
 
-            is_upstream = hastag(interface, Slug.Tag.Upstream)
-
-            is_irb = interface["name"][:4] == "irb."
+            is_protected = hastag(interface, Slug.Tag.Protect)
+            is_upstream  = hastag(interface, Slug.Tag.Upstream)
+            is_irb       = interface["name"][:4] == "irb."
 
             is_deploy_target  = interface["type"]["value"] in self.allowed_types
             is_deploy_target |= is_irb and not hastag(interface, Slug.Protect)
+            is_deploy_target &= is_protected
+
+            if is_irb and is_deploy_target:
+                branch_id = interface["custom_fields"][NB_BRANCH_ID_KEY]
+
+                if branch_id is not None:
+                    addrs    = self.lookup_vrrp_addresses_by_branch_id(ctx, branch_id)
+                    group_id = self.lookup_vrrp_group_id_by_branch_id(ctx, branch_id)
+
+                    master4, backup4, vip4, master6, backup6, vip6 = addrs
+
+                    is_invalid  = group_id is None
+                    is_invalid |= master4 == backup4 == vip4 == master6 == backup6 == vip6 == None
+
+                    if not is_invalid:
+                        interface |= {
+                            "vrrp_group_id":    group_id,
+                            "vrrp_virtual_ip4": vip4.split('/'}[0] if vip4 is not None else None,
+                            "vrrp_virtual_ip6": vip6.split('/'}[0] if vip6 is not None else None,
+                        }
+
+                        if hostname in [ "core-honkan", "core-s7" ]:
+                            interface |= {
+                                "vrrp_physical_ip4": master4,  # master ipv4 (or None if missing)
+                                "vrrp_physical_ip6": master6,  # master ipv6 (or None if missing)
+                            }
+
+                        if hostname in [ "core-gsic", "core-s1" ]:
+                            interface |= {
+                                "vrrp_physical_ip4": backup4,  # backup ipv4 (or None if missing)
+                                "vrrp_physical_ip6": backup6,  # backup ipv6 (or None if missing)
+                            }
+
+                    else:
+                        is_deploy_target = False
+
+                else:
+                    is_deploy_target = False
 
             interface |= {
                 "is_100mbps":        interface["speed"] == 100 * 1000,
@@ -225,7 +263,7 @@ class Interfaces(ClientBase):
                 "is_phy_uplink":     False,  # updated in fetch_lag_members()
                 "is_physical":       interface["type"]["value"] in self.allowed_types_ethernet,
                 "is_poe":            hastag(interface, Slug.Tag.PoE),
-                "is_protected":      hastag(interface, Slug.Tag.Protect),
+                "is_protected":      is_protected,
                 "is_rspan":          interface["name"] == "rspan",
                 "is_storm_5m":       hasrole(interface, Slug.Role.CoreSW) and hastag(interface, Slug.Tag.Storm5M),
                 "is_to_ap":          hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.Wifi),
