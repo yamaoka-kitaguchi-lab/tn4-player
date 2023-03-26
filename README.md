@@ -227,12 +227,14 @@ options:
 
 
 ## Hints
-Some hints and tips from the author.
 
 ### Project directory structure
 
+As of March 26th, 2023.
+
 ```
-tree -a -I '.git|.github|artifacts|snapshots|__pycache__' | less
+% tree -a -I '.git|.github|artifacts|snapshots|__pycache__' | less
+
 .
 ├── ansible.cfg
 ├── bin
@@ -271,8 +273,7 @@ tree -a -I '.git|.github|artifacts|snapshots|__pycache__' | less
 │       │   ├── karte.py
 │       │   ├── repair.py
 │       │   ├── state.py
-│       │   ├── test_cv.py
-│       │   └── :w
+│       │   └── test_cv.py
 │       ├── helper
 │       │   └── utils.py
 │       ├── __init__.py
