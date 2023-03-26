@@ -177,11 +177,11 @@ class Diagnose():
                 continue
 
             for ifname, interface in device_interfaces.items():
-                current      = InterfaceState(interface)
-                current_tags = set(current.tags)
-                violations   = exclusive_tags & current_tags
+                current       = InterfaceState(interface)
+                current_tags  = set(current.tags)
+                attached_tags = exclusive_tags & current_tags
 
-                if len(violations) > 0:
+                if len(attached_tags) > 1:
                     self.interface_annotations[hostname][ifname].extend([
                         Annotation(message=f"MCLAG/Wi-Fi/Hosting tags are excluive", severity=3),
                         Annotation(message="Manual repair needed"),
