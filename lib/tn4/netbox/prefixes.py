@@ -37,7 +37,7 @@ class Prefixes(ClientBase):
 
         prefixes = []
 
-        for prefix in self.all_prefixes:
+        for prefix in self.all_prefixes.values():
             matched = True
             for cf_key in cf.keys():
                 if cf_key not in prefix["custom_fields"]:
@@ -48,7 +48,7 @@ class Prefixes(ClientBase):
                     break
 
             if matched:
-                prefixes.append(address)
+                prefixes.append(prefix)
 
         return prefixes
 
