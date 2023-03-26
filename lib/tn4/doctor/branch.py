@@ -222,7 +222,7 @@ class Branch:
             bulk_args += [
                 ( self.info.vrrp_master_v4, self.info.cidr_len_v4, Slug.Tag.VRRPMaster ),
                 ( self.info.vrrp_backup_v4, self.info.cidr_len_v4, Slug.Tag.VRRPBackup ),
-                ( self.info.vrrp_vip_v4, self.info.cidr_len_v4, Slug.Tag.VRRPVIP, self.info.fhrp_group_id ),
+                ( self.info.vrrp_vip_v4, self.info.cidr_len_v4, Slug.Tag.VRRPVirtual, self.info.fhrp_group_id ),
             ]
             inc_v4 = True
 
@@ -230,7 +230,7 @@ class Branch:
             bulk_args += [
                 ( self.info.vrrp_master_v6, self.info.cidr_len_v6, Slug.Tag.VRRPMaster ),
                 ( self.info.vrrp_backup_v6, self.info.cidr_len_v6, Slug.Tag.VRRPBackup ),
-                ( self.info.vrrp_vip_v6, self.info.cidr_len_v6, Slug.Tag.VRRPVIP, self.info.fhrp_group_id ),
+                ( self.info.vrrp_vip_v6, self.info.cidr_len_v6, Slug.Tag.VRRPVirtual, self.info.fhrp_group_id ),
             ]
             inc_v6 = True
 

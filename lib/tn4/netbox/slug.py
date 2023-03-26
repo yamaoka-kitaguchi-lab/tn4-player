@@ -57,7 +57,7 @@ class Slug:
         Upstream               = "uplink"
         VRRPBackup             = "vrrp-backup"
         VRRPMaster             = "vrrp-master"
-        VRRPVIP                = "vrrp-vip"
+        VRRPVirtual            = "vrrp-vip"
         VlanOokayama           = "vlan-o"
         VlanSuzukake           = "vlan-s"
         Wifi                   = "wifi"
