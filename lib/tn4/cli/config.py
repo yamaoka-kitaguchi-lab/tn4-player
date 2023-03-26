@@ -36,6 +36,7 @@ class Config(CommandBase):
             dryrun=True,           # actually not effective but for safety
             commit_confirm_min=1,  # same as above
             overwrite_j2_path=None,
+            early_exit=False,
             v=None,
         )
         deploy = Deploy(Namespace(**deploy_opt))
