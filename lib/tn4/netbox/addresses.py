@@ -14,22 +14,8 @@ class Addresses(ClientBase):
 
 
     def delete_by_custom_fields(self, ctx, cf):
-        if self.all_addresses is None:
-            self.fetch_addresses(ctx)
-
-        cf_keys = cf.keys()
-        for address in self.all_addresses:
-            matched = True
-            for cf_key in cf_keys:
-                if cf_key not in address["custom_fields"]:
-                    matched = False
-                    break
-                if address["custom_fields"][cf_key] != cf[cf_key]:
-                    matched = False
-                    break
-
-            if matched:
-                self.delete(ctx, address["id"])
+        for address in self.grep_by_custom_fields(ctx, cf):
+            self.delete(ctx, address["id"])
 
 
     def create(self, ctx, address, **kwargs):
@@ -54,6 +40,29 @@ class Addresses(ClientBase):
         }]
 
         return self.query(ctx, self.path, data, update=True)
+
+
+    def grep_by_custom_fields(self, ctx, cf):
+        if self.all_addresses is None:
+            self.fetch_addresses(ctx)
+
+        addresses = []
+
+        for address in self.all_addresses:
+            matched = True
+            for cf_key in cf.keys():
+                if cf_key not in address["custom_fields"]:
+                    matched = False
+                    break
+                if address["custom_fields"][cf_key] != cf[cf_key]:
+                    matched = False
+                    break
+
+            if matched:
+                addresses.append(address)
+
+        return addresses
+
 
 
     def fetch_addresses(self, ctx, use_cache=False):

@@ -14,22 +14,8 @@ class Prefixes(ClientBase):
 
 
     def delete_by_custom_fields(self, ctx, cf):
-        if self.all_prefixes is None:
-            self.fetch_prefixes(ctx)
-
-        cf_keys = cf.keys()
-        for prefix in self.all_prefixes.values():
-            matched = True
-            for cf_key in cf_keys:
-                if cf_key not in prefix["custom_fields"]:
-                    matched = False
-                    break
-                if prefix["custom_fields"][cf_key] != cf[cf_key]:
-                    matched = False
-                    break
-
-            if matched:
-                self.delete(ctx, prefix["id"])
+        for prefix in self.grep_by_custom_fields(ctx, cf):
+            self.delete(ctx, prefix["id"])
 
 
     def create(self, ctx, prefix, **kwargs):
@@ -43,6 +29,28 @@ class Prefixes(ClientBase):
         }]
 
         return self.query(ctx, self.path, data)
+
+
+    def grep_by_custom_fields(self, ctx, cf):
+        if self.all_prefixes is None:
+            self.fetch_prefixes(ctx)
+
+        prefixes = []
+
+        for prefix in self.all_prefixes:
+            matched = True
+            for cf_key in cf.keys():
+                if cf_key not in prefix["custom_fields"]:
+                    matched = False
+                    break
+                if prefix["custom_fields"][cf_key] != cf[cf_key]:
+                    matched = False
+                    break
+
+            if matched:
+                prefixes.append(address)
+
+        return prefixes
 
 
     def fetch_prefixes(self, ctx, use_cache=False):

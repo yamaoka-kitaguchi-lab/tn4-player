@@ -90,7 +90,8 @@ class Branch:
         # not duplicate: ip address, prefix
         # exist: vlan tag (irb-o or irb-s)
 
-        missing_irb_tag = self.info.is_ookayama == self.info.is_suzukake == False
+        is_missing_irb_tag  = self.info.is_ookayama == self.info.is_suzukake == False
+        is_missing_vlan_tag = self.info.is_ookayama_vlan == self.info.is_suzukake_vlan == False
 
         return
 
