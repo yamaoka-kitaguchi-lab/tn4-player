@@ -208,8 +208,8 @@ class Interfaces(ClientBase):
             is_irb       = interface["name"][:4] == "irb."
 
             is_deploy_target  = interface["type"]["value"] in self.allowed_types
-            is_deploy_target |= is_irb and not hastag(interface, Slug.Tag.Protect)
-            is_deploy_target &= is_protected
+            is_deploy_target |= is_irb and not is_protected
+            is_deploy_target &= not is_protected
 
             if is_irb and is_deploy_target:
                 branch_id = interface["custom_fields"][NB_BRANCH_ID_KEY]
