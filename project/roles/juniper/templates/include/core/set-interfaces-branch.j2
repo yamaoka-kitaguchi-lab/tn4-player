@@ -10,14 +10,12 @@ set interface irb unit {{ interface.unit_number }} description {{ interface.desc
 
 {% if interface.vrrp_physical_ip4 %}
 set interface irb unit {{ interface.unit_number }} family inet mtu {{ interface.mtu }}
-set interface irb unit {{ interface.unit_number }} address {{ interface.vrrp_physical_ip4 }} vrrp-group {{ interface.vrrp_group_id }}
-set interface irb unit {{ interface.unit_number }} address {{ interface.vrrp_physical_ip4 }} virtual-address {{ interface.vrrp_virtual_ip4 }}
+set interface irb unit {{ interface.unit_number }} family inet address {{ interface.vrrp_physical_ip4 }} vrrp-group {{ interface.vrrp_group_id }} virtual-address {{ interface.vrrp_virtual_ip4 }}
 {% endif %}
 
 {% if interface.vrrp_physical_ip6 %}
 set interface irb unit {{ interface.unit_number }} family inet6 mtu {{ interface.mtu }}
-set interface irb unit {{ interface.unit_number }} address {{ interface.vrrp_physical_ip6 }} vrrp-group {{ interface.vrrp_group_id }}
-set interface irb unit {{ interface.unit_number }} address {{ interface.vrrp_physical_ip6 }} virtual-address {{ interface.vrrp_virtual_ip6 }}
+set interface irb unit {{ interface.unit_number }} family inet6 address {{ interface.vrrp_physical_ip4 }} vrrp-inet6-group {{ interface.vrrp_group_id }} virtual-inet6-address {{ interface.vrrp_virtual_ip4 }}
 {% endif %}
 
 {% endif %}
