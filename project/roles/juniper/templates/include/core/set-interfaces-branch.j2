@@ -8,13 +8,13 @@ set protocols router-advertisement interface {{ ifname }} prefix {{ interface.ra
 set interface irb unit {{ interface.unit_number }} apply-groups {{ interface.apply_groups }}
 set interface irb unit {{ interface.unit_number }} description {{ interface.description }}
 
-{% if interface.vrrp_physical_ip4 is not None %}
+{% if interface.vrrp_physical_ip4 %}
 set interface irb unit {{ interface.unit_number }} family inet mtu {{ interface.mtu }}
 set interface irb unit {{ interface.unit_number }} address {{ interface.vrrp_physical_ip4 }} vrrp-group {{ interface.vrrp_group_id }}
 set interface irb unit {{ interface.unit_number }} address {{ interface.vrrp_physical_ip4 }} virtual-address {{ interface.vrrp_virtual_ip4 }}
 {% endif %}
 
-{% if interface.vrrp_physical_ip6 is not None %}
+{% if interface.vrrp_physical_ip6 %}
 set interface irb unit {{ interface.unit_number }} family inet6 mtu {{ interface.mtu }}
 set interface irb unit {{ interface.unit_number }} address {{ interface.vrrp_physical_ip6 }} vrrp-group {{ interface.vrrp_group_id }}
 set interface irb unit {{ interface.unit_number }} address {{ interface.vrrp_physical_ip6 }} virtual-address {{ interface.vrrp_virtual_ip6 }}
