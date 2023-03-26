@@ -24,7 +24,7 @@ class Prefixes(ClientBase):
             "status": "active",
             **{
                 key: kwargs[key]
-                for key in ["tags", "description", "vlan", "custom_fields"] if key in kwargs
+                for key in ["tags", "description", "vlan", "role", "custom_fields"] if key in kwargs
             }
         }]
 
