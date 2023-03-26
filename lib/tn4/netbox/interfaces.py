@@ -77,6 +77,22 @@ class Interfaces(ClientBase):
         return None
 
 
+    def lookup_prefixes_by_branch_id(self, ctx, branch_id):
+        is_ipv4    = lambda a: '.' in a["address"]
+        is_ipv6    = lambda a: ':' in a["address"]
+
+        prefix4, prefix6 = None, None
+
+        for prefix in ctx.prefixes.values():
+            if prefix["custom_fields"][NB_BRANCH_ID_KEY] == branch_id:
+                if is_ipv4(prefix):
+                    prefix4 = prefix["prefix"]
+                if is_ipv6(prefix):
+                    prefix6 = prefix["prefix"]
+
+        return prefix4, prefix6
+
+
     def delete(self, ctx, device_name, interface_name):
         try:
             oid = self.all_interfaces[device_name][interface_name]["id"]
@@ -211,17 +227,23 @@ class Interfaces(ClientBase):
             is_deploy_target |= is_irb and not is_protected
             is_deploy_target &= not is_protected
 
+            if is_irb:
+                interface["unit_number"] = interface["name"][4:]
+
             if is_irb and is_deploy_target:
                 branch_id = interface["custom_fields"][NB_BRANCH_ID_KEY]
 
                 if branch_id is not None:
                     addrs    = self.lookup_vrrp_addresses_by_branch_id(ctx, branch_id)
+                    prefixes = self.lookup_prefixes_by_branch_id(ctx, branch_id)
                     group_id = self.lookup_vrrp_group_id_by_branch_id(ctx, branch_id)
 
                     master4, backup4, vip4, master6, backup6, vip6 = addrs
+                    prefix4, prefix6 = prefixes
 
                     is_invalid  = group_id is None
                     is_invalid |= master4 == backup4 == vip4 == master6 == backup6 == vip6 == None
+                    is_invalid |= prefix4 == prefix6 == None
 
                     if not is_invalid:
                         interface |= {
@@ -229,6 +251,8 @@ class Interfaces(ClientBase):
                             "vrrp_virtual_ip4": vip4.split('/')[0] if vip4 is not None else None,
                             "vrrp_virtual_ip6": vip6.split('/')[0] if vip6 is not None else None,
                         }
+
+                        interface["ra_prefix"] = prefix6
 
                         if hostname in [ "core-honkan", "core-s7" ]:
                             interface |= {
