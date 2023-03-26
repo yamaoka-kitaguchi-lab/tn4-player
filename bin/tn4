@@ -223,8 +223,8 @@ def print_common_usage():
 
             Manage branch VLANs and VRRP group
 
-                tn4 doctor branch-vlan --add
-                tn4 doctor branch-vlan --delete
+                tn4 doctor branch-vlan --add v999_noc.life.o --prefix 131.112.126.0/26 --vrrp-master 131.112.126.47 --vrrp-backup 131.112.126.46 --vrrp-vip 131.112.126.42
+                tn4 doctor branch-vlan --delete v999_noc.life.o
 
         `tn4 --help` list all optional command line arguments
     '''
@@ -388,7 +388,7 @@ if __name__ == "__main__":
     branch_parser.add_argument(
         "--add",
         action="store_true",
-        help="add branch VLAN and setup VRRP. must be with --prefix, --vrrp-master, --vrrp-backup, and --vrrp-vip",
+        help="add branch VLAN and setup VRRP",
     )
 
     branch_parser.add_argument(
@@ -413,13 +413,6 @@ if __name__ == "__main__":
     )
 
     branch_parser.add_argument(
-        "--vrrp-master-v6",
-        type=str,
-        help="VRRP master IP address without CIDR length. must be inside the VLAN prefix (IPv6)",
-        dest="vrrp_master_ip6"
-    )
-
-    branch_parser.add_argument(
         "--vrrp-backup",
         type=str,
         help="VRRP backup IP address without CIDR length. must be inside the VLAN prefix (IPv4)",
@@ -427,17 +420,24 @@ if __name__ == "__main__":
     )
 
     branch_parser.add_argument(
-        "--vrrp-backup-v6",
-        type=str,
-        help="VRRP backup IP address without CIDR length. must be inside the VLAN prefix (IPv6)",
-        dest="vrrp_backup_ip6"
-    )
-
-    branch_parser.add_argument(
         "--vrrp-vip",
         type=str,
         help="VRRP VIP address without CIDR length. must be inside the VLAN prefix (IPv4)",
         dest="vrrp_vip"
+    )
+
+    branch_parser.add_argument(
+        "--vrrp-master-v6",
+        type=str,
+        help="VRRP master IP address without CIDR length. must be inside the VLAN prefix (IPv6)",
+        dest="vrrp_master_ip6"
+    )
+
+    branch_parser.add_argument(
+        "--vrrp-backup-v6",
+        type=str,
+        help="VRRP backup IP address without CIDR length. must be inside the VLAN prefix (IPv6)",
+        dest="vrrp_backup_ip6"
     )
 
     branch_parser.add_argument(
