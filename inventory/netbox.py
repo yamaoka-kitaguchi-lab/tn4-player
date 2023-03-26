@@ -82,6 +82,7 @@ class NetBox:
                                 "vrrp_virtual_ip4",   # without CIDR length
                                 "vrrp_virtual_ip6",   # without CIDR length
                             ]
+                            if key in self.nbdata[hostname]
                         },
                         "datetime": self.ts,
                     }
