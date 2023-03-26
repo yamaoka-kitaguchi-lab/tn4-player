@@ -152,7 +152,7 @@ class BranchVlan(CommandBase):
         self.branch = Branch(self.ctx, self.nb.cli, self.branch_info)
 
         if self.branch.info.vlan_id is None:
-            self.console.log(f"[red]VLAN [b]{self.branch.info.vlan_name}[/b] not found. Aborted.")
+            self.console.log(f"[red]VLAN [b]{self.branch.info.vlan_name}[/b] not found or multiple VLANs having same name found. Aborted.")
             return 100
 
         self.console.log(f"[yellow]Found VLAN [b]{self.branch.info.vlan_name}[/b]")

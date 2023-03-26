@@ -50,17 +50,22 @@ class Branch:
         self.cli  = nb_client
         self.info = branch_info
 
+        count = 0
         for vlan in self.cli.vlans.all_vlans.values():
             if vlan["name"] == self.info.vlan_name:
-                 self.info.vlan_id       = vlan["id"]
-                 self.info.vlan_vid      = vlan["vid"]
-                 self.info.vrrp_desc     = vlan["description"]
-                 self.info.vrrp_group_id = int(int(self.info.vlan_vid)/10)  # Group 99 <-> VID 990...999
-                 self.info.is_ookayama   = Slug.Tag.IrbOokayama in vlan["tags"]
-                 self.info.is_suzukake   = Slug.Tag.IrbSuzukake in vlan["tags"]
-                 self.info.is_ookayama_vlan = Slug.Tag.VlanOokayama in vlan["tags"]
-                 self.info.is_suzukake_vlan = Slug.Tag.VlanSuzukake in vlan["tags"]
-                 self.info.irb_name      = f"irb.{self.info.vlan_vid}"
+                count += 1
+                self.info.vlan_id       = vlan["id"]
+                self.info.vlan_vid      = vlan["vid"]
+                self.info.vrrp_desc     = vlan["description"]
+                self.info.vrrp_group_id = int(int(self.info.vlan_vid)/10)  # Group 99 <-> VID 990...999
+                self.info.is_ookayama   = Slug.Tag.IrbOokayama in vlan["tags"]
+                self.info.is_suzukake   = Slug.Tag.IrbSuzukake in vlan["tags"]
+                self.info.is_ookayama_vlan = Slug.Tag.VlanOokayama in vlan["tags"]
+                self.info.is_suzukake_vlan = Slug.Tag.VlanSuzukake in vlan["tags"]
+                self.info.irb_name      = f"irb.{self.info.vlan_vid}"
+
+        if count > 1:
+            self.info.vlan_vid = None
 
         if self.info.vlan_vid is not None:
             vlan = self.cli.vlans.all_vlans[self.info.vlan_id]
