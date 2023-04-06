@@ -7,7 +7,7 @@ class Repair:
         self.cli = nb_client
 
 
-    def __interface_repair(self, karte):
+    def __interface_repair(self, karte, debug=False):
         if karte.delete:
             code = self.cli.interfaces.delete(self.ctx, karte.hostname, karte.ifname)
             return code
@@ -19,6 +19,7 @@ class Repair:
             "untagged_vlanid": karte.desired_state.untagged_oid,
             "tagged_vlanids":  karte.desired_state.tagged_oids,
             "tags":            karte.desired_state.tags,
+            "debug":           debug,
         })
 
         return code
@@ -28,14 +29,14 @@ class Repair:
         return
 
 
-    def by_karte(self, *kartes):
+    def by_karte(self, *kartes, debug=False):
         rt = 0
 
         for karte in kartes:
             if karte.ifname is None:
-                rt += self.__device_repair(karte)
+                rt += self.__device_repair(karte, debug=debug)
             else:
-                rt += self.__interface_repair(karte)
+                rt += self.__interface_repair(karte, debug=debug)
 
         return rt
 
