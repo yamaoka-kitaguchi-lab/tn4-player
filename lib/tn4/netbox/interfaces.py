@@ -158,7 +158,7 @@ class Interfaces(ClientBase):
 
         if "tags" in kwargs:
             if kwargs["tags"] is not None:
-                body["tags"] = kwargs["tags"]  # list of slugs
+                body["tags"] = [ { "slug": tag } for tag in kwargs["tags"] ]  # list of slugs
             else:
                 body["tags"] = []
 
