@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from tn4.netbox.base import ClientBase
 from tn4.netbox.slug import Slug
 from tn4.doctor.branch import NB_BRANCH_ID_KEY
@@ -156,7 +158,7 @@ class Interfaces(ClientBase):
 
         if "tags" in kwargs:
             if kwargs["tags"] is not None:
-                body["tags"] = kwargs["tags"]  # list of slugs
+                body["tags"] = [ { "slug": tag } for tag in kwargs["tags"] ]  # list of slugs
             else:
                 body["tags"] = []
 
@@ -180,6 +182,10 @@ class Interfaces(ClientBase):
                 body["tagged_vlans"] = list(map(int, kwargs["tagged_vlanids"]))
             else:
                 body["tagged_vlans"] = []
+
+        if "debug" in kwargs and kwargs["debug"] is True:
+            print(f"UPDATE: {self.path}")
+            pprint(body)
 
         data.append(body)
         if data:

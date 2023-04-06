@@ -225,7 +225,7 @@ class Doctor(CommandBase):
             n = len(kartes)
 
             for i, karte in enumerate(kartes):
-                code = self.cap.repair.by_karte(karte)
+                code = self.cap.repair.by_karte(karte, debug=self.flg_debug)
 
                 if 200 <= code < 300:
                     self.console.log(
