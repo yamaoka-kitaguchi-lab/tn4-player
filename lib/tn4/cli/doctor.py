@@ -145,7 +145,7 @@ class Doctor(CommandBase):
         if len(target_indices) < len(indices):
             m = ', '.join(map(str, skipped_indices))
             self.console.log(f"[yellow]Omitted the following from the above list: [dim]{m}")
-            return self.show_karte_and_ask(*target_kartes, *annot_kartes, use_panel=use_panel, again=True)
+            return self.show_karte_and_ask(*target_kartes, *annot_kartes, target_hosts=target_hosts, use_panel=use_panel, again=True)
 
         is_confirmed = Confirm.ask(
             f"[green]You are about to repair [bold yellow]{len(target_kartes)}[/bold yellow] interfaces. Continue?",
