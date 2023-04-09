@@ -119,7 +119,7 @@ class Doctor(CommandBase):
 
         indices = [ i+1 for i, k in enumerate(all_kartes) if k.desired_state is not None ]
 
-        if diagnose_only:
+        if diagnose_only or len(indices) == 0:
             print()
             self.console.log(f"[yellow]There are [bold]{len(indices)}[/bold] interfaces reported for their inconsistencies. Bye.")
             sys.exit(0)
