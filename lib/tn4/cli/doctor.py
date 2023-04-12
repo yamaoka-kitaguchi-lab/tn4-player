@@ -53,13 +53,24 @@ class Doctor(CommandBase):
 
 
     def __flatten_num_string(self, nstr):
+        ignored_chars = []
         l = []
         for n in nstr.split():
             if "-" in n:
-                a, b = map(int, n.split("-"))
-                l.extend([i for i in range(a,b+1)])
-            else:
+                try:
+                    a, b = map(int, n.split("-"))
+                    l.extend([i for i in range(a,b+1)])
+                except ValueError:
+                    ignored_chars.append(n)
+            elif n.isdigit():
                 l.append(int(n))
+            else:
+                ignored_chars.append(n)
+        if ignored_chars:
+            m = ', '.join(map(str, ignored_chars))
+            self.console.log(f"[yellow]Ignored characters: [dim]{m}")
+            if not l:
+                return None
         return l
 
 
@@ -135,6 +146,11 @@ class Doctor(CommandBase):
             print()
 
         skipped_indices = self.__flatten_num_string(nstr)
+        if skipped_indices is None:
+            target_kartes   = [ k for i, k in enumerate(all_kartes) if i+1 in indices ]
+            annot_kartes    = [ k for k in all_kartes if k.desired_state is None ]
+            return self.show_karte_and_ask(*target_kartes, *annot_kartes, target_hosts=target_hosts, use_panel=use_panel, again=True)
+
         target_indices  = list(set(indices) - set(skipped_indices))
         target_kartes   = [ k for i, k in enumerate(all_kartes) if i+1 in target_indices ]
         annot_kartes    = [ k for k in all_kartes if k.desired_state is None ]
