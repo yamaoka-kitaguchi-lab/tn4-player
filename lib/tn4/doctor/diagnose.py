@@ -207,8 +207,8 @@ class Diagnose():
                 if self.is_manual_repair_interface[hostname][ifname]:
                     continue
 
-                ## skip if the interface has 'Keep' tag or 'Protect' tag
-                if current.has_tag(Slug.Tag.Keep) or current.has_tag(Slug.Tag.Protect):
+                ## skip if the interface has 'Keep' tag
+                if current.has_tag(Slug.Tag.Keep):
                     continue
 
                 ## skip if the interface is a LAG child
@@ -248,10 +248,6 @@ class Diagnose():
 
                 ## skip if the interface needs manual repair
                 if self.is_manual_repair_interface[hostname][ifname]:
-                    continue
-
-                ## skip if the interface has 'Keep' tag or 'Protect' tag
-                if current.has_tag(Slug.Tag.Keep) or current.has_tag(Slug.Tag.Protect):
                     continue
 
                 ## skip if the interface is a LAG child
