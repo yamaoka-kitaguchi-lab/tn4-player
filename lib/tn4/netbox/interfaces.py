@@ -298,6 +298,8 @@ class Interfaces(ClientBase):
                 "is_protected":      is_protected,
                 "is_rspan":          interface["name"] == "rspan",
                 "is_storm_5m":       hasrole(interface, Slug.Role.CoreSW) and hastag(interface, Slug.Tag.Storm5M),
+                "is_storm_10pct_nm": hasrole(interface, Slug.Role.CoreSW) and hastag(interface, Slug.Tag.Storm10pctNM),
+                "is_storm_80pct":    hasrole(interface, Slug.Role.CoreSW) and hastag(interface, Slug.Tag.Storm80pct),
                 "is_to_ap":          hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.Wifi),
                 "is_to_core":        hasrole(interface, Slug.Role.EdgeSW) and hastag(interface, Slug.Tag.EdgeUpstream),
                 "is_to_edge":        hasrole(interface, Slug.Role.CoreSW) and hastag(interface, Slug.Tag.CoreDownstream),
