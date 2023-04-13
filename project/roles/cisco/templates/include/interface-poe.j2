@@ -1,5 +1,7 @@
-{% if interface.is_utp and interface.is_poe %}
+{% if interface.is_utp %}
+{% if interface.is_poe %}
  power inline auto
 {% else %}
  power inline never
+{% endif %}
 {% endif %}

@@ -1,7 +1,7 @@
 {% if interface.is_phy_uplink or interface.is_to_ap %}
  lldp transmit
  lldp receive
-{% else %}
+{% elif interface.is_physical %}
  no lldp transmit
  no lldp receive
 {% endif %}

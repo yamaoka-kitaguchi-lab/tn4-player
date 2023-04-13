@@ -1,8 +1,10 @@
  no description
  no switchport
  no ip address
- no lldp transmit
- no lldp receive
  no storm-control broadcast level
  no storm-control multicast level
  no storm-control unicast level
+{% if interface.is_physical %}
+ no lldp transmit
+ no lldp receive
+{% endif %}
