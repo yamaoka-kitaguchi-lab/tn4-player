@@ -53,6 +53,8 @@ class Slug:
         Protect                = "protect"
         Rspan                  = "rspan"
         Storm5M                = "storm-5m"
+        Storm10pctNM           = "storm-10pct-nm"
+        Storm80pct             = "storm-80pct"
         Test                   = "test"
         Upstream               = "uplink"
         VRRPBackup             = "vrrp-backup"

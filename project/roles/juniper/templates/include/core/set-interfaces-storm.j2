@@ -1,3 +1,11 @@
 {% if interface.is_storm_5m %}
 set interfaces {{ interface.name }} unit 0 family ethernet-switching storm-control "storm5M"
 {% endif %}
+
+{% if interface.is_storm_10pct_nm %}
+set interfaces {{ interface.name }} unit 0 family ethernet-switching storm-control "10%-no-m"
+{% endif %}
+
+{% if interface.is_storm_80pct %}
+set interfaces {{ interface.name }} unit 0 family ethernet-switching storm-control "80%-all"
+{% endif %}
