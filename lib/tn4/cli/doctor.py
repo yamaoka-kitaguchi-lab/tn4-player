@@ -200,10 +200,6 @@ class Doctor(CommandBase):
             self.console.log(f"[yellow]Checked tag-to-tag confliction [dim]({i} of {n})")
 
             i += 1
-            self.cap.diagnose.check_and_clear_incomplete_interfaces()
-            self.console.log(f"[yellow]Checked incomplete interfaces [dim]({i} of {n})")
-
-            i += 1
             self.cap.diagnose.check_and_clear_obsoleted_interfaces()
             self.console.log(f"[yellow]Checked obsoleted interfaces [dim]({i} of {n})")
 
@@ -218,6 +214,10 @@ class Doctor(CommandBase):
             i += 1
             self.cap.diagnose.check_vlan_group_consistency()
             self.console.log(f"[yellow]Checked VLAN group consistency [dim]({i} of {n})")
+
+            i += 1
+            self.cap.diagnose.check_and_clear_incomplete_interfaces()
+            self.console.log(f"[yellow]Checked incomplete interfaces [dim]({i} of {n})")
 
             i += 1
             self.cap.diagnose.check_and_remove_empty_irb()
