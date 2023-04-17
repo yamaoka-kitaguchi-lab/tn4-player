@@ -211,6 +211,14 @@ class Diagnose():
                 if current.has_tag(Slug.Tag.Keep):
                     continue
 
+                ## skip if the interface has 'Wi-Fi' tag
+                if current.has_tag(Slug.Tag.Wifi):
+                    continue
+
+                ## skip if the interface has 'Hosting' tag
+                if current.has_tag(Slug.Tag.Hosting):
+                    continue
+
                 ## skip if the interface is a LAG child
                 if current.is_lag_member:
                     continue
