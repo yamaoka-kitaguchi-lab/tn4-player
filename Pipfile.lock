@@ -16,11 +16,11 @@
     "default": {
         "ansible": {
             "hashes": [
-                "sha256:5039bf0fe4cbb9dcc3dbefe464fe2fa7fe75d8548814f00c478d5fe90c3e3979",
-                "sha256:56c2fd97487b2cc83e39e895d8dfad8b2a5df34d490394a15735ebcfdc45f5be"
+                "sha256:0964d6ec7b363d2d559f245c39b01798c720a85b207672ec2c9d83cf61564b90",
+                "sha256:c9b5cae2ff8168b3dc859fff12275338cd7c84ef37f62889076f82846bb4beb5"
             ],
             "index": "pypi",
-            "version": "==7.3.0"
+            "version": "==7.4.0"
         },
         "ansible-builder": {
             "hashes": [
@@ -607,7 +607,7 @@
                 "sha256:3336f3a3ae23e06d3f0f88595e4052396e3adf91688787f637e5d2ca1a904069",
                 "sha256:e7fcdcd04f2049e73a9fb150d8a0f9d51ce4108f5f7cbeac74c484e17b12bcd9"
             ],
-            "markers": "python_version >= '3.6' and python_version < '4'",
+            "markers": "python_version >= '3.6' and python_version < '4.0'",
             "version": "==0.5.0"
         },
         "resolvelib": {
@@ -627,11 +627,11 @@
         },
         "setuptools": {
             "hashes": [
-                "sha256:2ee892cd5f29f3373097f5a814697e397cf3ce313616df0af11231e2ad118077",
-                "sha256:b78aaa36f6b90a074c1fa651168723acbf45d14cb1196b6f02c0fd07f17623b2"
+                "sha256:257de92a9d50a60b8e22abfcbb771571fde0dbf3ec234463212027a4eeecbe9a",
+                "sha256:e728ca814a823bf7bf60162daf9db95b93d532948c4c0bea762ce62f60189078"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==67.6.0"
+            "version": "==67.6.1"
         },
         "six": {
             "hashes": [
@@ -643,10 +643,10 @@
         },
         "types-setuptools": {
             "hashes": [
-                "sha256:3a708e66c7bdc620e4d0439f344c750c57a4340c895a4c3ed2d0fc4ae8eb9962",
-                "sha256:dae5a4a659dbb6dba57773440f6e2dbdd8ef282dc136a174a8a59bd33d949945"
+                "sha256:a5efd019b53c5793a112e0112b91bb402df749f75ee7abe681b6240841650ce4",
+                "sha256:fb46e651c6b5880ec8932a8876aa832071d612b2954fc5156b09cd263927d85b"
             ],
-            "version": "==67.6.0.5"
+            "version": "==67.6.0.6"
         },
         "urllib3": {
             "hashes": [
