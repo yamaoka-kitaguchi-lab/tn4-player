@@ -166,7 +166,7 @@ class Diagnose():
     def check_exclusive_tag_conflict(self):
         exclusive_tags = set([
             Slug.Tag.CoreMaster, Slug.Tag.CoreOokayamaMaster, Slug.Tag.CoreSuzukakeMaster,
-            Slug.Tag.CoreSlave, Slug.Tag.CoreOokayamaSlave, Slug.Tag.CoreSuzukakeSlave,
+            Slug.Tag.CoreBackup, Slug.Tag.CoreOokayamaBackup, Slug.Tag.CoreSuzukakeBackup,
             Slug.Tag.Wifi, Slug.Tag.Hosting,
         ])
 
@@ -489,10 +489,10 @@ class Diagnose():
             self.device_annotations[edgename].append(annotation)
 
 
-    def check_master_slave_tag_consistency(self):
-        desired_slave = {}
-        desired_slave_o = {}
-        desired_slave_s = {}
+    def check_master_backup_tag_consistency(self):
+        desired_backup = {}
+        desired_backup_o = {}
+        desired_backup_s = {}
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             if self.nb_devices.all[hostname]["role"] != Slug.Role.CoreSW:
@@ -511,22 +511,22 @@ class Diagnose():
                         master_state = desired
 
                 if master_state.has_tag(Slug.Tag.CoreMaster):
-                    desired_slave[ifname] = deepcopy(master_state)
-                    desired_slave[ifname].tags = set(desired_slave[ifname].tags)
-                    desired_slave[ifname].tags -= { Slug.Tag.CoreMaster }
-                    desired_slave[ifname].tags |= { Slug.Tag.CoreSlave }
+                    desired_backup[ifname] = deepcopy(master_state)
+                    desired_backup[ifname].tags = set(desired_backup[ifname].tags)
+                    desired_backup[ifname].tags -= { Slug.Tag.CoreMaster }
+                    desired_backup[ifname].tags |= { Slug.Tag.CoreBackup }
 
                 if master_state.has_tag(Slug.Tag.CoreOokayamaMaster):
-                    desired_slave_o[ifname] = deepcopy(master_state)
-                    desired_slave_o[ifname].tags = set(desired_slave_o[ifname].tags)
-                    desired_slave_o[ifname].tags -= { Slug.Tag.CoreOokayamaMaster }
-                    desired_slave_o[ifname].tags |= { Slug.Tag.CoreOokayamaSlave }
+                    desired_backup_o[ifname] = deepcopy(master_state)
+                    desired_backup_o[ifname].tags = set(desired_backup_o[ifname].tags)
+                    desired_backup_o[ifname].tags -= { Slug.Tag.CoreOokayamaMaster }
+                    desired_backup_o[ifname].tags |= { Slug.Tag.CoreOokayamaBackup }
 
                 if master_state.has_tag(Slug.Tag.CoreSuzukakeMaster):
-                    desired_slave_s[ifname] = deepcopy(master_state)
-                    desired_slave_s[ifname].tags = set(desired_slave_s[ifname].tags)
-                    desired_slave_s[ifname].tags -= { Slug.Tag.CoreSuzukakeMaster }
-                    desired_slave_s[ifname].tags |= { Slug.Tag.CoreSuzukakeSlave }
+                    desired_backup_s[ifname] = deepcopy(master_state)
+                    desired_backup_s[ifname].tags = set(desired_backup_s[ifname].tags)
+                    desired_backup_s[ifname].tags -= { Slug.Tag.CoreSuzukakeMaster }
+                    desired_backup_s[ifname].tags |= { Slug.Tag.CoreSuzukakeBackup }
 
         for hostname, device_interfaces in self.nb_interfaces.all.items():
             if self.nb_devices.all[hostname]["role"] != Slug.Role.CoreSW:
@@ -541,24 +541,24 @@ class Diagnose():
                     continue
 
                 try:
-                    if current.has_tag(Slug.Tag.CoreSlave):
-                        desired = desired_slave[ifname]
+                    if current.has_tag(Slug.Tag.CoreBackup):
+                        desired = desired_backup[ifname]
 
-                    if current.has_tag(Slug.Tag.CoreOokayamaSlave):
-                        desired = desired_slave_o[ifname]
+                    if current.has_tag(Slug.Tag.CoreOokayamaBackup):
+                        desired = desired_backup_o[ifname]
 
-                    if current.has_tag(Slug.Tag.CoreSuzukakeSlave):
-                        desired = desired_slave_s[ifname]
+                    if current.has_tag(Slug.Tag.CoreSuzukakeBackup):
+                        desired = desired_backup_s[ifname]
 
                 except KeyError:
-                    annotation = Annotation("Neglected slave")
+                    annotation = Annotation("Neglected backup")
                     self.interface_annotations[hostname][ifname].append(annotation)
                     continue
 
                 if desired is None:
                     continue
 
-                condition = InterfaceCondition("Master/Slave consistency")
+                condition = InterfaceCondition("Master/Backup consistency")
 
                 ## copy interface settings but keep original tags
                 condition.is_enabled     = CV(desired.is_enabled, Cond.IS, priority=20)

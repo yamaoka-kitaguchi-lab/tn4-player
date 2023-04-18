@@ -228,8 +228,8 @@ class Doctor(CommandBase):
             self.console.log(f"[yellow]Checked Core/Edge consistency [dim]({i} of {n})")
 
             i += 1
-            self.cap.diagnose.check_master_slave_tag_consistency()
-            self.console.log(f"[yellow]Checked Master/Slave consistency [dim]({i} of {n})")
+            self.cap.diagnose.check_master_backup_tag_consistency()
+            self.console.log(f"[yellow]Checked Master/Backup consistency [dim]({i} of {n})")
 
         kartes = self.cap.diagnose.summarize()
         kartes = self.show_karte_and_ask(*kartes, target_hosts=hosts,
