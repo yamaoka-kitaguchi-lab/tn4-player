@@ -179,7 +179,7 @@ class Doctor(CommandBase):
     def exec(self):
         ok = self.fetch_inventory(
             netbox_url=self.netbox_url, netbox_token=self.netbox_token,
-            use_cache=self.flg_use_cache, debug=self.flg_debug, fetch_all=True
+            use_cache=self.flg_use_cache, debug=self.flg_debug
         )
 
         if not ok:
