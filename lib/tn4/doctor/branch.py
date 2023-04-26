@@ -56,6 +56,7 @@ class Branch:
                 count += 1
                 self.info.vlan_id       = vlan["id"]
                 self.info.vlan_vid      = vlan["vid"]
+                self.info.vrrp_name     = vlan["name"]
                 self.info.vrrp_desc     = vlan["description"]
                 self.info.vrrp_group_id = int(int(self.info.vlan_vid)/10)  # Group 99 <-> VID 990...999
                 self.info.is_ookayama   = Slug.Tag.IrbOokayama in vlan["tags"]
@@ -73,7 +74,7 @@ class Branch:
             if vlan["custom_fields"][NB_BRANCH_ID_KEY] is not None:
                 self.info.tn4_branch_id = vlan["custom_fields"][NB_BRANCH_ID_KEY]
             else:
-                s  = self.info.vlan_name.strip().replace(' ', '_')
+                s  = 'v' + str(self.info.vlan_vid)
                 s += '%' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
                 self.info.tn4_branch_id = f"{s}"
 
@@ -123,6 +124,14 @@ class Branch:
         if is_missing_vlan_tag:
             results.append({ "Not found": "VLAN-O and/or VLAN-S" })
 
+        is_matching_ookayama = self.info.is_ookayama == self.info.is_ookayama_vlan == True
+        is_matching_suzukake = self.info.is_suzukake == self.info.is_suzukake_vlan == True
+        is_missmatching_irb_tag = is_matching_ookayama == is_matching_suzukake == False
+        is_all_ok &= not is_missmatching_irb_tag
+
+        if is_missmatching_irb_tag:
+            results.append({ "Missmatch": "IRB and VLAN tags" })
+
         return results, is_all_ok
 
 
@@ -169,7 +178,7 @@ class Branch:
 
     def add_vrrp_group(self):
         res, code = self.cli.fhrp_groups.create(self.ctx, self.info.vrrp_group_id, **{
-            #"name":          self.info.vlan_vid,  # Requires >= NetBox 3.4
+            #"name":          self.info.vrrp_name,  # Requires >= NetBox 3.4
             "description":   self.info.vrrp_desc,
             "tags":          [],
             "custom_fields": { NB_BRANCH_ID_KEY: self.info.tn4_branch_id },
@@ -318,8 +327,8 @@ class Branch:
         master_iface_id, backup_iface_id = iface_ids
 
         ## caution: current impl ignores API return status
-        self.assign_address_to_irb(master_iface_id, 150, self.info.vrrp_master_v4_id, self.info.vrrp_master_v6_id)
-        self.assign_address_to_irb(backup_iface_id, 200, self.info.vrrp_backup_v4_id, self.info.vrrp_backup_v6_id)
+        self.assign_address_to_irb(master_iface_id, 1, self.info.vrrp_master_v4_id, self.info.vrrp_master_v6_id)
+        self.assign_address_to_irb(backup_iface_id, 0, self.info.vrrp_backup_v4_id, self.info.vrrp_backup_v6_id)
 
         return results, is_all_ok
 
