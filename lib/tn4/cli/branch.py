@@ -115,7 +115,7 @@ class BranchVlan(CommandBase):
     def exec_delete(self):
         with self.console.status(f"[green]Deleting branch [b]{self.branch.info.vlan_name}[/b]..."):
 
-            i, n = 1, 6
+            i, n = 1, 5
             self.branch.delete_prefixes()
             self.console_success(f"Deleted prefixes [dim]({i} of {n})")
 
@@ -135,9 +135,9 @@ class BranchVlan(CommandBase):
             self.branch.remove_backbone_vlans()
             self.console_success(f"Refreshed VLAN members of ae0 and ae1 [dim]({i} of {n})")
 
-            i += 1
-            self.branch.delete_vlan()
-            self.console_success(f"Deleted branch VLAN [dim]({i} of {n})")
+            #i += 1
+            #self.branch.delete_vlan()
+            #self.console_success(f"Deleted branch VLAN [dim]({i} of {n})")
 
 
     def exec(self):
