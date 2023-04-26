@@ -1,9 +1,4 @@
-{% for ifname, interface in interfaces.items() %}
 {% if interface.is_irb and interface.is_deploy_target %}
-
-set protocols rip group shisen neighbor {{ ifname }}
-set protocols router-advertisement interface {{ ifname }} virtual-router-only
-set protocols router-advertisement interface {{ ifname }} prefix {{ interface.ra_prefix }}
 
 set interfaces irb unit {{ interface.unit_number }} apply-groups {{ interface.apply_groups }}
 set interfaces irb unit {{ interface.unit_number }} description {{ interface.description }}
@@ -11,12 +6,16 @@ set interfaces irb unit {{ interface.unit_number }} description {{ interface.des
 {% if interface.vrrp_physical_ip4 %}
 set interfaces irb unit {{ interface.unit_number }} family inet mtu {{ interface.mtu }}
 set interfaces irb unit {{ interface.unit_number }} family inet address {{ interface.vrrp_physical_ip4 }} vrrp-group {{ interface.vrrp_group_id }} virtual-address {{ interface.vrrp_virtual_ip4 }}
+set protocols rip group shisen neighbor {{ interface.name }}
 {% endif %}
 
 {% if interface.vrrp_physical_ip6 %}
 set interfaces irb unit {{ interface.unit_number }} family inet6 mtu {{ interface.mtu }}
 set interfaces irb unit {{ interface.unit_number }} family inet6 address {{ interface.vrrp_physical_ip6 }} vrrp-inet6-group {{ interface.vrrp_group_id }} virtual-inet6-address {{ interface.vrrp_virtual_ip6 }}
+set protocols ripng group shisen neighbor {{ interface.name }}
+set protocols router-advertisement interface {{ interface.name }} virtual-router-only
+set protocols router-advertisement interface {{ interface.name }} prefix {{ interface.ra_prefix }}
 {% endif %}
 
 {% endif %}
-{% endfor %}
+
